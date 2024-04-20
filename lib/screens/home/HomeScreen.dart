@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:jymu/screens/home/components/banner_exercices.dart';
+import 'package:jymu/Alexis/exemple.dart';
 import 'package:jymu/screens/home/components/home_banner.dart';
 import 'package:jymu/screens/home/components/training_home.dart';
 import 'package:super_cupertino_navigation_bar/super_cupertino_navigation_bar.dart';
@@ -53,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BanniereHome(),
+              Exemple(),
               SizedBox(height: 30,),
               Padding(
                 padding: EdgeInsets.only(left: 25),
