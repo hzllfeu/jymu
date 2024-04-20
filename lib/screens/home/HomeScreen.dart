@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Exemple(),
+              BanniereHome(),
               SizedBox(height: 30,),
               Padding(
                 padding: EdgeInsets.only(left: 25),
