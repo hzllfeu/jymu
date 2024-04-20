@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jymu/Nizam/exemple.dart';
 
+import '../Alexis/exemple.dart';
 import 'home/HomeScreen.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
@@ -31,6 +33,8 @@ class _InitScreenState extends State<InitScreen> {
     const Center(
       child: Text("Profil"),
     ),
+    const Exemple (),
+    const ExempleNizam(),
   ];
 
   @override
@@ -59,6 +63,16 @@ class _InitScreenState extends State<InitScreen> {
               icon: Icon(CupertinoIcons.person),
               activeIcon: Icon(CupertinoIcons.person_fill, color: Colors.redAccent,),
               label: "Profile"
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.alarm),
+              activeIcon: Icon(CupertinoIcons.alarm, color: Colors.redAccent,),
+              label: "Alexis Page"
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.add_circled),
+              activeIcon: Icon(CupertinoIcons.add_circled, color: Colors.redAccent,),
+              label: "nizam Page"
           ),
         ],
       ),
