@@ -4,6 +4,7 @@ import 'package:flutter/painting.dart';
 import 'package:jymu/Nizam/exemple.dart';
 import 'package:jymu/screens/home/components/banner_exercices.dart';
 import 'package:jymu/Alexis/exemple.dart';
+import 'package:jymu/screens/home/components/exercice_template.dart';
 import 'package:jymu/screens/home/components/home_banner.dart';
 import 'package:jymu/screens/home/components/home_header.dart';
 import 'package:jymu/screens/home/components/training_home.dart';
@@ -43,8 +44,18 @@ class _HomeScreenState extends State<HomeScreen> {
               onSubmitted: (query) {
                 // On Search Bar submitted
               },
-              searchResult: ExoBanner(),
-                // Add other search bar properties as needed
+              searchResult: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ExoTemplate(),
+                      ExoTemplate(),
+                      ExoTemplate(),
+                      ExoTemplate(),
+                      ExoTemplate(),
+                      ExoTemplate(),
+                    ],
+                  ),
+                )
               ),
           bottom: SuperAppBarBottom(
             enabled: false,
@@ -56,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ExempleNizam(),
+              BanniereHome(),
               SizedBox(height: 30,),
               Padding(
                 padding: EdgeInsets.only(left: 25),
