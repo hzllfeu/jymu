@@ -7,6 +7,7 @@ import 'package:jymu/Alexis/exemple.dart';
 import 'package:jymu/screens/home/components/exercice_template.dart';
 import 'package:jymu/screens/home/components/home_banner.dart';
 import 'package:jymu/screens/home/components/home_header.dart';
+import 'package:jymu/screens/home/components/nutrition_home.dart';
 import 'package:jymu/screens/home/components/training_home.dart';
 import 'package:super_cupertino_navigation_bar/super_cupertino_navigation_bar.dart';
 
@@ -63,23 +64,23 @@ class _HomeScreenState extends State<HomeScreen> {
             child: BanniereHome(), // Any widget of yours
           ),
         ),
-        body: const SingleChildScrollView(
+        body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BanniereHome(),
-              SizedBox(height: 30,),
-              Padding(
+              const BanniereHome(),
+              const SizedBox(height: 30,),
+              const Padding(
                 padding: EdgeInsets.only(left: 25),
                 child: Text("Entrainement", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black87), textAlign: TextAlign.start, ),
               ),
               TrainingComp(),
-              SizedBox(height: 40,),
-              Padding(
+              const SizedBox(height: 40,),
+              const Padding(
                 padding: EdgeInsets.only(left: 25),
                 child: Text("Nutrition", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black87), textAlign: TextAlign.start, ),
               ),
-              TrainingComp(),
+              NutriComp(),
             ],
           ),
         ),

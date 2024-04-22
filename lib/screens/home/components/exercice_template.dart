@@ -21,9 +21,18 @@ class ExoTemplate extends StatelessWidget {
           horizontal: 20,
           vertical: 16,
         ),
+
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Colors.orange
+          color: Colors.orange,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5), // Couleur de l'ombre
+              spreadRadius: 5, // Rayon de diffusion
+              blurRadius: 7, // Flou de l'ombre
+              offset: Offset(0, 3), // Décalage de l'ombre
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
