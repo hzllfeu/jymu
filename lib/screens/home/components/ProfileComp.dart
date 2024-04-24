@@ -34,7 +34,7 @@ class _ProfileCompState extends State<ProfileComp> {
                 borderRadius: BorderRadius.circular(20)
             ),
           ),
-          const SizedBox(height: 50,),
+          const SizedBox(height: 30,),
           CupertinoContextMenu(
               enableHapticFeedback: true,
               previewBuilder: (context, animation, child) => SizedBox(width: 300, child: child,),

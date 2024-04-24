@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:jymu/Nizam/exemple.dart';
+import 'package:jymu/screens/home/components/ParrainComp.dart';
 import 'package:jymu/screens/home/components/ProfileComp.dart';
 import 'package:jymu/screens/home/components/banner_exercices.dart';
 import 'package:jymu/Alexis/exemple.dart';
@@ -33,6 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    double initialWidth = 185;
+    double initialHeight = 60.0;
+    double bounceWidth = i ? 185.0 : 185.0;
+    double bounceHeight = 65.0;
+
     return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
@@ -68,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: Container(
                                               alignment: Alignment.center,
                                               width: double.infinity,
-                                              height: 700,
+                                              height: 670,
                                               child: ProfileComp(),
                                             ),
                                           ),
@@ -124,30 +131,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       GestureDetector(
-                        onTapUp: (t){
+                        onTap: () {
                           setState(() {
-                            i = true;
+                            i = false;
+                          });
+                          Future.delayed(Duration(milliseconds: 100), () {
+                            setState(() {
+                              i = true;
+                            });
                           });
                         },
-                        child: Container(
-                          width: 185,
-                          height: 60,
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 100),
+                          width: i ? bounceWidth : initialWidth,
+                          height: i ? bounceHeight : initialHeight,
                           padding: EdgeInsets.symmetric(horizontal: 15),
                           margin: EdgeInsets.symmetric(horizontal: 5),
-                          decoration: i ? BoxDecoration(
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Color(0xffF14BA9),
-                            boxShadow: [
+                            color: i ? Color(0xffF14BA9) : Colors.deepOrange.withOpacity(0.4),
+                            boxShadow: i
+                                ? [
                               BoxShadow(
                                 color: Color(0xffF14BA9).withOpacity(0.5),
                                 spreadRadius: 6,
                                 blurRadius: 10,
                                 offset: Offset(0, 3),
                               ),
-                            ],
-                          ) : BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.deepOrange.withOpacity(0.4),
+                            ]
+                                : null,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -155,35 +167,43 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 "Entrainement",
                                 style: TextStyle(
-                                    color: i ? Colors.white: Colors.white.withOpacity(0.8),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(width: 10,),
-                              Image.asset("assets/images/emoji_muscle.png", height: 22,)
+                              const SizedBox(width: 10),
+                              Image.asset(
+                                "assets/images/emoji_muscle.png",
+                                height: 22,
+                              ),
                             ],
                           ),
                         ),
                       ),
                       GestureDetector(
-                        onTapUp: (t){
+                        onTap: () {
                           setState(() {
-                            i = false;
+                            i = true;
+                          });
+                          Future.delayed(Duration(milliseconds: 100), () {
+                            setState(() {
+                              i = false;
+                            });
                           });
                         },
-                        child: Container(
-                          width: 185,
-                          height: 60,
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 100),
+                          width: i ? initialWidth : bounceWidth,
+                          height: i ? initialHeight : bounceHeight,
                           margin: EdgeInsets.symmetric(horizontal: 5),
                           padding: EdgeInsets.symmetric(horizontal: 15),
-                          decoration: i ? BoxDecoration(
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Colors.deepOrange.withOpacity(0.4),
-                          ): BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Color(0xffF14BA9),
-                            boxShadow: [
+                            color: i ? Colors.deepOrange.withOpacity(0.4) : Color(0xffF14BA9),
+                            boxShadow: i
+                                ? null
+                                : [
                               BoxShadow(
                                 color: Color(0xffF14BA9).withOpacity(0.5),
                                 spreadRadius: 6,
@@ -198,17 +218,20 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 "Nutrition",
                                 style: TextStyle(
-                                    color: i ? Colors.white.withOpacity(0.8): Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(width: 10,),
-                              Image.asset("assets/images/emoji_carrot.png", height: 22,)
+                              const SizedBox(width: 10),
+                              Image.asset(
+                                "assets/images/emoji_carrot.png",
+                                height: 22,
+                              ),
                             ],
                           ),
                         ),
-                      )
+                      ),
                     ],
                   )
               ),
@@ -240,23 +263,56 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.deepOrange.withOpacity(0.2),
-                            spreadRadius: 4,
-                            blurRadius: 25,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Image.asset("assets/images/emoji_hands.png", height: 30,)
+                    GestureDetector(
+                      onTapUp: (t) {
+                        showCupertinoModalPopup(
+                            context: context,
+                            barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
+                            builder: (BuildContext build) {
+                              return TweenAnimationBuilder<double>(
+                                duration: Duration(milliseconds: 300),
+                                tween: Tween<double>(begin: 0.0, end: 4.0),
+                                curve: Curves.linear,
+                                builder: (context, value, _) {
+                                  return AnimatedOpacity(
+                                    duration: Duration(milliseconds: 1000),
+                                    opacity: 1.0,
+                                    curve: Curves.linear,
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
+                                      child: CupertinoPopupSurface(
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: double.infinity,
+                                          height: 630,
+                                          child: ParrainComp(),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+                        );
+                      },
+                     child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.deepOrange.withOpacity(0.2),
+                              spreadRadius: 4,
+                              blurRadius: 25,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Image.asset("assets/images/emoji_hands.png", height: 30,)
+                        ),
                       ),
                     ),
                     SizedBox(width: 20,),
