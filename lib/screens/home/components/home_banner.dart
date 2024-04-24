@@ -20,7 +20,7 @@ class BanniereHome extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Colors.orange, Colors.redAccent], 
+          colors: [Color(0xffF14BA9), Colors.redAccent],
         ),
       ),
       child: Row(
