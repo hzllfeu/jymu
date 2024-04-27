@@ -25,12 +25,12 @@ class _ProfileCompState extends State<ProfileComp> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 15,),
+          const SizedBox(height: 10,),
           Container(
-            width: 70,
-            height: 8,
+            width: 50,
+            height: 6,
             decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.7),
+                color: Colors.grey.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(20)
             ),
           ),

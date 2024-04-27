@@ -25,12 +25,12 @@ class _ParrainCompState extends State<ParrainComp> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 15,),
+          const SizedBox(height: 10,),
           Container(
-            width: 70,
-            height: 8,
+            width: 50,
+            height: 6,
             decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.5),
+                color: Colors.grey.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(20)
             ),
           ),
@@ -157,7 +157,7 @@ class _ParrainCompState extends State<ParrainComp> {
                   color: Colors.grey.withOpacity(0.3),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.3), // Couleur de l'ombre
+                    color: Color(0xffF14BA9).withOpacity(0.2), // Couleur de l'ombre
                     spreadRadius: 5, // Rayon de diffusion
                     blurRadius: 7, // Flou de l'ombre
                     offset: Offset(0, 3), // Décalage de l'ombre
