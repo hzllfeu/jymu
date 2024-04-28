@@ -72,7 +72,7 @@ class _ParrainCompState extends State<ParrainComp> {
           const SizedBox(height: 5,),
           const DefaultTextStyle(
             style: TextStyle(color: Color(0xff37085B), fontWeight: FontWeight.w500, fontSize: 20),
-            child: Text("d'abonnement te sont offertes. Et pour", textAlign: TextAlign.center,),
+            child: Text("de JymuPro te sont offertes. Et pour", textAlign: TextAlign.center,),
           ),
           const SizedBox(height: 5,),
           Row(

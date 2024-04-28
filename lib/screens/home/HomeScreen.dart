@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:jymu/Nizam/exemple.dart';
 import 'package:jymu/screens/home/components/NotificationPage.dart';
 import 'package:jymu/screens/home/components/ParrainComp.dart';
@@ -17,6 +18,7 @@ import 'package:jymu/screens/home/components/rapport_comp.dart';
 import 'package:jymu/screens/home/components/training_home.dart';
 import 'package:super_cupertino_navigation_bar/super_cupertino_navigation_bar.dart';
 
+import 'components/ProBanner.dart';
 import 'components/RechercheComp.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
@@ -130,8 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 10,),
-              const BanniereHome(),
-              const SizedBox(height: 30,),
+              ProBanner(),
+              const SizedBox(height: 5,),
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
@@ -156,7 +158,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: EdgeInsets.symmetric(horizontal: 5),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: i ? Color(0xffF14BA9) : Colors.deepOrange.withOpacity(0.4),
+                            gradient: i ? LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Color(0xffF84E71).withOpacity(0.7), Colors.redAccent.withOpacity(0.7)],
+                            ) : LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Colors.deepOrange.withOpacity(0.5), Colors.deepOrange.withOpacity(0.7)],
+                            ),
                             boxShadow: i
                                 ? [
                               BoxShadow(
@@ -207,7 +217,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: EdgeInsets.symmetric(horizontal: 15),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: i ? Colors.deepOrange.withOpacity(0.4) : Color(0xffF14BA9),
+                            gradient: i ? LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Colors.deepOrange.withOpacity(0.5), Colors.deepOrange.withOpacity(0.7)],
+                            ) : LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Color(0xffF84E71).withOpacity(0.7), Colors.redAccent.withOpacity(0.7)],
+                            ),
                             boxShadow: i
                                 ? null
                                 : [
@@ -254,10 +272,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               Container(
-                width: 350,
-                height: 90,
+                width: double.infinity,
+                height: 100,
+                margin: EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(40),
                   boxShadow: [
                     BoxShadow(
                       color: Color(0xffF14BA9).withOpacity(0.2),
@@ -267,169 +286,199 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTapUp: (t) {
-                        showCupertinoModalPopup(
-                            context: context,
-                            barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
-                            builder: (BuildContext build) {
-                              return TweenAnimationBuilder<double>(
-                                duration: Duration(milliseconds: 300),
-                                tween: Tween<double>(begin: 0.0, end: 4.0),
-                                curve: Curves.linear,
-                                builder: (context, value, _) {
-                                  return AnimatedOpacity(
-                                    duration: Duration(milliseconds: 1000),
-                                    opacity: 1.0,
-                                    curve: Curves.linear,
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
-                                      child: CupertinoPopupSurface(
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: double.infinity,
-                                          height: 630,
-                                          child: ParrainComp(),
+                child: GlassContainer(
+                  height: 110,
+                  width: double.infinity,
+                  blur: 4,
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(40),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.amberAccent.withOpacity(1),
+                      Colors.redAccent.withOpacity(1),
+                    ],
+                  ),
+
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTapUp: (t) {
+                          showCupertinoModalPopup(
+                              context: context,
+                              barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
+                              builder: (BuildContext build) {
+                                return TweenAnimationBuilder<double>(
+                                  duration: Duration(milliseconds: 300),
+                                  tween: Tween<double>(begin: 0.0, end: 4.0),
+                                  curve: Curves.linear,
+                                  builder: (context, value, _) {
+                                    return AnimatedOpacity(
+                                      duration: Duration(milliseconds: 1000),
+                                      opacity: 1.0,
+                                      curve: Curves.linear,
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
+                                        child: CupertinoPopupSurface(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            width: double.infinity,
+                                            height: 630,
+                                            child: ParrainComp(),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                        );
-                      },
-                     child: Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.deepOrange.withOpacity(0.2),
-                              spreadRadius: 4,
-                              blurRadius: 25,
-                              offset: Offset(0, 3),
+                                    );
+                                  },
+                                );
+                              }
+                          );
+                        },
+                        child: Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            gradient: LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Colors.white.withOpacity(0.9), Colors.white.withOpacity(0.2)],
                             ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Image.asset("assets/images/emoji_hands.png", height: 30,)
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.deepOrange.withOpacity(0.2),
+                                spreadRadius: 4,
+                                blurRadius: 25,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                              child: Image.asset("assets/images/emoji_hands.png", height: 30,)
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 20,),
-                    GestureDetector(
-                      onTapUp: (t) {
-                        showCupertinoModalPopup(
-                            context: context,
-                            barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
-                            builder: (BuildContext build) {
-                              return TweenAnimationBuilder<double>(
-                                duration: Duration(milliseconds: 300),
-                                tween: Tween<double>(begin: 0.0, end: 4.0),
-                                curve: Curves.linear,
-                                builder: (context, value, _) {
-                                  return AnimatedOpacity(
-                                    duration: Duration(milliseconds: 1000),
-                                    opacity: 1.0,
-                                    curve: Curves.linear,
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
-                                      child: CupertinoPopupSurface(
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: double.infinity,
-                                          height: 400,
-                                          child: RapportComp(),
+                      SizedBox(width: 20,),
+                      GestureDetector(
+                        onTapUp: (t) {
+                          showCupertinoModalPopup(
+                              context: context,
+                              barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
+                              builder: (BuildContext build) {
+                                return TweenAnimationBuilder<double>(
+                                  duration: Duration(milliseconds: 300),
+                                  tween: Tween<double>(begin: 0.0, end: 4.0),
+                                  curve: Curves.linear,
+                                  builder: (context, value, _) {
+                                    return AnimatedOpacity(
+                                      duration: Duration(milliseconds: 1000),
+                                      opacity: 1.0,
+                                      curve: Curves.linear,
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
+                                        child: CupertinoPopupSurface(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            width: double.infinity,
+                                            height: 400,
+                                            child: RapportComp(),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                        );
-                      },
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.deepOrange.withOpacity(0.2),
-                              spreadRadius: 4,
-                              blurRadius: 25,
-                              offset: Offset(0, 3),
+                                    );
+                                  },
+                                );
+                              }
+                          );
+                        },
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(35),
+                            gradient: LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Colors.white.withOpacity(0.9), Colors.white.withOpacity(0.2)],
                             ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Image.asset("assets/images/emoji_pencil.png", height: 30,),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.deepOrange.withOpacity(0.2),
+                                spreadRadius: 4,
+                                blurRadius: 25,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Image.asset("assets/images/emoji_pencil.png", height: 30,),
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 20,),
-                    GestureDetector(
-                      onTapUp: (t) {
-                        showCupertinoModalPopup(
-                            context: context,
-                            barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
-                            builder: (BuildContext build) {
-                              return TweenAnimationBuilder<double>(
-                                duration: Duration(milliseconds: 300),
-                                tween: Tween<double>(begin: 0.0, end: 4.0),
-                                curve: Curves.linear,
-                                builder: (context, value, _) {
-                                  return AnimatedOpacity(
-                                    duration: Duration(milliseconds: 1000),
-                                    opacity: 1.0,
-                                    curve: Curves.linear,
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
-                                      child: CupertinoPopupSurface(
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: double.infinity,
-                                          height: 750,
-                                          child: RechercheComp(),
+                      SizedBox(width: 20,),
+                      GestureDetector(
+                        onTapUp: (t) {
+                          showCupertinoModalPopup(
+                              context: context,
+                              barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
+                              builder: (BuildContext build) {
+                                return TweenAnimationBuilder<double>(
+                                  duration: Duration(milliseconds: 300),
+                                  tween: Tween<double>(begin: 0.0, end: 4.0),
+                                  curve: Curves.linear,
+                                  builder: (context, value, _) {
+                                    return AnimatedOpacity(
+                                      duration: Duration(milliseconds: 1000),
+                                      opacity: 1.0,
+                                      curve: Curves.linear,
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
+                                        child: CupertinoPopupSurface(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            width: double.infinity,
+                                            height: 750,
+                                            child: RechercheComp(),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                        );
-                      },
-                      child: Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.deepOrange.withOpacity(0.2),
-                              spreadRadius: 4,
-                              blurRadius: 25,
-                              offset: Offset(0, 3),
+                                    );
+                                  },
+                                );
+                              }
+                          );
+                        },
+                        child: Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            gradient: LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Colors.white.withOpacity(0.9), Colors.white.withOpacity(0.2)],
                             ),
-                          ],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.deepOrange.withOpacity(0.2),
+                                spreadRadius: 4,
+                                blurRadius: 25,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Image.asset("assets/images/emoji_loupe.png", height: 30,),
+                          ),
                         ),
-                        child: Center(
-                          child: Image.asset("assets/images/emoji_loupe.png", height: 30,),
-                        ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
+                  //--code to remove border
                 ),
+
               )
             ],
           ),

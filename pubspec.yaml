@@ -38,6 +38,7 @@ dependencies:
   cupertino_onboarding: ^1.2.0
   super_cupertino_navigation_bar: ^2.1.2
   dashed_circular_progress_bar: ^0.0.6
+  glassmorphism_ui: ^0.3.0
 
 dev_dependencies:
   flutter_test:

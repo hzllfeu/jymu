@@ -50,7 +50,7 @@ class _ProfileCompState extends State<ProfileComp> {
                   gradient: const LinearGradient(
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
-                    colors: [Color(0xffF14BA9), Colors.redAccent],
+                    colors: [Color(0xffF14BA9), Colors.redAccent], //[[Colors.amberAccent, Colors.deepOrangeAccent] couleurs jymupro
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -91,27 +91,55 @@ class _ProfileCompState extends State<ProfileComp> {
                         ),
                       ],
                     ),
-                    Container(
-                      width: 100,
-                      height: 30,
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15)
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          DefaultTextStyle(
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
-                            child: Text("Gymrat",),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 30,
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)
                           ),
-                          Image.asset(
-                            "assets/images/emoji_goat.png",
-                            height: 20,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              DefaultTextStyle(
+                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
+                                child: Text("Gymrat",),
+                              ),
+                              Image.asset(
+                                "assets/images/emoji_goat.png",
+                                height: 20,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 10,),
+                        Container(
+                          width: 108,
+                          height: 30,
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              DefaultTextStyle(
+                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
+                                child: Text("JymuPro",),
+                              ),
+                              Image.asset(
+                                "assets/images/emoji_fire.png",
+                                height: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     )
                   ],
                 ),

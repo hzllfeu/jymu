@@ -26,10 +26,10 @@ class TrainingComp extends StatelessWidget {
           height: 430,
           decoration: BoxDecoration(
             color: Color(0xFFEAEAEB),
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
-              colors: [Color(0xFFEAEAEB), Color(0xffEFB5A2)],
+              colors: [Color(0xFFEAEAEB), Color(0xffF84E71).withOpacity(0.2)],
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [

@@ -1,121 +1,130 @@
-import 'package:dashed_circular_progress_bar/dashed_circular_progress_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class ExoTemplate extends StatelessWidget {
-  ExoTemplate({
-    super.key,
-  });
-  String nom = "Tirage vertical à la poulie";
-  String type = "Uni articulaire";
-  String muscle = "Triceps (longue portion)";
-  final ValueNotifier<double> _valueNotifier = ValueNotifier(0);
+const Color inActiveIconColor = Color(0xFFB6B6B6);
+
+class ExoTemplate extends StatefulWidget {
+  const ExoTemplate({super.key});
+
+  static String routeName = "/";
+
+  @override
+  State<ExoTemplate> createState() => _ExoTemplateState();
+}
+
+class _ExoTemplateState extends State<ExoTemplate> {
+  String nom = "Hugo Vincent";
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        width: double.infinity,
-        height: 155,
-        margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
-        ),
-
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.orange,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5), // Couleur de l'ombre
-              spreadRadius: 5, // Rayon de diffusion
-              blurRadius: 7, // Flou de l'ombre
-              offset: Offset(0, 3), // Décalage de l'ombre
+    return CupertinoContextMenu(
+        enableHapticFeedback: true,
+        previewBuilder: (context, animation, child) => SizedBox(width: 360, child: child,),
+        actions: const [
+          CupertinoContextMenuAction(child: Text("Ajouter a l'entrainement"), trailingIcon: CupertinoIcons.add, isDestructiveAction: false,),
+          CupertinoContextMenuAction(child: Text("Retirer de l'entrainement"), trailingIcon: CupertinoIcons.delete, isDestructiveAction: true,),
+        ],
+        child: Container(
+          width: double.infinity,
+          height: 100,
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [Color(0xffF84E71).withOpacity(0.7), Colors.redAccent.withOpacity(0.7)],
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nom,
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10,),
-                Row(
-                  children: [
-                    Container(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: const Color(0xFFEAEAEB),
-                      ),
-                      child: Center(
-                        child: Icon(CupertinoIcons.photo_camera_solid,color: Colors.grey,),
-                      ),
-                    ),
-                    const SizedBox(width: 15,),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          muscle,
-                          style: const TextStyle(color: Colors.white, fontSize: 16,),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xffF14BA9).withOpacity(0.5),
+                spreadRadius: 6,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
                         ),
-                        const SizedBox(height: 5,),
-                        Text(
-                          type,
-                          style: const TextStyle(color: Colors.white, fontSize: 16,),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: Image.asset(
+                            "assets/images/kevin.jpg",
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ],
-                    )
-                  ],
-                )
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset("assets/images/emoji_muscle.png", height: 30,),
-                const SizedBox(height: 40,),
-                SizedBox(
-                  height: 40,
-                  width: 40,
-                  child: DashedCircularProgressBar.aspectRatio(
-                    aspectRatio: 1, // width ÷ height
-                    valueNotifier: _valueNotifier,
-                    progress: 37,
-                    startAngle: 225,
-                    sweepAngle: 270,
-                    foregroundColor: Colors.redAccent,
-                    backgroundColor: const Color(0xffeeeeee),
-                    foregroundStrokeWidth: 7,
-                    backgroundStrokeWidth: 7,
-                    animation: true,
-                    seekSize: 0,
-                    child: Center(
-                      child: ValueListenableBuilder(
-                          valueListenable: _valueNotifier,
-                          builder: (_, double value, __) => Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                            ],
-                          )
                       ),
-                    ),
+                      Image.asset("assets/images/emoji_muscle.png", height: 26,),
+                    ],
                   ),
-                )
-              ],
-            )
-          ],
+                  const SizedBox(width: 10,),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const DefaultTextStyle(
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
+                            child: Text("Tirage horizontal"),
+                          ),
+                          const SizedBox(width:7,),
+                          DefaultTextStyle(
+                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w500, fontSize: 14),
+                            child: Text("Dos"),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5,),
+                      DefaultTextStyle(
+                        style: TextStyle(color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w600, fontSize: 14),
+                        child: Text("Machine: poulie haute"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 10, top: 15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return const LinearGradient(
+                          colors: [Colors.white, Colors.orange],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ).createShader(bounds);
+                      },
+                      child: const DefaultTextStyle(
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 17),
+                        child: Text("94%"),
+                      ),
+                    ),
+                    const DefaultTextStyle(
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+                      child: Text("Utilisé"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         )
     );
-
   }
 }
