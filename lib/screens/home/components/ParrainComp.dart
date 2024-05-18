@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:jymu/RequeteProfile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
@@ -39,7 +43,7 @@ class _ParrainCompState extends State<ParrainComp> {
             style: TextStyle(color: Color(0xff37085B), fontWeight: FontWeight.w700, fontSize: 29),
             child: Text("Parraine tes gymbros",),
           ),
-          Image.asset("assets/images/emoji_hands.png", height: 30,),
+        Image.asset("assets/images/emoji_hands.png", height: 30,),
           const SizedBox(height: 20,),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -110,12 +114,12 @@ class _ParrainCompState extends State<ParrainComp> {
           ),
           const SizedBox(height: 5,),
           CupertinoContextMenu(
-            enableHapticFeedback: true,
-            previewBuilder: (context, animation, child) => SizedBox(width: 200, height: 150, child: child,),
-            actions: const [
-              CupertinoContextMenuAction(child: Text("Copier"), trailingIcon: Icons.copy_rounded,),
-              CupertinoContextMenuAction(child: Text("Partager votre code"), trailingIcon: CupertinoIcons.share,),
-            ],
+              enableHapticFeedback: true,
+              previewBuilder: (context, animation, child) => SizedBox(width: 200, height: 150, child: child,),
+              actions: const [
+                CupertinoContextMenuAction(child: Text("Copier"), trailingIcon: Icons.copy_rounded,),
+                CupertinoContextMenuAction(child: Text("Partager votre code"), trailingIcon: CupertinoIcons.share,),
+              ],
               child: Container(
                 width: 200,
                 height: 60,

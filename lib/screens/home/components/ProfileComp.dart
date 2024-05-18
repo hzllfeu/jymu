@@ -107,7 +107,7 @@ class _ProfileCompState extends State<ProfileComp> {
                             children: [
                               DefaultTextStyle(
                                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
-                                child: Text("Gymrat",),
+                                child: Text("Jymrat",),
                               ),
                               Image.asset(
                                 "assets/images/emoji_goat.png",

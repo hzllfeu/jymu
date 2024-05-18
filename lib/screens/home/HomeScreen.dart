@@ -292,6 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   blur: 4,
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(40),
+                  shadowColor: Colors.black,
+                  shadowStrength: 1.5,
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -420,34 +422,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(width: 20,),
                       GestureDetector(
                         onTapUp: (t) {
-                          showCupertinoModalPopup(
-                              context: context,
-                              barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
-                              builder: (BuildContext build) {
-                                return TweenAnimationBuilder<double>(
-                                  duration: Duration(milliseconds: 300),
-                                  tween: Tween<double>(begin: 0.0, end: 4.0),
-                                  curve: Curves.linear,
-                                  builder: (context, value, _) {
-                                    return AnimatedOpacity(
-                                      duration: Duration(milliseconds: 1000),
-                                      opacity: 1.0,
-                                      curve: Curves.linear,
-                                      child: BackdropFilter(
-                                        filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
-                                        child: CupertinoPopupSurface(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            width: double.infinity,
-                                            height: 750,
-                                            child: RechercheComp(),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => RechercheComp()),
                           );
                         },
                         child: Container(

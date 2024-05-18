@@ -28,6 +28,7 @@ class _ExoTemplateState extends State<ExoTemplate> {
           width: double.infinity,
           height: 100,
           padding: EdgeInsets.symmetric(horizontal: 20),
+          margin: EdgeInsets.only(bottom: 20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             gradient: LinearGradient(
