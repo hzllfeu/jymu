@@ -11,7 +11,14 @@ import '../home/components/ProfileComp.dart';
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
 class Paiement extends StatefulWidget {
-  const Paiement({super.key});
+
+  final int poidobj;
+  final int sexe;
+  final int obj;
+  final int taille;
+  final int poid;
+
+  const Paiement({super.key, required this.sexe, required this.obj, required this.poidobj, required this.taille, required this.poid});
 
   static String routeName = "/";
 
@@ -20,8 +27,18 @@ class Paiement extends StatefulWidget {
 }
 
 class _PaiementState extends State<Paiement> {
+
+  double calculateIMC() {
+    double heightInMeters = widget.taille / 100.0;
+    double imc = widget.poid / (heightInMeters * heightInMeters);
+    return double.parse(imc.toStringAsFixed(1));
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    double imc = calculateIMC();
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -42,7 +59,11 @@ class _PaiementState extends State<Paiement> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
+                    GestureDetector(
+                      onTapUp: (t) {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
@@ -64,6 +85,7 @@ class _PaiementState extends State<Paiement> {
                       child: Center(
                         child: Icon(CupertinoIcons.arrow_left, size: 28,),
                       ),
+                    ),
                     ),
                     GestureDetector(
                       onTapUp: (t) {
@@ -433,7 +455,7 @@ class _PaiementState extends State<Paiement> {
                 const SizedBox(height: 30,),
                 GestureDetector(
                   onTapUp: (tap) {
-                    FetchProfile(context);
+                    FetchProfile(context, widget.sexe, widget.poidobj, widget.obj, widget.taille, widget.poid, imc);
                   },
                   child: Container(
                     width: double.infinity,

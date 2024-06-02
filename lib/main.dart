@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:jymu/page.dart';
 import 'package:jymu/screens/Onboarding/SplashOB.dart';
 import 'package:jymu/screens/Onboarding/paiment.dart';
+import 'package:jymu/screens/Questions/QuestionObj.dart';
+import 'package:jymu/screens/Questions/QuestionPoid.dart';
+import 'package:jymu/screens/Questions/QuestionPoidAc.dart';
+import 'package:jymu/screens/Questions/QuestionSexe.dart';
+import 'package:jymu/screens/Questions/QuestionTaille.dart';
 import 'package:jymu/screens/Questions/Template_question_choix.dart';
 import 'package:jymu/screens/home/HomeScreen.dart';
 import 'package:jymu/screens/init_screen.dart';
@@ -23,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Paiement(),
+      home: QuestionSexe(),
     );
   }
 }

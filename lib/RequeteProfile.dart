@@ -5,14 +5,14 @@ import 'package:jymu/screens/home/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-Future<void> FetchProfile(BuildContext context) async {
+Future<void> FetchProfile(BuildContext context, int sexe, int poidbj, int objectif, int taille, int poid, double imc) async {
   // Generate a new UUID
   var uuid = Uuid();
   String newUuid = uuid.v4();
 
   CollectionReference requests = FirebaseFirestore.instance.collection('requests');
   await requests.doc(newUuid).set({
-    'tab': [1, 2],
+    'tab': [sexe, poidbj, objectif, taille, poid, imc],
   });
 
   Navigator.push(
