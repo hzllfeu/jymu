@@ -10,7 +10,7 @@ class ProBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         width: double.infinity,
-        margin: const EdgeInsets.all(20),
+        margin: const EdgeInsets.only(top: 20, right: 20, left: 20),
         padding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 16,

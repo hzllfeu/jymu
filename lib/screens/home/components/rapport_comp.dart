@@ -1,6 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+
+import 'ProComp.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
@@ -96,7 +100,39 @@ class _RapportCompState extends State<RapportComp> {
           ),
           const SizedBox(height: 15,),
 
-          Container(
+      GestureDetector(
+        onTapUp: (t) {
+          showCupertinoModalPopup(
+              context: context,
+              barrierColor: Colors.black.withOpacity(0.4),
+              builder: (BuildContext build) {
+                return TweenAnimationBuilder<double>(
+                  duration: Duration(milliseconds: 300),
+                  tween: Tween<double>(begin: 0.0, end: 4.0),
+                  curve: Curves.linear,
+                  builder: (context, value, _) {
+                    return AnimatedOpacity(
+                      duration: Duration(milliseconds: 1000),
+                      opacity: 1.0,
+                      curve: Curves.linear,
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
+                        child: CupertinoPopupSurface(
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: double.infinity,
+                            height: 630,
+                            child: ProComp(),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+          );
+        },
+          child: Container(
             width: double.infinity,
             height: 70,
             padding: EdgeInsets.symmetric(horizontal: 10),
@@ -126,6 +162,7 @@ class _RapportCompState extends State<RapportComp> {
                 )
             ),
           ),
+      ),
         ],
       ),
     );

@@ -3,9 +3,11 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:jymu/Nizam/exemple.dart';
 import 'package:jymu/screens/home/components/NotificationPage.dart';
+import 'package:jymu/screens/home/components/NutritionHome.dart';
 import 'package:jymu/screens/home/components/ParrainComp.dart';
 import 'package:jymu/screens/home/components/ProfileComp.dart';
 import 'package:jymu/screens/home/components/banner_exercices.dart';
@@ -19,14 +21,15 @@ import 'package:jymu/screens/home/components/training_home.dart';
 import 'package:super_cupertino_navigation_bar/super_cupertino_navigation_bar.dart';
 
 import 'components/ProBanner.dart';
+import 'components/ProComp.dart';
 import 'components/RechercheComp.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key, required this.data});
 
-  static String routeName = "/";
+  List<dynamic>? data;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -45,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double bounceHeight = 65.0;
 
     return Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Color(0xFFF3F5F8),
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -132,136 +135,75 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 10,),
-              ProBanner(),
-              const SizedBox(height: 5,),
-              Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            i = false;
-                          });
-                          Future.delayed(Duration(milliseconds: 100), () {
-                            setState(() {
-                              i = true;
-                            });
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 100),
-                          width: i ? bounceWidth : initialWidth,
-                          height: i ? bounceHeight : initialHeight,
-                          padding: EdgeInsets.symmetric(horizontal: 15),
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            gradient: i ? LinearGradient(
-                              begin: Alignment.topRight,
-                              end: Alignment.bottomLeft,
-                              colors: [Color(0xffF84E71).withOpacity(0.7), Colors.redAccent.withOpacity(0.7)],
-                            ) : LinearGradient(
-                              begin: Alignment.topRight,
-                              end: Alignment.bottomLeft,
-                              colors: [Colors.deepOrange.withOpacity(0.5), Colors.deepOrange.withOpacity(0.7)],
-                            ),
-                            boxShadow: i
-                                ? [
-                              BoxShadow(
-                                color: Color(0xffF14BA9).withOpacity(0.5),
-                                spreadRadius: 6,
-                                blurRadius: 10,
-                                offset: Offset(0, 3),
-                              ),
-                            ]
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Entrainement",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
+              GestureDetector(
+                onTapUp: (t) {
+                  showCupertinoModalPopup(
+                      context: context,
+                      barrierColor: Colors.black.withOpacity(0.4),
+                      builder: (BuildContext build) {
+                        return TweenAnimationBuilder<double>(
+                          duration: Duration(milliseconds: 300),
+                          tween: Tween<double>(begin: 0.0, end: 4.0),
+                          curve: Curves.linear,
+                          builder: (context, value, _) {
+                            return AnimatedOpacity(
+                              duration: Duration(milliseconds: 1000),
+                              opacity: 1.0,
+                              curve: Curves.linear,
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
+                                child: CupertinoPopupSurface(
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    width: double.infinity,
+                                    height: 630,
+                                    child: ProComp(),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Image.asset(
-                                "assets/images/emoji_muscle.png",
-                                height: 22,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            i = true;
-                          });
-                          Future.delayed(Duration(milliseconds: 100), () {
-                            setState(() {
-                              i = false;
-                            });
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 100),
-                          width: i ? initialWidth : bounceWidth,
-                          height: i ? initialHeight : bounceHeight,
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          padding: EdgeInsets.symmetric(horizontal: 15),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            gradient: i ? LinearGradient(
-                              begin: Alignment.topRight,
-                              end: Alignment.bottomLeft,
-                              colors: [Colors.deepOrange.withOpacity(0.5), Colors.deepOrange.withOpacity(0.7)],
-                            ) : LinearGradient(
-                              begin: Alignment.topRight,
-                              end: Alignment.bottomLeft,
-                              colors: [Color(0xffF84E71).withOpacity(0.7), Colors.redAccent.withOpacity(0.7)],
-                            ),
-                            boxShadow: i
-                                ? null
-                                : [
-                              BoxShadow(
-                                color: Color(0xffF14BA9).withOpacity(0.5),
-                                spreadRadius: 6,
-                                blurRadius: 10,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Nutrition",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Image.asset(
-                                "assets/images/emoji_carrot.png",
-                                height: 22,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
+                            );
+                          },
+                        );
+                      }
+                  );
+                },
+                child: ProBanner(),
               ),
-              TrainingComp(),
-              const SizedBox(height: 10,),
+
+              SizedBox(
+                height: 530,
+                width: double.infinity,
+                child: Swiper(
+                  itemCount: 2,
+                  containerHeight: 540,
+                  containerWidth: double.infinity,
+                  itemHeight: 510,
+                  itemWidth: double.infinity,
+                  itemBuilder: (context, index){
+                    if(index == 0){
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          widget.data?[0].toString() ?? 'null',
+                          style: TextStyle(fontSize: 35),
+                        ),
+                      );
+                    } else {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          widget.data?[1].toString() ?? 'null',
+                          style: TextStyle(fontSize: 35),
+                        ),
+                      );
+                    }
+                  },
+                  loop: false,
+
+                ),
+              ),
+
+
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -310,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTapUp: (t) {
                           showCupertinoModalPopup(
                               context: context,
-                              barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
+                              barrierColor: Colors.black.withOpacity(0.4),
                               builder: (BuildContext build) {
                                 return TweenAnimationBuilder<double>(
                                   duration: Duration(milliseconds: 300),
@@ -367,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTapUp: (t) {
                           showCupertinoModalPopup(
                               context: context,
-                              barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
+                              barrierColor: Colors.black.withOpacity(0.4),
                               builder: (BuildContext build) {
                                 return TweenAnimationBuilder<double>(
                                   duration: Duration(milliseconds: 300),

@@ -1,0 +1,647 @@
+import 'dart:ui';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:jymu/UserManager.dart';
+import 'package:jymu/screens/Connexion/UsernamePage.dart';
+import 'package:jymu/screens/home/LoadingPost.dart';
+import 'package:jymu/screens/home/PostWidget.dart';
+import 'package:jymu/screens/home/components/LikesComp.dart';
+import 'package:jymu/screens/home/components/ModifyAccount.dart';
+
+import 'package:jymu/screens/home/components/NotificationPage.dart';
+import 'package:jymu/screens/home/components/PostCard.dart';
+import 'package:jymu/screens/home/components/ProfileComp.dart';
+
+import 'components/PostsComp.dart';
+
+const Color inActiveIconColor = Color(0xFFB6B6B6);
+
+class ProfilPage extends StatefulWidget {
+  final String id;
+
+  ProfilPage({super.key, required this.id});
+
+  @override
+  State<ProfilPage> createState() => _ProfilPageState();
+}
+
+class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _colorAnimation;
+
+  bool isFirstSelected = true;
+  bool isSecondSelected = false;
+  bool isThirdSelected = false;
+  bool _isLoading = true;
+  User? user = FirebaseAuth.instance.currentUser;
+  String? displayName;
+  String? username;
+  String? bio = "";
+  String? id = "";
+  String? profileImageUrl;
+  bool followed = false;
+  bool isFollowing = false;
+  bool friend = false;
+  late List<dynamic> followers;
+  late List<dynamic> follow;
+  late List<dynamic> likes;
+  late Map<String, dynamic> data;
+  late Map<String, dynamic> owndata;
+  bool ownProf = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    id = widget.id;
+     _fetchData();
+    Future.delayed(Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
+      ),
+    );
+
+    _colorAnimation = Tween<double>(begin: 0.2, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    );
+
+  }
+
+  void handleFollow(){
+    setState(() {
+      followed = true;
+      if(isFollowing){
+        friend = true;
+      }
+      _controller.forward();
+    });
+  }
+  void handleUnFollow(){
+    setState(() {
+      followed = false;
+      friend = false;
+      _controller.reset();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchData() async {
+    if (id != null) {
+      if(id == FirebaseAuth.instance.currentUser?.uid){
+        ownProf = true;
+      }
+      data = (await getProfile(id!))!;
+      if(!ownProf){
+        owndata = (await getProfile(FirebaseAuth.instance.currentUser!.uid))!;
+      }
+      setState(() {
+        _fetchProfileImageUrl();
+        followers = data['followed'];
+        likes = data['likes'];
+        username = data['username'];
+        displayName = data['displayname'];
+        follow = data['follow'];
+        bio = data['bio'];
+
+        if(!ownProf && followers.contains(FirebaseAuth.instance.currentUser?.uid)){
+          followed = true;
+        }
+        if(!ownProf && follow.contains(FirebaseAuth.instance.currentUser?.uid)){
+          isFollowing = true;
+        }
+        if(!ownProf && followed && isFollowing){
+          friend = true;
+        }
+
+        if(!ownProf){
+          if(followed){
+            _controller.forward();
+          }
+          if(isFollowing){
+            _controller.forward();
+          }
+        }
+      });
+    }
+  }
+
+
+  Future<String> getProfileImageUrl(String uid) async {
+    try {
+      final storageRef = FirebaseStorage.instance.ref().child('user_profiles/$uid.jpg');
+      final url = await storageRef.getDownloadURL();
+      return url;
+    } catch (e) {
+      print('Erreur lors de la récupération de l\'image de profil : $e');
+      return 'https://via.placeholder.com/150'; // Retourne une URL par défaut en cas d'erreur
+    }
+  }
+
+  Future<void> _fetchProfileImageUrl() async {
+    if (id != "") {
+      String tmp = await getProfileImageUrl(id!);
+      setState(() {profileImageUrl = tmp;});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFF3F5F8),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              if(ownProf)
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 25),
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTapUp: (t) {
+                        showCupertinoModalPopup(
+                          context: context,
+                          barrierColor: Colors.black.withOpacity(0.4),
+                          builder: (BuildContext build) {
+                            return TweenAnimationBuilder<double>(
+                              duration: Duration(milliseconds: 300),
+                              tween: Tween<double>(begin: 0.0, end: 4.0),
+                              curve: Curves.linear,
+                              builder: (context, value, _) {
+                                return AnimatedOpacity(
+                                  duration: Duration(milliseconds: 1000),
+                                  opacity: 1.0,
+                                  curve: Curves.linear,
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: value, sigmaY: value),
+                                    child: CupertinoPopupSurface(
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        width: double.infinity,
+                                        height: 670,
+                                        child: ProfileComp(),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
+                      child: Icon(
+                        CupertinoIcons.settings,
+                        size: 26,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTapUp: (t) async {
+                        try {
+                          await FirebaseAuth.instance.signOut();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UsernamePage(),
+                            ),
+                          );
+                        } catch (e) {
+                          print('Failed to sign out: $e');
+                        }
+                      },
+                      child: Icon(
+                        CupertinoIcons.bell,
+                        size: 26,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                  ],
+                ),
+                ),
+              if(!ownProf)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTapUp: (t) {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(
+                          CupertinoIcons.arrow_left,
+                          size: 26,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 30),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25),
+                child: Stack(
+                  clipBehavior: Clip.none, // Permet au Positioned de dépasser les limites du Container
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 230,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                          colors: [Color(0xffF14BA9), Colors.redAccent],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xffF14BA9).withOpacity(0.5),
+                            spreadRadius: 6,
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Image Container
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              border: Border.all(
+                                color: Colors.redAccent,
+                                width: 0,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: Image(
+                                fit: BoxFit.cover,
+                                image: CachedNetworkImageProvider(
+                                  profileImageUrl ?? 'https://via.placeholder.com/150',
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Text Column
+                          Column(
+                            children: [
+                              DefaultTextStyle(
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 26),
+                                child: Text(displayName ?? ''),
+                              ),
+                              const SizedBox(height: 5),
+                              DefaultTextStyle(
+                                style: TextStyle(color: Colors.white54, fontWeight: FontWeight.w700, fontSize: 14),
+                                child: Text("@$username"),
+                              ),
+                            ],
+                          ),
+                          // Buttons Row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (followed && !ownProf)
+                                GestureDetector(
+                                  onTapUp: (t) async {
+                                    await unfollowUser(FirebaseAuth.instance.currentUser!.uid, id!);
+                                    handleUnFollow();
+                                  },
+                                  child: Container(
+                                    width: 130,
+                                    height: 30,
+                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: DefaultTextStyle(
+                                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.white),
+                                        child: Text(
+                                          "Ne plus suivre",
+                                        ),
+                                      ),
+                                    )
+                                  ),
+                                ),
+                              if (!followed && !ownProf)
+                                GestureDetector(
+                                  onTapUp: (t) async {
+                                    await followUser(FirebaseAuth.instance.currentUser!.uid, id!);
+                                    handleFollow();
+                                  },
+                                  child: Container(
+                                    width: 95,
+                                    height: 30,
+                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        DefaultTextStyle(
+                                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.white),
+                                          child: Text(
+                                            "Suivre",
+                                          ),
+                                        ),
+                                        Icon(
+                                          CupertinoIcons.plus,
+                                          size: 19,
+                                          color: Colors.white,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(width: 10),
+                              Container(
+                                width: 108,
+                                height: 30,
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    DefaultTextStyle(
+                                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
+                                      child: Text("JymuPro"),
+                                    ),
+                                    Image.asset(
+                                      "assets/images/emoji_fire.png",
+                                      height: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Edit Icon if it's the own profile
+                    if (ownProf)
+                      Positioned(
+                        top: 15,
+                        right: 18,
+                        child: GestureDetector(
+                          onTapUp: (t) {
+                            showCupertinoModalPopup(
+                              context: context,
+                              barrierColor: Colors.black.withOpacity(0.4),
+                              builder: (BuildContext build) {
+                                return TweenAnimationBuilder<double>(
+                                  duration: Duration(milliseconds: 300),
+                                  tween: Tween<double>(begin: 0.0, end: 4.0),
+                                  curve: Curves.linear,
+                                  builder: (context, value, _) {
+                                    return AnimatedOpacity(
+                                      duration: Duration(milliseconds: 1000),
+                                      opacity: 1.0,
+                                      curve: Curves.linear,
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
+                                        child: CupertinoPopupSurface(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            width: double.infinity,
+                                            height: 620,
+                                            child: ModifyAccount(pp: profileImageUrl, data: data),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                          child: Icon(
+                            CupertinoIcons.pen,
+                            color: Colors.white,
+                            size: 26,
+                          ),
+                        ),
+                      ),
+                    if(followed)
+                      Positioned(
+                        bottom: -10,
+                        right: 20,
+                        child: AnimatedBuilder(
+                          animation: _controller,
+                          builder: (context, child) {
+                            return Container(
+                              height: 30,
+                              width: 38,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: Colors.white.withOpacity(_colorAnimation.value),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 3,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Transform.scale(
+                                scale: _scaleAnimation.value,
+                                child: Center(
+                                  child: Icon(
+                                    !friend ? CupertinoIcons.person_add_solid : CupertinoIcons.person_2_fill,
+                                    size: 18,
+                                    color: Colors.black.withOpacity(0.7),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30,),
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child:Text(bio!,style: TextStyle(color: Colors.black.withOpacity(0.8), fontSize: 16, fontWeight: FontWeight.w600), textAlign: TextAlign.center,),
+              ),
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child:Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SizedBox(height: 5),
+                  Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 70, // Augmenter la hauteur pour laisser de l'espace à la barre
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isFirstSelected = true;
+                                  isSecondSelected = false;
+                                  isThirdSelected = false;
+                                });
+                              },
+                              child: Container(
+                                height: 80,
+                                width: 80,
+                                color: Colors.transparent,
+                                child: Icon(
+                                  isFirstSelected
+                                      ? CupertinoIcons.square_grid_2x2_fill
+                                      : CupertinoIcons.square_grid_2x2,
+                                  color: isFirstSelected
+                                      ? Colors.redAccent
+                                      : CupertinoColors.systemGrey,
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isFirstSelected = false;
+                                  isSecondSelected = true;
+                                  isThirdSelected = false;
+                                });
+                              },
+                              child: Container(
+                                height: 80,
+                                width: 80,
+                                color: Colors.transparent,
+                                child: Icon(
+                                  isSecondSelected
+                                      ? CupertinoIcons.square_favorites_alt_fill
+                                      : CupertinoIcons.square_favorites_alt,
+                                  color: isSecondSelected
+                                      ? Colors.redAccent
+                                      : CupertinoColors.systemGrey,
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isFirstSelected = false;
+                                  isSecondSelected = false;
+                                  isThirdSelected = true;
+                                });
+                              },
+                              child: Container(
+                                height: 80,
+                                width: 80,
+                                color: Colors.transparent,
+                                child: Icon(
+                                  isThirdSelected
+                                      ? CupertinoIcons.heart
+                                      : CupertinoIcons.heart,
+                                  color: isThirdSelected
+                                      ? Colors.redAccent
+                                      : CupertinoColors.systemGrey,
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      AnimatedPositioned(
+                        duration: Duration(milliseconds: 150),
+                        curve: Curves.easeOut,
+                        left: isFirstSelected
+                            ? MediaQuery.of(context).size.width * 0.025
+                            : isSecondSelected
+                            ? MediaQuery.of(context).size.width * 0.347
+                            : MediaQuery.of(context).size.width * 0.675,
+                        top: 58,
+                        child: Container(
+                          height: 3,
+                          width: 80,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Color(0xffF14BA9), Colors.redAccent],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              ),
+
+              if(isFirstSelected)
+                PostComp(),
+              if(isSecondSelected)
+                PostComp(),
+              if(isThirdSelected)
+                LikeComp(likes: likes,),
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

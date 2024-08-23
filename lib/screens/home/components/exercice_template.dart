@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jymu/screens/home/components/ExoDsp.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
@@ -24,106 +27,139 @@ class _ExoTemplateState extends State<ExoTemplate> {
           CupertinoContextMenuAction(child: Text("Ajouter a l'entrainement"), trailingIcon: CupertinoIcons.add, isDestructiveAction: false,),
           CupertinoContextMenuAction(child: Text("Retirer de l'entrainement"), trailingIcon: CupertinoIcons.delete, isDestructiveAction: true,),
         ],
-        child: Container(
-          width: double.infinity,
-          height: 100,
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          margin: EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [Color(0xffF84E71).withOpacity(0.7), Colors.redAccent.withOpacity(0.7)],
+        child: GestureDetector(
+          onTapUp: (t) {
+            showCupertinoModalPopup(
+                context: context,
+                barrierColor: Colors.black.withOpacity(0.4), // Définissez la couleur de la barrière sur transparent
+                builder: (BuildContext build) {
+                  return TweenAnimationBuilder<double>(
+                    duration: Duration(milliseconds: 300),
+                    tween: Tween<double>(begin: 0.0, end: 4.0),
+                    curve: Curves.linear,
+                    builder: (context, value, _) {
+                      return AnimatedOpacity(
+                        duration: Duration(milliseconds: 1000),
+                        opacity: 1.0,
+                        curve: Curves.linear,
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: value, sigmaY: value),
+                          child: CupertinoPopupSurface(
+                            child: Container(
+                              alignment: Alignment.center,
+                              width: double.infinity,
+                              height: 650,
+                              child: ExoDsp(),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
+            );
+          },
+          child: Container(
+            width: double.infinity,
+            height: 100,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            margin: EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [Color(0xffF84E71).withOpacity(0.7), Colors.redAccent.withOpacity(0.7)],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0xffF14BA9).withOpacity(0.5),
+                  spreadRadius: 6,
+                  blurRadius: 10,
+                  offset: Offset(0, 3),
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0xffF14BA9).withOpacity(0.5),
-                spreadRadius: 6,
-                blurRadius: 10,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(
-                            "assets/images/kevin.jpg",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Image.asset("assets/images/emoji_muscle.png", height: 26,),
-                    ],
-                  ),
-                  const SizedBox(width: 10,),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const DefaultTextStyle(
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
-                            child: Text("Tirage horizontal"),
-                          ),
-                          const SizedBox(width:7,),
-                          DefaultTextStyle(
-                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w500, fontSize: 14),
-                            child: Text("Dos"),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5,),
-                      DefaultTextStyle(
-                        style: TextStyle(color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w600, fontSize: 14),
-                        child: Text("Machine: poulie haute"),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Padding(
-                padding: EdgeInsets.only(bottom: 10, top: 15),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
                   children: [
-                    ShaderMask(
-                      shaderCallback: (Rect bounds) {
-                        return const LinearGradient(
-                          colors: [Colors.white, Colors.orange],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ).createShader(bounds);
-                      },
-                      child: const DefaultTextStyle(
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 17),
-                        child: Text("94%"),
-                      ),
+                    Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.asset(
+                              "assets/images/kevin.jpg",
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Image.asset("assets/images/emoji_muscle.png", height: 26,),
+                      ],
                     ),
-                    const DefaultTextStyle(
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
-                      child: Text("Utilisé"),
+                    const SizedBox(width: 10,),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const DefaultTextStyle(
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
+                              child: Text("Tirage horizontal"),
+                            ),
+                            const SizedBox(width:7,),
+                            DefaultTextStyle(
+                              style: TextStyle(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w500, fontSize: 14),
+                              child: Text("Dos"),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5,),
+                        DefaultTextStyle(
+                          style: TextStyle(color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w600, fontSize: 14),
+                          child: Text("Machine: poulie haute"),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ),
-            ],
+                Padding(
+                  padding: EdgeInsets.only(bottom: 10, top: 15),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (Rect bounds) {
+                          return const LinearGradient(
+                            colors: [Colors.white, Colors.orange],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ).createShader(bounds);
+                        },
+                        child: const DefaultTextStyle(
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 17),
+                          child: Text("94%"),
+                        ),
+                      ),
+                      const DefaultTextStyle(
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+                        child: Text("Utilisé"),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         )
     );

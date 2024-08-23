@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jymu/Nizam/exemple.dart';
+import 'package:jymu/screens/home/FeedPage.dart';
+import 'package:jymu/screens/home/ProfilPage.dart';
 
 import '../Alexis/exemple.dart';
 import 'home/HomeScreen.dart';
@@ -25,54 +28,45 @@ class _InitScreenState extends State<InitScreen> {
     });
   }
 
-  final pages = [
-    const HomeScreen(),
-    const Center(
-      child: Text("Rapport"),
-    ),
-    const Center(
-      child: Text("Profil"),
-    ),
-    const Exemple (),
-    const ExempleNizam(),
+   List<Widget> pages = [
+      Center(
+      child: FeedPage(),
+      ),
+      const Center(
+        child: Text("Profil"),
+      ),
+     const Center(
+       child: Text("Recherche"),
+     ),
+      ProfilPage(id: FirebaseAuth.instance.currentUser!.uid),
   ];
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       body: pages[currentSelectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: CupertinoTabBar(
         onTap: updateCurrentIndex,
         currentIndex: currentSelectedIndex,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        type: BottomNavigationBarType.fixed,
+
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.house_alt),
-            activeIcon: Icon(CupertinoIcons.house_alt_fill, color: Colors.redAccent,),
-
-            label: "Home"
+            icon: Icon(CupertinoIcons.house, size: 28,),
+            activeIcon: Icon(CupertinoIcons.house_fill, color: Colors.redAccent,size: 28,),
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.doc_text),
-            activeIcon: Icon(CupertinoIcons.doc_text_fill, color: Colors.redAccent,),
-            label: "Rapport"
+            icon: Icon(CupertinoIcons.command, size: 28,),
+            activeIcon: Icon(CupertinoIcons.command, color: Colors.redAccent,size: 28,),
           ),
           BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.person),
-              activeIcon: Icon(CupertinoIcons.person_fill, color: Colors.redAccent,),
-              label: "Profile"
+              icon: Icon(CupertinoIcons.search, size: 28,),
+              activeIcon: Icon(CupertinoIcons.search, color: Colors.redAccent,size: 28,),
           ),
           BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.alarm),
-              activeIcon: Icon(CupertinoIcons.alarm, color: Colors.redAccent,),
-              label: "Alexis Page"
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.add_circled),
-              activeIcon: Icon(CupertinoIcons.add_circled, color: Colors.redAccent,),
-              label: "nizam Page"
+              icon: Icon(CupertinoIcons.person, size: 28,),
+              activeIcon: Icon(CupertinoIcons.person_fill, color: Colors.redAccent,size: 28,),
           ),
         ],
       ),

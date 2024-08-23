@@ -1,9 +1,18 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jymu/screens/home/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+
+String generateFirebaseLikeId({int length = 20}) {
+  const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  final Random random = Random.secure();
+  return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join('');
+}
 
 Future<void> FetchProfile(BuildContext context, int sexe, int poidbj, int objectif, int taille, int poid, double imc) async {
   // Generate a new UUID
@@ -32,15 +41,21 @@ void _monitorFirestore(BuildContext context, String uuid) {
       .snapshots()
       .listen((snapshot) {
     if (snapshot.exists) {
+      // Extraire uniquement la valeur de "result" dans un tableau
+      List<dynamic>? result = snapshot.data()?["result"] as List<dynamic>?;
+
+      // Naviguer vers HomeScreen en passant uniquement "result"
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomeScreen(),
+          builder: (context) => HomeScreen(data: result ?? []),
         ),
       );
     }
   });
 }
+
+
 
 class LoadingPage extends StatelessWidget {
   final String uuid;
