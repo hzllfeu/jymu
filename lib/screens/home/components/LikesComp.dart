@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jymu/screens/home/LoadingLikes.dart';
 
 import '../../../PostManager.dart';
 import '../LoadingPost.dart';
+import '../PostCardLittle.dart';
 import 'PostCard.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
@@ -22,11 +24,12 @@ class LikeComp extends StatefulWidget {
 class _LikeCompState extends State<LikeComp> {
   bool _isLoading = true;
   List<DocumentSnapshot> likedPosts = [];
+  Future<void>? awaiter;
 
   @override
   void initState() {
     super.initState();
-    _fetchLikedPosts();
+    awaiter = _fetchLikedPosts();
     Future.delayed(Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
@@ -59,10 +62,43 @@ class _LikeCompState extends State<LikeComp> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.likes.isEmpty) {
+    if(!widget.likes.isEmpty) {
+      return FutureBuilder(
+        future: awaiter,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return LoadingLikes();
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur de chargement des likes'));
+          } else {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25),
+              child: SizedBox(
+                height: 355,
+                width: 140,
+                child: ListView.builder(
+                  itemCount: likedPosts.length,
+                  itemBuilder: (context, index) {
+                    final post = likedPosts[index].data() as Map<String, dynamic>;
+
+                    return Expanded(
+                      child: PostCardLittle(
+                        username: post['username'],
+                        id: post['id'],
+                        time: (post['postTime'] as Timestamp).toDate(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          }
+        },
+      );
+    } else {
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 25),
-        child: Center( // Utilisation de Center à la place de Expanded
+        child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -75,28 +111,6 @@ class _LikeCompState extends State<LikeComp> {
                 style: TextStyle(color: CupertinoColors.systemGrey, fontWeight: FontWeight.w600, fontSize: 18),
               )
             ],
-          ),
-        ),
-      );
-    } else {
-      return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 0),
-        child: SizedBox(
-          height: 355,
-          child: ListView.builder( // Pas besoin d'Expanded ici
-            itemCount: likedPosts.length,
-            itemBuilder: (context, index) {
-              final post = likedPosts[index].data() as Map<String, dynamic>;
-
-              return PostCard(
-                username: post['username'],
-                content: post['content'],
-                postTime: (post['postTime'] as Timestamp).toDate(),
-                userId: post['id'],
-                likes: post['likes'],
-                postID: likedPosts[index].id,
-              );
-            },
           ),
         ),
       );

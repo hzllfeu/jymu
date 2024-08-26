@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:jymu/Nizam/exemple.dart';
 import 'package:jymu/screens/home/FeedPage.dart';
 import 'package:jymu/screens/home/ProfilPage.dart';
+import 'package:jymu/screens/home/RecherchePage.dart';
 
 import '../Alexis/exemple.dart';
 import 'home/HomeScreen.dart';
@@ -35,9 +36,7 @@ class _InitScreenState extends State<InitScreen> {
       const Center(
         child: Text("Profil"),
       ),
-     const Center(
-       child: Text("Recherche"),
-     ),
+      RecherchePage(id: FirebaseAuth.instance.currentUser!.uid),
       ProfilPage(id: FirebaseAuth.instance.currentUser!.uid),
   ];
 
