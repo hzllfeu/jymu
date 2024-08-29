@@ -28,7 +28,7 @@ class _ProfileListCompState extends State<ProfileListComp> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 90,
+      height: 80,
       child: Row(
         children: [
           CircleAvatar(

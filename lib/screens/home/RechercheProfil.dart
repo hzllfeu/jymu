@@ -126,6 +126,9 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
 
   Future<void> _fetchProfileData(String profileId) async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       await Future.delayed(Duration(seconds: 1));
       var profileData = await getProfile(profileId);
 
@@ -137,6 +140,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
         profilesData[profileId] = profileData ?? {};
         profilesData[profileId]?.addAll({'pp': tm});
         loadingProfiles[profileId] = false; // Marquer le profil comme chargé
+        isLoading = false;
       });
     } catch (e) {
       print('Error fetching profile data for $profileId: $e');
@@ -221,6 +225,8 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
+                                  isLoading = false;
+                                  hasMore = true;
                                   isFirstSelected = true;
                                   isSecondSelected = false;
                                   isThirdSelected = false;
@@ -243,6 +249,8 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                           GestureDetector(
                             onTap: () {
                               setState(() {
+                                isLoading = false;
+                                hasMore = true;
                                 isFirstSelected = false;
                                 isSecondSelected = true;
                                 isThirdSelected = false;
@@ -264,6 +272,8 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
+                                  isLoading = false;
+                                  hasMore = true;
                                   isFirstSelected = false;
                                   isSecondSelected = false;
                                   isThirdSelected = true;
@@ -311,12 +321,16 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
               ),
             ],
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25),
-            child: CupertinoSearchTextField(
-              placeholder: "Rechercher",
+          if(!isLoading)
+            Visibility(
+              visible: !isLoading,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child: CupertinoSearchTextField(
+                    placeholder: "Rechercher",
+                  ),
+                ),
             ),
-          ),
           const SizedBox(height: 1),
           Expanded(
             child: NotificationListener<ScrollNotification>(
@@ -332,9 +346,11 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                   if (index < displayedProfiles.length) {
                     String userId = displayedProfiles[index];
                     if (loadingProfiles[userId] ?? true) {
+                      isLoading = true;
                       return Padding(padding: EdgeInsets.symmetric(horizontal: 25), child: Expanded(child: LoadingProfileList(),),);
                     } else {
                       var profileData = profilesData[userId] ?? {};
+                      isLoading = false;
                       return SizedBox(
                         height: 100,
                         child: Padding(

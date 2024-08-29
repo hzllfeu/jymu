@@ -115,6 +115,17 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  String formatNumber(int number) {
+    if (number < 10000) {
+      return number.toString();
+    } else if (number < 1000000) {
+      return (number / 1000).toStringAsFixed(0) + 'k';
+    } else {
+      return (number / 1000000).toStringAsFixed(0) + 'M';
+    }
+  }
+
+
   Future<void> _fetchData() async {
     try {
       if (id != null) {
@@ -631,7 +642,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                     color: Colors.black,
                                   ),
                                   child: Text(
-                                    followers.length.toString(),
+                                    formatNumber(followers.length),
                                   ),
                                 ),
                                 SizedBox(width: 5),

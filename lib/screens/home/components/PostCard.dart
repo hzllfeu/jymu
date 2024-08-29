@@ -34,6 +34,16 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   late Animation<double> _colorAnimation;
   late Animation<double> _marginAnimation;
 
+  String formatNumber(int number) {
+    if (number < 10000) {
+      return number.toString();
+    } else if (number < 1000000) {
+      return (number / 1000).toStringAsFixed(0) + 'k';
+    } else {
+      return (number / 1000000).toStringAsFixed(0) + 'M';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -210,7 +220,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      widget.likes.length.toString(),
+                                      formatNumber(widget.likes.length),
                                       style: TextStyle(
                                         color: Colors.black.withOpacity(0.7),
                                         fontWeight: FontWeight.w600,
