@@ -115,7 +115,7 @@ class _ParrainCompState extends State<ParrainComp> {
           const SizedBox(height: 5,),
           CupertinoContextMenu(
               enableHapticFeedback: true,
-              previewBuilder: (context, animation, child) => SizedBox(width: 200, height: 150, child: child,),
+              //previewBuilder: (context, animation, child) => SizedBox(width: 200, height: 150, child: child,),
               actions: const [
                 CupertinoContextMenuAction(child: Text("Copier"), trailingIcon: Icons.copy_rounded,),
                 CupertinoContextMenuAction(child: Text("Partager votre code"), trailingIcon: CupertinoIcons.share,),

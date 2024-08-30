@@ -12,7 +12,6 @@ class NutriComp extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoContextMenu(
       enableHapticFeedback: true,
-      previewBuilder: (context, animation, child) => SizedBox(width: 600, child: child,),
       actions: const [
         CupertinoContextMenuAction(child: Text("Nouvelle nutrition"), trailingIcon: CupertinoIcons.refresh_bold,)
       ],

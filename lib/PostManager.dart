@@ -80,8 +80,6 @@ Future<void> removeLike(String postId, String userID) async {
 }
 
 
-
-
 Future<void> addComment(String postId, String username, String comment) async {
   final postRef = FirebaseFirestore.instance.collection('posts').doc(postId);
   await postRef.update({

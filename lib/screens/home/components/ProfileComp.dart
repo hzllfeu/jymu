@@ -37,7 +37,7 @@ class _ProfileCompState extends State<ProfileComp> {
           const SizedBox(height: 30,),
           CupertinoContextMenu(
               enableHapticFeedback: true,
-              previewBuilder: (context, animation, child) => SizedBox(width: 300, child: child,),
+              //previewBuilder: (context, animation, child) => SizedBox(width: 300, child: child,),
               actions: const [
                 CupertinoContextMenuAction(child: Text("Partager votre carte"), trailingIcon: CupertinoIcons.share,)
               ],

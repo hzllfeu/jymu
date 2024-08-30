@@ -267,7 +267,7 @@ class _AuthPageState extends State<AuthPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 50),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                   SizedBox(
                     height: 60,
                     child: Stack(
@@ -302,7 +302,7 @@ class _AuthPageState extends State<AuthPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   SizedBox(
                     height: 60,
                     child: Stack(
@@ -347,7 +347,7 @@ class _AuthPageState extends State<AuthPage> {
                       )
                     ],
                   ),
-                  SizedBox(height: 30),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -408,7 +408,7 @@ class _AuthPageState extends State<AuthPage> {
                       )
                     ],
                   ),
-                  SizedBox(height: 50,),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

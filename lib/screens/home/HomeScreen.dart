@@ -11,7 +11,7 @@ import 'package:jymu/screens/home/components/NutritionHome.dart';
 import 'package:jymu/screens/home/components/ParrainComp.dart';
 import 'package:jymu/screens/home/components/ProfileComp.dart';
 import 'package:jymu/screens/home/components/banner_exercices.dart';
-import 'package:jymu/Alexis/exemple.dart';
+import 'package:jymu/Alexis/ia_gene.dart';
 import 'package:jymu/screens/home/components/exercice_template.dart';
 import 'package:jymu/screens/home/components/home_banner.dart';
 import 'package:jymu/screens/home/components/home_header.dart';

@@ -54,7 +54,7 @@ class _PfPageState extends State<PfPage> {
           SizedBox(height: 170,),
           Container(
             padding: EdgeInsets.all(16.0),
-            height: MediaQuery.of(context).size.height / 2,
+            height: MediaQuery.of(context).size.height / 1.9,
             decoration: const BoxDecoration(
               color: Color(0xFFF3F5F8),
               borderRadius: BorderRadius.only(
@@ -91,7 +91,7 @@ class _PfPageState extends State<PfPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 50),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
 
                   GestureDetector(
                     onTapUp: (t){
@@ -104,7 +104,7 @@ class _PfPageState extends State<PfPage> {
                     ),
                   ),
 
-                  SizedBox(height: 30),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -155,7 +155,7 @@ class _PfPageState extends State<PfPage> {
                       )
                     ],
                   ),
-                  SizedBox(height: 50,),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

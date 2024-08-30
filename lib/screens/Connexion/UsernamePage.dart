@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Assurez-vous d'avoir C
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jymu/screens/Connexion/PfPage.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
+
 
 import 'LoginPage.dart';
 
@@ -124,7 +126,7 @@ class _UsernamePageState extends State<UsernamePage> {
           children: <Widget>[
             Container(
               padding: EdgeInsets.all(16.0),
-              height: MediaQuery.of(context).size.height / 2,
+              height: MediaQuery.of(context).size.height / 1.9,
               decoration: const BoxDecoration(
                 color: Color(0xFFF3F5F8),
                 borderRadius: BorderRadius.only(
@@ -166,7 +168,7 @@ class _UsernamePageState extends State<UsernamePage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 40),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                     SizedBox(
                       height: 60,
                       child: Stack(
@@ -215,7 +217,7 @@ class _UsernamePageState extends State<UsernamePage> {
                         )
                       ],
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -223,6 +225,7 @@ class _UsernamePageState extends State<UsernamePage> {
                           onTapUp: (t) {
                             String username = _usernameController.text.trim();
                             if (username.isNotEmpty && !_hasError) {
+                              Haptics.vibrate(HapticsType.light);
                               Navigator.push(
                                 context,
                                 CupertinoPageRoute(
@@ -230,6 +233,8 @@ class _UsernamePageState extends State<UsernamePage> {
                                         Scaffold(body: PfPage(username: username),)
                                 ),
                               );
+                            } else {
+                              Haptics.vibrate(HapticsType.error);
                             }
                           },
                           child: Container(
@@ -270,7 +275,7 @@ class _UsernamePageState extends State<UsernamePage> {
                         )
                       ],
                     ),
-                    SizedBox(height: 50,),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

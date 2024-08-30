@@ -191,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 50),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                   SizedBox(
                     height: 60,
                     child: Stack(
@@ -226,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   SizedBox(
                     height: 60,
                     child: Stack(
@@ -271,7 +271,7 @@ class _LoginPageState extends State<LoginPage> {
                       )
                     ],
                   ),
-                  SizedBox(height: 30),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -331,7 +331,7 @@ class _LoginPageState extends State<LoginPage> {
                       )
                     ],
                   ),
-                  SizedBox(height: 50,),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

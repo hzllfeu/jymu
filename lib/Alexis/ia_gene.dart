@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 //une mentalité de merde
 
-class Exemple extends StatelessWidget {
-  const Exemple({
+class ia_gen extends StatelessWidget {
+  const ia_gen({
     super.key,
   });
 

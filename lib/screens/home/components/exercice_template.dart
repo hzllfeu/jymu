@@ -22,7 +22,6 @@ class _ExoTemplateState extends State<ExoTemplate> {
   Widget build(BuildContext context) {
     return CupertinoContextMenu(
         enableHapticFeedback: true,
-        previewBuilder: (context, animation, child) => SizedBox(width: 360, child: child,),
         actions: const [
           CupertinoContextMenuAction(child: Text("Ajouter a l'entrainement"), trailingIcon: CupertinoIcons.add, isDestructiveAction: false,),
           CupertinoContextMenuAction(child: Text("Retirer de l'entrainement"), trailingIcon: CupertinoIcons.delete, isDestructiveAction: true,),

@@ -19,7 +19,6 @@ class _Notification1State extends State<Notification1> {
   Widget build(BuildContext context) {
     return CupertinoContextMenu(
         enableHapticFeedback: true,
-        previewBuilder: (context, animation, child) => SizedBox(width: 360, child: child,),
         actions: const [
         CupertinoContextMenuAction(child: Text("Supprimer"), trailingIcon: CupertinoIcons.delete, isDestructiveAction: true,)
         ],

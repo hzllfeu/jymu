@@ -34,6 +34,7 @@ dependencies:
   flutter_swiper_view: ^1.1.8
   path_provider: ^2.1.4
   fade_shimmer: ^2.2.0
+  haptic_feedback: ^0.5.1+1
 
 dev_dependencies:
   flutter_test:

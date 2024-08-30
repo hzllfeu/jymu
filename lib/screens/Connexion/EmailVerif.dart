@@ -77,7 +77,7 @@ class _EmailVerifState extends State<EmailVerif> {
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(height: 170,),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.15),
           Container(
             padding: EdgeInsets.all(16.0),
             height: MediaQuery.of(context).size.height / 2,
@@ -117,7 +117,7 @@ class _EmailVerifState extends State<EmailVerif> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 50),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
 
                   Text(
                       "Ouvre ta boite mail (verifie les spams)",
@@ -126,7 +126,7 @@ class _EmailVerifState extends State<EmailVerif> {
                     ),
 
 
-                  SizedBox(height: 30),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -189,7 +189,7 @@ class _EmailVerifState extends State<EmailVerif> {
                       )
                     ],
                   ),
-                  SizedBox(height: 50,),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

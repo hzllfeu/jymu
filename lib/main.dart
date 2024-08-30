@@ -24,13 +24,16 @@ import 'package:timeago/timeago.dart' as timeago_fr;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  timeago.setLocaleMessages('fr', timeago_fr.FrMessages());
-
-  runApp(MyApp());
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    timeago.setLocaleMessages('fr', timeago_fr.FrMessages());
+    runApp(MyApp());
+  } catch (e) {
+    print('Erreur lors de l\'initialisation de Firebase: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -52,24 +55,25 @@ class AuthWrapper extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         } else if (snapshot.hasError) {
-          return Center(child: Text('Erreur: ${snapshot.error}'));
+          return Scaffold(
+            body: Center(child: Text('Erreur: ${snapshot.error}')),
+          );
         } else if (snapshot.hasData) {
           User? user = snapshot.data;
-
           if (user != null && !user.emailVerified) {
-            // Si l'utilisateur est connecté mais que son email n'est pas vérifié
-            return Scaffold(body: EmailVerif(),);
+            return Scaffold(body: EmailVerif());
           } else {
-            // Si l'utilisateur est connecté et que son email est vérifié
             return InitScreen();
           }
         } else {
-          // Si aucun utilisateur n'est connecté
           return Scaffold(body: UsernamePage());
         }
       },
     );
   }
 }
+
