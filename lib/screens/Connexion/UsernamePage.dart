@@ -13,7 +13,7 @@ class UsernamePage extends StatefulWidget {
   _UsernamePageState createState() => _UsernamePageState();
 }
 
-class _UsernamePageState extends State<UsernamePage> {
+class _UsernamePageState extends State<UsernamePage> with WidgetsBindingObserver {
   final TextEditingController _usernameController = TextEditingController();
   Timer? _debounce;
   bool _isLoading = false;
@@ -23,6 +23,8 @@ class _UsernamePageState extends State<UsernamePage> {
   late Timer _timer;
   String error = "";
   bool _hasTyped = false;
+  bool keybaordopen = false;
+  double btmi = 0;
 
   bool isValidUsername(String input) {
     final RegExp regex = RegExp(r'^[a-zA-Z0-9._-]{3,22}$');
@@ -33,6 +35,7 @@ class _UsernamePageState extends State<UsernamePage> {
   void initState() {
     super.initState();
     _usernameController.addListener(_onUsernameChanged);
+    WidgetsBinding.instance.addObserver(this);
     _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       setState(() {
         _isFirstImage = !_isFirstImage;
@@ -46,7 +49,17 @@ class _UsernamePageState extends State<UsernamePage> {
     _timer.cancel();
     _usernameController.removeListener(_onUsernameChanged);
     _usernameController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    final bottomInset = WidgetsBinding.instance.window.viewInsets.bottom;
+    setState(() {
+      keybaordopen = bottomInset > 0;
+      btmi = bottomInset;
+    });
   }
 
   void _onUsernameChanged() {
@@ -126,7 +139,7 @@ class _UsernamePageState extends State<UsernamePage> {
           children: <Widget>[
             Container(
               padding: EdgeInsets.all(16.0),
-              height: MediaQuery.of(context).size.height / 1.9,
+              height: MediaQuery.of(context).size.height / 1.9 - btmi/11.5,
               decoration: const BoxDecoration(
                 color: Color(0xFFF3F5F8),
                 borderRadius: BorderRadius.only(
@@ -134,177 +147,184 @@ class _UsernamePageState extends State<UsernamePage> {
                   topRight: Radius.circular(38.0),
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Trouve toi un",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 28),
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "nom d'utilisateur ",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700, fontSize: 28),
-                                ),
-                                Image.asset(
-                                  _isFirstImage
-                                      ? "assets/images/emoji_menuh.png"
-                                      : "assets/images/emoji_menuf.png",
-                                  height: 38,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.04),
-                    SizedBox(
-                      height: 60,
-                      child: Stack(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
                         children: [
-                          CupertinoTextField(
-                            controller: _usernameController,
-                            padding: EdgeInsets.all(15),
-                            cursorColor: Colors.redAccent,
-                            placeholder: "Taper un nom d'utilisateur",
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.systemGrey5,
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                          ),
-                          if (_isLoading)
-                            Positioned(
-                              right: 10,
-                              top: 13,
-                              child: CupertinoActivityIndicator(),
-                            ),
-                          if (!_isLoading && _hasTyped)
-                            Positioned(
-                              right: 10,
-                              top: 13,
-                              child: Icon(
-                                _isUsernameAvailable
-                                    ? CupertinoIcons.check_mark
-                                    : CupertinoIcons.clear_thick,
-                                color: _isUsernameAvailable ? Colors.green : Colors.red,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Trouve toi un",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 28),
                               ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(
-                            error,
-                            style: TextStyle(
-                                fontWeight: FontWeight.w500, fontSize: 14, color: Colors.redAccent),
-                            textAlign: TextAlign.start,
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTapUp: (t) {
-                            String username = _usernameController.text.trim();
-                            if (username.isNotEmpty && !_hasError) {
-                              Haptics.vibrate(HapticsType.light);
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                    builder: (context) =>
-                                        Scaffold(body: PfPage(username: username),)
-                                ),
-                              );
-                            } else {
-                              Haptics.vibrate(HapticsType.error);
-                            }
-                          },
-                          child: Container(
-                            height: 70,
-                            width: 200,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              gradient: LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  Colors.redAccent,
-                                  Colors.deepOrange,
+                              Row(
+                                children: [
+                                  Text(
+                                    "nom d'utilisateur ",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700, fontSize: 28),
+                                  ),
+                                  Image.asset(
+                                    _isFirstImage
+                                        ? "assets/images/emoji_menuh.png"
+                                        : "assets/images/emoji_menuf.png",
+                                    height: 38,
+                                  ),
                                 ],
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0xffF14BA9).withOpacity(0.5),
-                                  spreadRadius: 4,
-                                  blurRadius: 8,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Suivant",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500, fontSize: 20, color: Colors.white),
-                                ),
-                                SizedBox(width: 15,),
-                                Icon(CupertinoIcons.arrow_right, color: Colors.white, size: 20,)
-                              ],
-                            ),
+                            ],
                           ),
-                        )
-                      ],
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Tu as deja un compte ? ",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400, fontSize: 16, color: CupertinoColors.systemGrey),
-                        ),
-                        SizedBox(width: 5,),
-                        GestureDetector(
-                          onTapUp: (t){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Scaffold(body: LoginPage(),),
+                        ],
+                      ),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+                      SizedBox(
+                        height: 60,
+                        child: Stack(
+                          children: [
+                            CupertinoTextField(
+                              controller: _usernameController,
+                              onTapOutside: (t){
+                                FocusScope.of(context).unfocus();
+                              },
+                              padding: EdgeInsets.all(15),
+                              cursorColor: Colors.redAccent,
+                              placeholder: "Taper un nom d'utilisateur",
+                              decoration: BoxDecoration(
+                                color: CupertinoColors.systemGrey5,
+                                borderRadius: BorderRadius.circular(12.0),
                               ),
-                            );
-                          },
-                          child: Text(
-                            "Se connecter",
+                            ),
+                            if (_isLoading)
+                              Positioned(
+                                right: 10,
+                                top: 13,
+                                child: CupertinoActivityIndicator(),
+                              ),
+                            if (!_isLoading && _hasTyped)
+                              Positioned(
+                                right: 10,
+                                top: 13,
+                                child: Icon(
+                                  _isUsernameAvailable
+                                      ? CupertinoIcons.check_mark
+                                      : CupertinoIcons.clear_thick,
+                                  color: _isUsernameAvailable ? Colors.green : Colors.red,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              error,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 14, color: Colors.redAccent),
+                              textAlign: TextAlign.start,
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTapUp: (t) {
+                              String username = _usernameController.text.trim();
+                              if (username.isNotEmpty && !_hasError) {
+                                Haptics.vibrate(HapticsType.light);
+                                Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                      builder: (context) =>
+                                          Scaffold(body: PfPage(username: username),)
+                                  ),
+                                );
+                              } else {
+                                Haptics.vibrate(HapticsType.error);
+                              }
+                            },
+                            child: Container(
+                              height: 70,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Colors.redAccent,
+                                    Colors.deepOrange,
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0xffF14BA9).withOpacity(0.5),
+                                    spreadRadius: 4,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Suivant",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500, fontSize: 20, color: Colors.white),
+                                  ),
+                                  SizedBox(width: 15,),
+                                  Icon(CupertinoIcons.arrow_right, color: Colors.white, size: 20,)
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      if(!keybaordopen)
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                      if(!keybaordopen)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Tu as deja un compte ? ",
                             style: TextStyle(
-                                fontWeight: FontWeight.w500, fontSize: 16, color: Colors.deepPurpleAccent),
+                                fontWeight: FontWeight.w400, fontSize: 16, color: CupertinoColors.systemGrey),
                           ),
-                        )
-                      ],
-                    )
-                  ],
+                          SizedBox(width: 5,),
+                          GestureDetector(
+                            onTapUp: (t){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Scaffold(body: LoginPage(),),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Se connecter",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 16, color: Colors.deepPurpleAccent),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
+              )
             ),
           ],
         ),

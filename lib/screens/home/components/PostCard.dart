@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/PostManager.dart';
 import 'package:jymu/screens/home/ProfilPage.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -96,6 +97,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
       liked = !liked;
       if (liked) {
         _controller.forward();
+        Haptics.vibrate(HapticsType.medium);
         addLike(widget.postID, FirebaseAuth.instance.currentUser!.uid);
       } else {
         _controller.reverse();
@@ -128,7 +130,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           child: Stack(
             children: [
               Container(
-                margin: EdgeInsets.only(left: 20.0, right: 20, bottom: liked ? 30 : 15),
+                margin: EdgeInsets.only(bottom: liked ? 30 : 15),
                 padding: EdgeInsets.only(top: 20.0, left: 20, right: 20, bottom: 10),
                 width: double.infinity,
                 decoration: BoxDecoration(

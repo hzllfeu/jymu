@@ -20,7 +20,7 @@ class AuthPage extends StatefulWidget {
   _AuthPageState createState() => _AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class _AuthPageState extends State<AuthPage>  with WidgetsBindingObserver {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController mdpController = TextEditingController();
   Timer? _debounce;
@@ -33,6 +33,9 @@ class _AuthPageState extends State<AuthPage> {
   bool _hasTyped = false;
   bool hidetext = true;
   bool fireload = true;
+
+  bool keybaordopen = false;
+  double btmi = 0;
 
   bool isValidEmail(String input) {
     final RegExp regex = RegExp(
@@ -51,6 +54,7 @@ class _AuthPageState extends State<AuthPage> {
     super.initState();
     _emailController.addListener(_onEmailChanged);
     mdpController.addListener(_onPasswordChanged);
+    WidgetsBinding.instance.addObserver(this);
     _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       setState(() {
         _isFirstImage = !_isFirstImage;
@@ -65,8 +69,18 @@ class _AuthPageState extends State<AuthPage> {
     _emailController.removeListener(_onEmailChanged);
     mdpController.removeListener(_onPasswordChanged);
     _emailController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     mdpController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    final bottomInset = WidgetsBinding.instance.window.viewInsets.bottom;
+    setState(() {
+      keybaordopen = bottomInset > 0;
+      btmi = bottomInset;
+    });
   }
 
   void _onEmailChanged() {
@@ -210,7 +224,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -225,7 +239,7 @@ class _AuthPageState extends State<AuthPage> {
         children: <Widget>[
           Container(
             padding: EdgeInsets.all(16.0),
-            height: MediaQuery.of(context).size.height / 1.6,
+            height: MediaQuery.of(context).size.height / 1.6 - btmi/12,
             decoration: const BoxDecoration(
               color: Color(0xFFF3F5F8),
               borderRadius: BorderRadius.only(
@@ -233,211 +247,221 @@ class _AuthPageState extends State<AuthPage> {
                 topRight: Radius.circular(38.0),
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Choisi un moyen",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 28),
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "de connexion  ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w700, fontSize: 28),
+                                ),
+                                Image.asset(
+                                  _isFirstImage
+                                      ? "assets/images/emoji_phone.png"
+                                      : "assets/images/emoji_pc.png",
+                                  height: 36,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                    SizedBox(
+                      height: 60,
+                      child: Stack(
                         children: [
-                          Text(
-                            "Choisi un moyen",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 28),
+                          CupertinoTextField(
+                            controller: _emailController,
+                            padding: EdgeInsets.all(15),
+                            onTapOutside: (t){
+                              FocusScope.of(context).unfocus();
+                            },
+                            cursorColor: Colors.redAccent,
+                            placeholder: "Entre ton email",
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.systemGrey5,
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
                           ),
-                          Row(
-                            children: [
-                              Text(
-                                "de connexion  ",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 28),
+                          if (_isLoading)
+                            Positioned(
+                              right: 10,
+                              top: 13,
+                              child: CupertinoActivityIndicator(),
+                            ),
+                          if (!_isLoading && _hasTyped)
+                            Positioned(
+                              right: 10,
+                              top: 13,
+                              child: Icon(
+                                _isEmailAvailable
+                                    ? CupertinoIcons.check_mark
+                                    : CupertinoIcons.clear_thick,
+                                color: _isEmailAvailable ? Colors.green : Colors.red,
                               ),
-                              Image.asset(
-                                _isFirstImage
-                                    ? "assets/images/emoji_phone.png"
-                                    : "assets/images/emoji_pc.png",
-                                height: 36,
-                              ),
-                            ],
+                            ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                    SizedBox(
+                      height: 60,
+                      child: Stack(
+                        children: [
+                          CupertinoTextField(
+                            controller: mdpController,
+                            onTapOutside: (t){
+                              FocusScope.of(context).unfocus();
+                            },
+                            padding: EdgeInsets.all(15),
+                            cursorColor: Colors.redAccent,
+                            obscureText: hidetext,
+                            placeholder: "Crée un mot de passe",
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.systemGrey5,
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          Positioned(
+                              right: 15,
+                              top: 13,
+                              child: GestureDetector(
+                                onTapUp: (t){
+                                  setState(() {
+                                    hidetext = !hidetext;
+                                  });
+                                },
+                                child: Icon(hidetext ? CupertinoIcons.eye_slash : CupertinoIcons.eye, color: CupertinoColors.systemGrey,),
+                              )
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                  SizedBox(
-                    height: 60,
-                    child: Stack(
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        CupertinoTextField(
-                          controller: _emailController,
-                          padding: EdgeInsets.all(15),
-                          cursorColor: Colors.redAccent,
-                          placeholder: "Entre ton email",
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.systemGrey5,
-                            borderRadius: BorderRadius.circular(12.0),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            error,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 14, color: Colors.redAccent),
+                            textAlign: TextAlign.start,
                           ),
-                        ),
-                        if (_isLoading)
-                          Positioned(
-                            right: 10,
-                            top: 13,
-                            child: CupertinoActivityIndicator(),
-                          ),
-                        if (!_isLoading && _hasTyped)
-                          Positioned(
-                            right: 10,
-                            top: 13,
-                            child: Icon(
-                              _isEmailAvailable
-                                  ? CupertinoIcons.check_mark
-                                  : CupertinoIcons.clear_thick,
-                              color: _isEmailAvailable ? Colors.green : Colors.red,
-                            ),
-                          ),
+                        )
                       ],
                     ),
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                  SizedBox(
-                    height: 60,
-                    child: Stack(
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        CupertinoTextField(
-                          controller: mdpController,
-                          padding: EdgeInsets.all(15),
-                          cursorColor: Colors.redAccent,
-                          obscureText: hidetext,
-                          placeholder: "Crée un mot de passe",
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.systemGrey5,
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                        ),
-                          Positioned(
-                            right: 15,
-                            top: 13,
-                            child: GestureDetector(
-                              onTapUp: (t){
-                                setState(() {
-                                  hidetext = !hidetext;
-                                });
-                              },
-                              child: Icon(hidetext ? CupertinoIcons.eye_slash : CupertinoIcons.eye, color: CupertinoColors.systemGrey,),
-                            )
-                          ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          error,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w500, fontSize: 14, color: Colors.redAccent),
-                          textAlign: TextAlign.start,
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTapUp: (t) {
-                          String username = _emailController.text.trim();
-                          if (username.isNotEmpty && !_hasError && !_isLoading && _isEmailAvailable) {
-                            _signUp();
-                          }
-                        },
-                        child: Container(
-                          height: 70,
-                          width: 200,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            gradient: LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [
-                                Colors.redAccent,
-                                Colors.deepOrange,
-                              ],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xffF14BA9).withOpacity(0.5),
-                                spreadRadius: 4,
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Visibility(
-                                visible: fireload,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "Suivant",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500, fontSize: 20, color: Colors.white),
-                                    ),
-                                    SizedBox(width: 15,),
-                                    Icon(CupertinoIcons.arrow_right, color: Colors.white, size: 20,)
+                        GestureDetector(
+                          onTapUp: (t) {
+                            String username = _emailController.text.trim();
+                            if (username.isNotEmpty && !_hasError && !_isLoading && _isEmailAvailable) {
+                              _signUp();
+                            }
+                          },
+                          child: Container(
+                              height: 70,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Colors.redAccent,
+                                    Colors.deepOrange,
                                   ],
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0xffF14BA9).withOpacity(0.5),
+                                    spreadRadius: 4,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              Visibility(
-                                visible: !fireload,
-                                child: CupertinoActivityIndicator(color: Colors.white,),
-                              ),
-                            ],
-                          )
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Tu as deja un compte ? ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 16, color: CupertinoColors.systemGrey),
-                      ),
-                      SizedBox(width: 5,),
-                      GestureDetector(
-                        onTapUp: (t){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Scaffold(body: LoginPage(),),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          "Se connecter",
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Visibility(
+                                    visible: fireload,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Suivant",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500, fontSize: 20, color: Colors.white),
+                                        ),
+                                        SizedBox(width: 15,),
+                                        Icon(CupertinoIcons.arrow_right, color: Colors.white, size: 20,)
+                                      ],
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: !fireload,
+                                    child: CupertinoActivityIndicator(color: Colors.white,),
+                                  ),
+                                ],
+                              )
+                          ),
+                        )
+                      ],
+                    ),
+                    if(!keybaordopen)
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+                    if(!keybaordopen)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Tu as deja un compte ? ",
                           style: TextStyle(
-                              fontWeight: FontWeight.w500, fontSize: 16, color: Colors.deepPurpleAccent),
+                              fontWeight: FontWeight.w400, fontSize: 16, color: CupertinoColors.systemGrey),
                         ),
-                      )
-                    ],
-                  )
-                ],
+                        SizedBox(width: 5,),
+                        GestureDetector(
+                          onTapUp: (t){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Scaffold(body: LoginPage(),),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Se connecter",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 16, color: Colors.deepPurpleAccent),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
-            ),
+            )
           ),
         ],
       ),

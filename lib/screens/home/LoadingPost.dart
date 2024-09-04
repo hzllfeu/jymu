@@ -10,7 +10,6 @@ class LoadingPost extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 20.0, right: 20, bottom: 10),
       padding: EdgeInsets.only(top: 20.0, left: 20, right: 20, bottom: 10),
       width: double.infinity,
       height: 180,

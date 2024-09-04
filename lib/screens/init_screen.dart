@@ -49,21 +49,21 @@ class _InitScreenState extends State<InitScreen> {
         onTap: updateCurrentIndex,
         currentIndex: currentSelectedIndex,
 
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.house, size: 28,),
+            icon: Icon(CupertinoIcons.house, size: 26*MediaQuery.of(context).textScaleFactor,),
             activeIcon: Icon(CupertinoIcons.house_fill, color: Colors.redAccent,size: 28,),
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.command, size: 28,),
+            icon: Icon(CupertinoIcons.command, size: 26*MediaQuery.of(context).textScaleFactor,),
             activeIcon: Icon(CupertinoIcons.command, color: Colors.redAccent,size: 28,),
           ),
           BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.search, size: 28,),
+              icon: Icon(CupertinoIcons.search, size: 26*MediaQuery.of(context).textScaleFactor,),
               activeIcon: Icon(CupertinoIcons.search, color: Colors.redAccent,size: 28,),
           ),
           BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.person, size: 28,),
+              icon: Icon(CupertinoIcons.person, size: 26*MediaQuery.of(context).textScaleFactor,),
               activeIcon: Icon(CupertinoIcons.person_fill, color: Colors.redAccent,size: 28,),
           ),
         ],

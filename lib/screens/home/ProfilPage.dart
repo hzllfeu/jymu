@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/UserManager.dart';
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
 import 'package:jymu/screens/home/LoadingLikes.dart';
@@ -61,6 +62,9 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   late Map<String, dynamic> owndata;
   bool ownProf = false;
 
+  late final TabController tabController;
+
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +72,8 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
       duration: Duration(milliseconds: 300),
       vsync: this,
     );
+
+    tabController = TabController(length: 3, vsync: this);
 
     id = widget.id;
 
@@ -212,76 +218,6 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const SizedBox(height: 20),
-                    if(ownProf)
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 25),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTapUp: (t) {
-                                showCupertinoModalPopup(
-                                  context: context,
-                                  barrierColor: Colors.black.withOpacity(0.4),
-                                  builder: (BuildContext build) {
-                                    return TweenAnimationBuilder<double>(
-                                      duration: Duration(milliseconds: 300),
-                                      tween: Tween<double>(
-                                          begin: 0.0, end: 4.0),
-                                      curve: Curves.linear,
-                                      builder: (context, value, _) {
-                                        return AnimatedOpacity(
-                                          duration: Duration(
-                                              milliseconds: 1000),
-                                          opacity: 1.0,
-                                          curve: Curves.linear,
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(
-                                                sigmaX: value, sigmaY: value),
-                                            child: CupertinoPopupSurface(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                width: double.infinity,
-                                                height: 670,
-                                                child: ProfileComp(),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                              child: Icon(
-                                CupertinoIcons.settings,
-                                size: 26,
-                                color: CupertinoColors.systemGrey,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTapUp: (t) async {
-                                try {
-                                  await FirebaseAuth.instance.signOut();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => UsernamePage(),
-                                    ),
-                                  );
-                                } catch (e) {
-                                  print('Failed to sign out: $e');
-                                }
-                              },
-                              child: Icon(
-                                CupertinoIcons.bell,
-                                size: 26,
-                                color: CupertinoColors.systemGrey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     if(!ownProf)
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 25),
@@ -322,75 +258,8 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
-          if (ownProf)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTapUp: (t) {
-                      showCupertinoModalPopup(
-                        context: context,
-                        barrierColor: Colors.black.withOpacity(0.4),
-                        builder: (BuildContext build) {
-                          return TweenAnimationBuilder<double>(
-                            duration: Duration(milliseconds: 300),
-                            tween: Tween<double>(begin: 0.0, end: 4.0),
-                            curve: Curves.linear,
-                            builder: (context, value, _) {
-                              return AnimatedOpacity(
-                                duration: Duration(milliseconds: 1000),
-                                opacity: 1.0,
-                                curve: Curves.linear,
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                      sigmaX: value, sigmaY: value),
-                                  child: CupertinoPopupSurface(
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      width: double.infinity,
-                                      height: 670,
-                                      child: ProfileComp(),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                    child: Icon(
-                      CupertinoIcons.settings,
-                      size: 26,
-                      color: CupertinoColors.systemGrey,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTapUp: (t) async {
-                      try {
-                        await FirebaseAuth.instance.signOut();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UsernamePage(),
-                          ),
-                        );
-                      } catch (e) {
-                        print('Failed to sign out: $e');
-                      }
-                    },
-                    child: Icon(
-                      CupertinoIcons.bell,
-                      size: 26,
-                      color: CupertinoColors.systemGrey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          if(!ownProf)
+            SizedBox(height: MediaQuery.of(context).size.height*0.01,),
           if (!ownProf)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25),
@@ -441,16 +310,19 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                 ],
               ),
             ),
-          const SizedBox(height: 30),
+          if(ownProf)
+            SizedBox(height: MediaQuery.of(context).size.width*0.03),
+          if(!ownProf)
+            SizedBox(height: MediaQuery.of(context).size.width*0.04),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25),
+            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.04),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
                 Container(
                   width: double.infinity,
-                  height: 230,
-                  padding: EdgeInsets.all(20),
+                  height: ownProf ? MediaQuery.of(context).size.height*0.25 : MediaQuery.of(context).size.height*0.26,
+                  padding: EdgeInsets.only(top: 20, right: 20, left: 20, bottom: 10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     gradient: const LinearGradient(
@@ -498,7 +370,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 26),
                             child: Text(displayName ?? ''),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 2),
                           DefaultTextStyle(
                             style: TextStyle(color: Colors.white54, fontWeight: FontWeight.w700, fontSize: 14),
                             child: Text("@$username"),
@@ -788,135 +660,56 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
               ],
             ),
           ),
-          const SizedBox(height: 30,),
+          SizedBox(height: MediaQuery.of(context).size.height*0.03,),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25),
+            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.04),
             child: Text(bio!, style: TextStyle(
                 color: Colors.black.withOpacity(0.8),
-                fontSize: 16,
+                fontSize: 5*MediaQuery.of(context).size.width*0.007,
                 fontWeight: FontWeight.w600), textAlign: TextAlign.center,),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(height: 5),
-                Stack(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 70,
-                      // Augmenter la hauteur pour laisser de l'espace à la barre
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isFirstSelected = true;
-                                isSecondSelected = false;
-                                isThirdSelected = false;
-                              });
-                            },
-                            child: Container(
-                              height: 80,
-                              width: 80,
-                              color: Colors.transparent,
-                              child: Icon(
-                                isFirstSelected
-                                    ? CupertinoIcons.square_grid_2x2_fill
-                                    : CupertinoIcons.square_grid_2x2,
-                                color: isFirstSelected
-                                    ? Colors.redAccent
-                                    : CupertinoColors.systemGrey,
-                                size: 30,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isFirstSelected = false;
-                                isSecondSelected = true;
-                                isThirdSelected = false;
-                              });
-                            },
-                            child: Container(
-                              height: 80,
-                              width: 80,
-                              color: Colors.transparent,
-                              child: Icon(
-                                isSecondSelected
-                                    ? CupertinoIcons.square_favorites_alt_fill
-                                    : CupertinoIcons.square_favorites_alt,
-                                color: isSecondSelected
-                                    ? Colors.redAccent
-                                    : CupertinoColors.systemGrey,
-                                size: 30,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isFirstSelected = false;
-                                isSecondSelected = false;
-                                isThirdSelected = true;
-                              });
-                            },
-                            child: Container(
-                              height: 80,
-                              width: 80,
-                              color: Colors.transparent,
-                              child: Icon(
-                                isThirdSelected
-                                    ? CupertinoIcons.heart
-                                    : CupertinoIcons.heart,
-                                color: isThirdSelected
-                                    ? Colors.redAccent
-                                    : CupertinoColors.systemGrey,
-                                size: 30,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    AnimatedPositioned(
-                      duration: Duration(milliseconds: 150),
-                      curve: Curves.easeOut,
-                      left: isFirstSelected
-                          ? MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.025
-                          : isSecondSelected
-                          ? MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.347
-                          : MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.675,
-                      top: 58,
-                      child: Container(
-                        height: 3,
-                        width: 80,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topRight,
-                            end: Alignment.bottomLeft,
-                            colors: [Color(0xffF14BA9), Colors.redAccent],
-                          ),
-                        ),
-                      ),
-                    ),
+          SizedBox(height: MediaQuery.of(context).size.height*0.02,),
+          PreferredSize(
+            preferredSize: const Size.fromHeight(40),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              child: Container(
+                height: 40,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [Color(0xffF14BA9).withOpacity(0.3), Colors.redAccent.withOpacity(0.3)],
+                  ),
+                ),
+                child: TabBar(
+                  controller: tabController,
+                  enableFeedback: true,
+                  onTap: (i) {
+                    setState(() {
+                        isFirstSelected = i == 0;
+                        isSecondSelected = i == 1;
+                        isThirdSelected = i == 2;
+                      Haptics.vibrate(HapticsType.light);
+                    });
+                  },
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  indicator: const BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.black54,
+                  tabs: [
+                    Tab(text: 'Trainings'),
+                    Tab(text: 'Posts'),
+                    Tab(text: 'Likes'),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
 

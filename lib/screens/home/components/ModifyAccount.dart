@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:jymu/UserManager.dart';
 
+import '../../InputPage.dart';
+
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
 class ModifyAccount extends StatefulWidget {
@@ -117,16 +119,35 @@ class _ModifyAccountState extends State<ModifyAccount> {
                 ),
                 SizedBox(width: 40),
                 Expanded(  // Utilisation de Expanded ici
-                  child: SizedBox(
-                    height: 50,
-                    child: CupertinoTextField(
-                      controller: nameController,
+                  child: GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InputPage(text: "Modifiez votre nom"),
+                        ),
+                      );
+
+                      if (result != null) {
+                        nameController.text = result;
+                        displayname = result;
+                        setState(() {});
+                      }
+                    },
+                    child: Container(
+                      height: 50,
                       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                      cursorColor: Colors.redAccent,
-                      placeholder: displayname,
                       decoration: BoxDecoration(
                         color: CupertinoColors.systemGrey5,
                         borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        displayname,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
                       ),
                     ),
                   ),
@@ -149,16 +170,35 @@ class _ModifyAccountState extends State<ModifyAccount> {
                 ),
                 SizedBox(width: 40),
                 Expanded(  // Utilisation de Expanded ici
-                  child: SizedBox(
-                    height: 50,
-                    child: CupertinoTextField(
-                      controller: bioController,
+                  child: GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InputPage(text: "Modifiez votre bio"),
+                        ),
+                      );
+
+                      if (result != null) {
+                        bioController.text = result;
+                        bio = result;
+                        setState(() {});
+                      }
+                    },
+                    child: Container(
+                      height: 50,
                       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                      cursorColor: Colors.redAccent,
-                      placeholder: bio,
                       decoration: BoxDecoration(
                         color: CupertinoColors.systemGrey5,
                         borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        bio,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
                       ),
                     ),
                   ),
@@ -181,10 +221,10 @@ class _ModifyAccountState extends State<ModifyAccount> {
                       String display = nameController.text.trim();
                       String tmpbio = bioController.text.trim();
                       //TODO verifier si bio et dsp name sont correct (taille etc)
-                        if(display != displayname && !display.isEmpty){
+                        if(!display.isEmpty){
                           await setDisplayName(id, display);
                         }
-                        if(tmpbio != bio && !tmpbio.isEmpty){
+                        if(!tmpbio.isEmpty){
                           await setBio(id, tmpbio);
                         }
                         setState(() {

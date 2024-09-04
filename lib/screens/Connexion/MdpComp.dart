@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 
+import '../InputPage.dart';
+
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
 class MdpComp extends StatefulWidget {
@@ -57,14 +59,35 @@ class _MdpCompState extends State<MdpComp> {
               height: 60,
               child: Stack(
                 children: [
-                  CupertinoTextField(
-                    controller: _usernameController,
-                    padding: EdgeInsets.all(15),
-                    cursorColor: Colors.redAccent,
-                    placeholder: "Entre un email",
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.systemGrey5,
-                      borderRadius: BorderRadius.circular(12.0),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InputPage(text: "Entrer un email"),
+                        ),
+                      );
+
+                      if (result != null) {
+                        _usernameController.text = result;
+                        setState(() {});
+                      }
+                    },
+                    child: Container(
+                      height: 50,
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemGrey5,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        _usernameController.text.trim().isEmpty ? "Entrer un email" : _usernameController.text.trim(),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
                     ),
                   ),
                 ],
