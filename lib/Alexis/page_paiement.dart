@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:jymu/RequeteProfile.dart';
+import 'package:jymu/Alexis/page_requete.dart';
 import 'package:jymu/screens/home/HomeScreen.dart';
 
 import 'package:jymu/screens/home/components/ProfileComp.dart';

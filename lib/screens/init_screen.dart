@@ -6,7 +6,7 @@ import 'package:jymu/screens/Questions/QuestionSexe.dart';
 import 'package:jymu/screens/home/FeedPage.dart';
 import 'package:jymu/screens/home/ProfilPage.dart';
 import 'package:jymu/screens/home/RecherchePage.dart';
-
+import 'package:jymu/Alexis/ia_gene.dart';
 import '../Alexis/ia_gene.dart';
 import 'home/HomeScreen.dart';
 
@@ -34,7 +34,7 @@ class _InitScreenState extends State<InitScreen> {
       Center(
       child: FeedPage(),
       ),
-      QuestionSexe(),
+      IaGene(),
       RecherchePage(id: FirebaseAuth.instance.currentUser!.uid),
       ProfilPage(id: FirebaseAuth.instance.currentUser!.uid),
   ];

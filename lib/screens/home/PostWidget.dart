@@ -73,7 +73,7 @@ class _NewPostWidgetState extends State<NewPostWidget> {
           children: <Widget>[
             Container(
               padding: EdgeInsets.all(16.0),
-              height: MediaQuery.of(context).size.height / 3,
+              height: MediaQuery.of(context).size.height / 2,
               decoration: const BoxDecoration(
                 color: Color(0xFFF3F5F8),
                 borderRadius: BorderRadius.only(
@@ -81,7 +81,10 @@ class _NewPostWidgetState extends State<NewPostWidget> {
                   topRight: Radius.circular(38.0),
                 ),
               ),
-              child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height / 1.5,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -94,7 +97,9 @@ class _NewPostWidgetState extends State<NewPostWidget> {
                               Text(
                                 "Rédige un post",
                                 style: TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 5*MediaQuery.of(context).size.width*0.015),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 5 * MediaQuery.of(context).size.width * 0.015,
+                                ),
                               ),
                               SizedBox(width: 10,),
                               Image.asset("assets/images/emoji_pencil.png", height: 26,)
@@ -110,7 +115,6 @@ class _NewPostWidgetState extends State<NewPostWidget> {
                           focusNode: _focusNode,
                           textAlignVertical: TextAlignVertical.top,
                           maxLines: 5,
-                          maxLength: 300,
                           cursorColor: Colors.redAccent,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.only(top: 18, left: 15, right: 15),
@@ -151,24 +155,73 @@ class _NewPostWidgetState extends State<NewPostWidget> {
                                   ),
                                 ],
                               ),
-                              child:  Row(
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   DefaultTextStyle(
-                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black.withOpacity(0.6)),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: Colors.black.withOpacity(0.6),
+                                    ),
                                     child: Text("Mettre en privé",),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                          Text(_controller.text.trim().length.toString() + "/300  ", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: CupertinoColors.systemGrey),)
+                          Text(
+                            "${_controller.text.trim().length}/300",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 5 * MediaQuery.of(context).size.width * 0.0065,
+                              color: CupertinoColors.systemGrey,
+                            ),
+                          )
                         ],
-                      )
+                      ),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.095),
+                      GestureDetector(
+                        onTapUp: (t) {
+                          _addPost();
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height * 0.07,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.redAccent,
+                                Colors.deepOrange,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(CupertinoIcons.arrow_right, size: 22, color: Colors.transparent,),
+                              Text(
+                                "Envoyer",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Icon(CupertinoIcons.arrow_right, size: 22, color: Colors.white,),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              )
+              ),
             ),
           ],
         ),

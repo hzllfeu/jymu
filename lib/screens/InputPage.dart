@@ -21,8 +21,6 @@ class _InputPageState extends State<InputPage> {
   @override
   void initState() {
     super.initState();
-
-    // Ouvre automatiquement le clavier après que la page est chargée
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(_focusNode);
     });
@@ -31,7 +29,7 @@ class _InputPageState extends State<InputPage> {
   @override
   void dispose() {
     _usernameController.dispose();
-    _focusNode.dispose(); // Libère le FocusNode
+    _focusNode.dispose();
     super.dispose();
   }
 
