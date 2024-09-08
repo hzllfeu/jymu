@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/PostManager.dart';
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
 import 'package:jymu/screens/home/LoadingPost.dart';
@@ -23,13 +24,15 @@ class FeedPage extends StatefulWidget {
   State<FeedPage> createState() => _FeedPageState();
 }
 
-class _FeedPageState extends State<FeedPage> {
+class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   bool isFirstSelected = true;
   bool _isLoading = true;
+  late final TabController tabController;
 
   @override
   void initState() {
     super.initState();
+    tabController = TabController(length: 2, vsync: this);
     Future.delayed(Duration(milliseconds: 500), () {
       if (mounted) {
         setState(() {
@@ -40,9 +43,15 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF3F5F8),
+      backgroundColor: const Color(0xFFF3F5F8),
       body: SafeArea(
         child: Stack(
           children: [
@@ -51,6 +60,7 @@ class _FeedPageState extends State<FeedPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  SizedBox(height: MediaQuery.of(context).size.height*0.02,),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -87,77 +97,91 @@ class _FeedPageState extends State<FeedPage> {
                               },
                             );
                           },
-                          child: Icon(
-                            CupertinoIcons.settings,
-                            size: 26,
-                            color: CupertinoColors.systemGrey,
+                          child: Container(
+                            height: 38,
+                            width: 42,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  spreadRadius: 2,
+                                  blurRadius: 3,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                                child: Image.asset('assets/images/emoji_settings.png', height: 24,)
+                            ),
                           ),
                         ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            SizedBox(height: 5),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.5,
-                              height: 50,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            isFirstSelected = true;
-                                          });
-                                        },
-                                        child: Text(
-                                          "For you",
-                                          style: TextStyle(
-                                            color: isFirstSelected
-                                                ? Colors.redAccent
-                                                : CupertinoColors.systemGrey,
-                                            fontSize: 5*MediaQuery.of(context).size.width*0.008,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 20),
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            isFirstSelected = false;
-                                          });
-                                        },
-                                        child: Text(
-                                          "Abonnés",
-                                          style: TextStyle(
-                                            color: isFirstSelected
-                                                ? CupertinoColors.systemGrey
-                                                : Colors.redAccent,
-                                            fontSize: 5*MediaQuery.of(context).size.width*0.008,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.65,
+                          child: PreferredSize(
+                            preferredSize: const Size.fromHeight(40),
+                            child: Stack(
+                              children: [
+                                Container(
+                                  height: 40,
+                                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        spreadRadius: 2,
+                                        blurRadius: 3,
+                                        offset: const Offset(0, 1),
                                       ),
                                     ],
+                                    color: const Color(0xFFF3F5F8),
                                   ),
-                                  AnimatedPositioned(
-                                    duration: Duration(milliseconds: 150),
-                                    curve: Curves.easeInOut,
-                                    top: 43,
-                                    left: isFirstSelected ? 45 : 140,
-                                    child: Container(
-                                      height: 3,
-                                      width: 25,
-                                      color: Colors.redAccent,
+                                ),
+                                // Container pour le gradient
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                  child: Container(
+                                    height: 40,
+                                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topRight,
+                                        end: Alignment.bottomLeft,
+                                        colors: [
+                                          Color(0xffF14BA9).withOpacity(0.3),
+                                          Colors.redAccent.withOpacity(0.3),
+                                        ],
+                                      ),
+                                    ),
+                                    child: TabBar(
+                                      controller: tabController,
+                                      enableFeedback: true,
+                                      onTap: (i) {
+                                        setState(() {
+                                          Haptics.vibrate(HapticsType.light);
+                                        });
+                                      },
+                                      indicatorSize: TabBarIndicatorSize.tab,
+                                      dividerColor: Colors.transparent,
+                                      indicator: const BoxDecoration(
+                                        color: Colors.redAccent,
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      labelColor: Colors.white,
+                                      unselectedLabelColor: Colors.black54,
+                                      tabs: const [
+                                        Tab(text: 'For you'),
+                                        Tab(text: 'Amis'),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                         GestureDetector(
                           onTapUp: (t) async {
@@ -173,21 +197,35 @@ class _FeedPageState extends State<FeedPage> {
                               print('Failed to sign out: $e');
                             }
                           },
-                          child: Icon(
-                            CupertinoIcons.bell,
-                            size: 26,
-                            color: CupertinoColors.systemGrey,
+                          child: Container(
+                            height: 38,
+                            width: 42,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  spreadRadius: 2,
+                                  blurRadius: 3,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                                child: Image.asset('assets/images/emoji_bell.png', height: 20,)
+                            ),
                           ),
                         ),
                       ],
                     ),
                   const SizedBox(height: 30),
-                  StreamBuilder<QuerySnapshot>(
-                    stream: getPosts(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting || _isLoading) {
-                        return Expanded(
-                          child: SingleChildScrollView(
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: getPosts(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting || _isLoading) {
+                          return SingleChildScrollView(
                             child: Column(
                               children: List.generate(
                                 4, // Nombre d'éléments de chargement
@@ -197,19 +235,16 @@ class _FeedPageState extends State<FeedPage> {
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      }
+                          );
+                        }
 
+                        if (!snapshot.hasData) {
+                          return const Center(child: Text('Aucun post disponible.'));
+                        }
 
-                      if (!snapshot.hasData) {
-                        return const Center(child: Text('Aucun post disponible.'));
-                      }
+                        final posts = snapshot.data!.docs;
 
-                      final posts = snapshot.data!.docs;
-
-                      return Expanded(
-                        child: ListView.builder(
+                        return ListView.builder(
                           itemCount: posts.length,
                           itemBuilder: (context, index) {
                             final post = posts[index].data() as Map<String, dynamic>;
@@ -223,78 +258,103 @@ class _FeedPageState extends State<FeedPage> {
                               postID: posts[index].id,
                             );
                           },
-                        ),
-                      );
-                    },
-                  )
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
+            
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
-              child: GestureDetector(
-                onTapUp: (t) {
-                  showCupertinoModalPopup(
-                    context: context,
-                    barrierColor: Colors.black.withOpacity(0.4),
-                    builder: (BuildContext build) {
-                      return TweenAnimationBuilder<double>(
-                        duration: Duration(milliseconds: 300),
-                        tween: Tween<double>(begin: 0.0, end: 4.0),
-                        curve: Curves.linear,
-                        builder: (context, value, _) {
-                          return AnimatedOpacity(
-                            duration: Duration(milliseconds: 1000),
-                            opacity: 1.0,
+              child: Stack(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.37, right: MediaQuery.of(context).size.width*0.37, bottom: 0),
+                    width: 200,
+                    height: MediaQuery.of(context).size.height*0.06,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(45), topRight: Radius.circular(45)),
+                      color: Color(0xFFF3F5F8),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTapUp: (t) {
+                      showCupertinoModalPopup(
+                        context: context,
+                        barrierColor: Colors.black.withOpacity(0.4),
+                        builder: (BuildContext build) {
+                          return TweenAnimationBuilder<double>(
+                            duration: Duration(milliseconds: 300),
+                            tween: Tween<double>(begin: 0.0, end: 4.0),
                             curve: Curves.linear,
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(
-                                  sigmaX: value, sigmaY: value),
-                              child: CupertinoPopupSurface(
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: MediaQuery.of(context).size.height*0.3,
-                                  child: SelectPost(),
+                            builder: (context, value, _) {
+                              return AnimatedOpacity(
+                                duration: Duration(milliseconds: 1000),
+                                opacity: 1.0,
+                                curve: Curves.linear,
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                      sigmaX: value, sigmaY: value),
+                                  child: CupertinoPopupSurface(
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      width: double.infinity,
+                                      height: MediaQuery.of(context).size.height*0.3,
+                                      child: SelectPost(),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
+                              );
+                            },
                           );
                         },
                       );
                     },
-                  );
-                },
-                child: Container(
-                    padding: EdgeInsets.all(15.0),
-                    margin: EdgeInsets.only(left: 130, right: 130, bottom: 15),
-                    width: 200,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(22),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.redAccent.withOpacity(0.2),
-                          spreadRadius: 4,
-                          blurRadius: 12,
-                          offset: Offset(0, 2),
+                    child: Container(
+                        margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.37, right: MediaQuery.of(context).size.width*0.37, bottom: 0),
+                        width: 200,
+                        height: MediaQuery.of(context).size.height*0.06,
+                        decoration:  BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                            colors: [Color(0xffF14BA9).withOpacity(0.7), Colors.redAccent.withOpacity(0.7)],
+                          ),
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(45), topRight: Radius.circular(45)),
                         ),
-                      ],
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: 40,
+                                width: 47,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      spreadRadius: 2,
+                                      blurRadius: 3,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                    child: Image.asset('assets/images/emoji_phone.png', height: 26,)
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                     ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(CupertinoIcons.photo_camera, color: Colors.redAccent, size: 22,),
-                          SizedBox(width: 10,),
-                          Text("Poster", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.7)),)
-                        ],
-                      ),
-                    )
-                ),
+                  ),
+                ],
               ),
             ),
           ],

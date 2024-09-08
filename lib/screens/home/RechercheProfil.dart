@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,8 +15,9 @@ import 'components/TabItem.dart';
 
 class RechercheProfil extends StatefulWidget {
   final String? id;
+  final int index;
 
-  RechercheProfil({super.key, required this.id});
+  RechercheProfil({super.key, required this.id, required this.index});
 
   @override
   State<RechercheProfil> createState() => _RechercheProfilState();
@@ -48,6 +50,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
   Map<String, bool> loadingProfiles = {}; // Suivre l'état de chargement par profil
   int itemsPerPage = 20;
   bool isLoading = false;
+  bool isLoadingBis = true;
   bool hasMore = true;
 
   final TextEditingController _searchController = TextEditingController();
@@ -63,10 +66,16 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
     id = widget.id;
     _fetchDataFuture = _fetchData();
     if (!ownProf) {
-      tabController = TabController(length: 3, vsync: this, initialIndex: 1);
+      tabController = TabController(length: 3, vsync: this, initialIndex: widget.index);
+      isFirstSelected = widget.index == 0;
+      isSecondSelected = widget.index == 1;
+      isThirdSelected = widget.index == 2;
     } else {
-      tabController = TabController(length: 2, vsync: this, initialIndex: 0);
+      tabController = TabController(length: 2, vsync: this, initialIndex: widget.index-1);
+      isSecondSelected = widget.index == 1;
+      isThirdSelected = widget.index == 2;
     }
+
     _searchController.addListener(() {
       _onSearchChanged();
     });
@@ -86,12 +95,11 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
       setState(() {
         if(isSecondSelected){
           displayedProfiles = (data['followed'] as List<dynamic>).where((userId) => profilesData.containsKey(userId)).cast<String>().toList();
-        } else {
+        } else if(isThirdSelected){
           displayedProfiles = (data['follow'] as List<dynamic>).where((userId) => profilesData.containsKey(userId)).cast<String>().toList();
+        } else {
+          displayedProfiles = data['followed'].toSet().intersection(owndata['followed'].toSet()).toList();
         }
-
-
-        //TODO faire la logique pour afficher les profils en commun
       });
     }
   }
@@ -102,11 +110,11 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
       List<String> allProfiles;
       if(isSecondSelected){
          allProfiles = data['followed'].cast<String>();
-      } else {
+      } else if(isThirdSelected){
          allProfiles = data['follow'].cast<String>();
+      } else {
+        allProfiles = data['followed'].toSet().intersection(owndata['followed'].toSet()).toList();
       }
-
-      //TODO faire la logique pour afficher les profils en commun
 
       for (String userId in allProfiles) {
         var profileData;
@@ -182,6 +190,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
           }
 
           // Charger les profils initiaux
+          isLoadingBis = false;
           _loadMoreProfiles();
         });
       }
@@ -199,21 +208,24 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
 
     List<String>? newProfiles;
     if (isFirstSelected) {
-      newProfiles = follow.where((id) => followers.contains(id)).cast<String>().toList();
+      newProfiles = data['followed'].toSet().intersection(owndata['followed'].toSet()).toList().cast<String>();
     } else if (isSecondSelected) {
-      newProfiles = followers.cast<String>(); // Liste des abonnés
+      newProfiles = followers.cast<String>();
     } else {
       newProfiles = follow.cast<String>();
     }
 
-    final nextProfiles = newProfiles.skip(displayedProfiles.length).take(itemsPerPage).toList();
+    final nextProfiles = newProfiles!.skip(displayedProfiles.length).take(itemsPerPage).toList();
 
     setState(() {
-      displayedProfiles.addAll(nextProfiles);
       for (var profileId in nextProfiles) {
+        if(!displayedProfiles.contains(profileId)){
           loadingProfiles[profileId] = true;
           _fetchProfileData(profileId);
+        }
       }
+      displayedProfiles.addAll(nextProfiles);
+
       isLoading = false;
       hasMore = nextProfiles.length == itemsPerPage;
     });
@@ -324,13 +336,34 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                   onTapUp: (t) {
                     Navigator.pop(context);
                   },
-                  child: Icon(
-                    CupertinoIcons.arrow_left,
-                    size: 26,
-                    color: CupertinoColors.systemGrey,
+                  child: Container(
+                    height: 33,
+                    width: 38,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 2,
+                          blurRadius: 3,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        CupertinoIcons.arrow_left,
+                        size: 22,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
                   ),
                 ),
-                Text(username??"", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.black.withOpacity(0.7)),),
+                if(!isLoadingBis)
+                  Text(username??"", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.black.withOpacity(0.7)),),
+                if(isLoadingBis)
+                  FadeShimmer(width: MediaQuery.of(context).size.width/3, height: 30, radius: 12, highlightColor: Colors.black.withOpacity(0.15), baseColor: Colors.black.withOpacity(0.05),),
                 Icon(
                   CupertinoIcons.arrow_left,
                   size: 26,
@@ -438,7 +471,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                             if (index < displayedProfiles.length) {
                               String userId = displayedProfiles[index];
                               if (loadingProfiles[userId] ?? true) {
-                                return Padding(
+                                return const Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 25),
                                   child: LoadingProfileList(),
                                 );
@@ -465,9 +498,14 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                                 );
                               }
                             } else {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 25),
-                                child: LoadingProfileList(),
+                              return  Padding(
+                                padding: EdgeInsets.symmetric(vertical: 40),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CupertinoActivityIndicator(radius: MediaQuery.of(context).size.width*0.03,),
+                                  ],
+                                ),
                               );
                             }
                           },

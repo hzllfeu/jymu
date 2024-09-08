@@ -172,8 +172,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                               );
                             }
                           },
-                          child: Expanded(
-                            child: Text(
+                          child: Text(
                               widget.username,
                               style: TextStyle(
                                 fontSize: 18.0,
@@ -181,7 +180,6 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                                 color: CupertinoColors.label,
                               ),
                             ),
-                          ),
                         ),
                         Text(
                           timeago.format(widget.postTime, locale: 'fr'),

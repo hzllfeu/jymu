@@ -23,7 +23,7 @@ Stream<QuerySnapshot> getPosts() {
   Query query = FirebaseFirestore.instance
       .collection('posts')
       .orderBy('postTime', descending: true)
-      .limit(10);
+      .limit(30);
 
   if (lastDocument != null) {
     query = query.startAfterDocument(lastDocument! as DocumentSnapshot<Object?>);

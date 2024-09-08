@@ -14,6 +14,7 @@ class _NewPostWidgetState extends State<NewPostWidget> {
   final TextEditingController _controller = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FocusNode _focusNode = FocusNode();
+  bool private = false;
 
   Future<void> _addPost() async {
     final String content = _controller.text.trim();
@@ -42,6 +43,7 @@ class _NewPostWidgetState extends State<NewPostWidget> {
 
   @override
   void dispose() {
+    super.dispose();
     _controller.removeListener(_updateCharacterCount);
 
     _controller.dispose();
@@ -137,45 +139,100 @@ class _NewPostWidgetState extends State<NewPostWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Padding(
-                            padding: EdgeInsets.only(left: 5),
-                            child: Container(
-                              width: 135,
-                              height: 25,
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    spreadRadius: 1,
-                                    blurRadius: 2,
-                                    offset: Offset(0, 2),
+                          if(!private)
+                            GestureDetector(
+                              onTapUp: (t){
+                                setState(() {
+                                  private = true;
+                                  Haptics.vibrate(HapticsType.light);
+                                });
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 5),
+                                child: Container(
+                                  width: 145,
+                                  height: 25,
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        spreadRadius: 1,
+                                        blurRadius: 2,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  DefaultTextStyle(
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                      color: Colors.black.withOpacity(0.6),
-                                    ),
-                                    child: Text("Mettre en privé",),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      DefaultTextStyle(
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: Colors.black.withOpacity(0.6),
+                                        ),
+                                        child: Text("Mettre en privé",),
+                                      ),
+                                      SizedBox(width: 5,),
+                                      Image.asset("assets/images/emoji_locked.png", height: 15,),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
+                          if(private)
+                            GestureDetector(
+                              onTapUp: (t){
+                                setState(() {
+                                  private = false;
+                                  Haptics.vibrate(HapticsType.light);
+                                });
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 5),
+                                child: Container(
+                                  width: 155,
+                                  height: 25,
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        spreadRadius: 1,
+                                        blurRadius: 2,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      DefaultTextStyle(
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: Colors.black.withOpacity(0.6),
+                                        ),
+                                        child: Text("Mettre en public",),
+                                      ),
+                                      SizedBox(width: 5,),
+                                      Image.asset("assets/images/emoji_unlocked.png", height: 15,),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           Text(
-                            "${_controller.text.trim().length}/300",
+                            "${_controller.text.trim().length}/300  ",
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 5 * MediaQuery.of(context).size.width * 0.0065,
-                              color: CupertinoColors.systemGrey,
+                              color: _controller.text.trim().length > 300 ? Colors.red : CupertinoColors.systemGrey,
                             ),
                           )
                         ],
@@ -183,8 +240,12 @@ class _NewPostWidgetState extends State<NewPostWidget> {
                       SizedBox(height: MediaQuery.of(context).size.height * 0.095),
                       GestureDetector(
                         onTapUp: (t) {
-                          _addPost();
-                          Navigator.pop(context);
+                          if(_controller.text.trim().length <= 300) {
+                            _addPost();
+                            Navigator.pop(context);
+                          } else {
+                            Haptics.vibrate(HapticsType.error);
+                          }
                         },
                         child: Container(
                           width: double.infinity,

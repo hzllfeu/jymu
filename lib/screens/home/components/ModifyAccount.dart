@@ -1,11 +1,20 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:glassmorphism_ui/glassmorphism_ui.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:jymu/UserManager.dart';
+import 'package:jymu/screens/home/ModifyTags.dart';
 
 import '../../InputPage.dart';
+import 'TagList.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
@@ -29,6 +38,24 @@ class _ModifyAccountState extends State<ModifyAccount> {
   late String id;
   late String displayname = "";
   late String bio = "";
+  late List<dynamic> tags;
+
+  File? _image;
+  bool ImageChanged = false;
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _image = File(image.path);
+        ImageChanged = true;
+      });
+    }
+  }
+
+
 
   @override
   void initState() {
@@ -36,246 +63,371 @@ class _ModifyAccountState extends State<ModifyAccount> {
     id = widget.data["id"];
     displayname = widget.data["displayname"];
     bio = widget.data["bio"];
+    tags = widget.data['tags'];
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 10,),
-            Container(
-              width: 50,
-              height: 6,
-              decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(20)
-              ),
-            ),
-            const SizedBox(height: 30,),
-            Row(
-              children: [
-                Text(
-                  "Modifie ton profil  ",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 28),
-                ),
-                Image.asset("assets/images/emoji_pencil.png", height: 24,)
-              ],
-            ),
-            const SizedBox(height: 20,),
-            Text(
-              "Tu peux modifier ton nom tous les 14 jours. Des informations inapropriées seront sanctionnées",
-              style: TextStyle(
-                  fontWeight: FontWeight.w500, fontSize: 16, color: Colors.black.withOpacity(0.6)),
-            ),
-            const SizedBox(height: 30,),
-            Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
+      body: Container(
+          width: double.infinity,
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height/3,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    border: Border.all(
-                      color: Colors.redAccent,
-                      width: 0,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.redAccent,
+                        Colors.deepOrange,
+                      ],
                     ),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image(
-                      fit: BoxFit.cover,
-                      image: CachedNetworkImageProvider(
-                        widget.pp ?? 'https://via.placeholder.com/150',
+                ),
+              ),
+
+              Positioned(
+                top: 70,
+                left: 15,
+                child: GestureDetector(
+                  onTapUp: (t) {
+                    Navigator.pop(context);
+                  },
+                  child: GlassContainer(
+                    height: 38,
+                    width: 43,
+                    blur: 8,
+                    shadowStrength: 5,
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    child: const Center(
+                      child: Icon(
+                        CupertinoIcons.arrow_left,
+                        size: 22,
+                        color: CupertinoColors.white,
                       ),
                     ),
                   ),
                 ),
-                SizedBox(width: 25,),
-                Text(
-                  "Modifie ta photo de profil",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 18, color: Colors.redAccent),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15,),
-            Container(color: CupertinoColors.systemGrey4, width: double.infinity, height: 1.5,),
-            const SizedBox(height: 25,),
+              ),
 
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(width: 10),
-                Text(
-                  "Nom",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 18, color: Colors.redAccent),
-                ),
-                SizedBox(width: 40),
-                Expanded(  // Utilisation de Expanded ici
+              Positioned(
+                top: 70,
+                right: 15,
+                child: GestureDetector(
+                  onTapUp: (t) {
+                    Navigator.pop(context);
+                  },
                   child: GestureDetector(
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => InputPage(text: "Modifiez votre nom"),
-                        ),
-                      );
+                    onTapUp: (t) async {
+                      if(!done){
+                        setState(() {
+                          done = true;
+                        });
 
-                      if (result != null) {
-                        nameController.text = result;
-                        displayname = result;
-                        setState(() {});
-                      }
-                    },
-                    child: Container(
-                      height: 50,
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.systemGrey5,
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        displayname,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 25,),
-            Container(color: CupertinoColors.systemGrey4, width: double.infinity, height: 1.5,),
-            const SizedBox(height: 15,),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(width: 10),
-                Text(
-                  "Bio",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 18, color: Colors.redAccent),
-                ),
-                SizedBox(width: 40),
-                Expanded(  // Utilisation de Expanded ici
-                  child: GestureDetector(
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => InputPage(text: "Modifiez votre bio"),
-                        ),
-                      );
-
-                      if (result != null) {
-                        bioController.text = result;
-                        bio = result;
-                        setState(() {});
-                      }
-                    },
-                    child: Container(
-                      height: 50,
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.systemGrey5,
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        bio,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 25,),
-            Container(color: CupertinoColors.systemGrey4, width: double.infinity, height: 1.5,),
-            const SizedBox(height: 15,),
-
-
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTapUp: (t) async {
-                    if(!done){
-                      String display = nameController.text.trim();
-                      String tmpbio = bioController.text.trim();
-                      //TODO verifier si bio et dsp name sont correct (taille etc)
+                        String display = nameController.text.trim();
+                        String tmpbio = bioController.text.trim();
+                        //TODO verifier si bio et dsp name sont correct (taille etc)
                         if(!display.isEmpty){
                           await setDisplayName(id, display);
                         }
                         if(!tmpbio.isEmpty){
                           await setBio(id, tmpbio);
                         }
-                        setState(() {
-                          done = true;
-                        });
 
-                    }
-                  },
-                  child: Container(
-                    height: 70,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      gradient: LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [
-                          Colors.redAccent,
-                          Colors.deepOrange,
+                        await setTagFromUser(id, tags);
+
+                        if(ImageChanged){
+                          final ref = FirebaseStorage.instance
+                              .ref()
+                              .child('user_profiles')
+                              .child('$id.jpg');
+
+                          await ref.putFile(_image!);
+                        }
+                        Haptics.vibrate(HapticsType.success);
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: GlassContainer(
+                      height: 38,
+                      width: 140,
+                      color: Colors.white.withOpacity(0.8),
+                      blur: 10,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if(!done)
+                            Text(
+                              "Enregistrer",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width), color: Colors.black.withOpacity(0.7)),
+                            ),
+                          if(done)
+                            CupertinoActivityIndicator(color: Colors.black.withOpacity(0.7), radius: 4*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),)
                         ],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0xffF14BA9).withOpacity(0.5),
-                          spreadRadius: 4,
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if(!done)
-                          Text(
-                            "Sauvegarder",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w500, fontSize: 20, color: Colors.white),
-                          ),
-                        if(!done)
-                          SizedBox(width: 15,),
-                        Icon(done ? CupertinoIcons.check_mark : CupertinoIcons.arrow_right, color: Colors.white, size: 20,)
-                      ],
-                    ),
-                  ),
-                )
-              ],
+                  )
+                ),
+              ),
+
+
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.3 - 50,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              height: MediaQuery.of(context).size.height * 0.7 + 50,
+              width: double.infinity,
+              decoration: BoxDecoration(
+              color: const Color(0xFFF3F5F8),
+              borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28.0),
+              topRight: Radius.circular(28.0),
+              ),
             ),
-          ],
-        ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.03),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 10,),
+                        Row(
+                          children: [
+                            const Text(
+                              "Modifie ton profil  ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 28),
+                            ),
+                            Image.asset("assets/images/emoji_pencil.png", height: 24,)
+                          ],
+                        ),
+                        const SizedBox(height: 20,),
+                        Text(
+                          "Tu peux modifier ton nom tous les 14 jours. Des informations inapropriées seront sanctionnées",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 16, color: Colors.black.withOpacity(0.6)),
+                        ),
+                        const SizedBox(height: 30,),
+                        Column(
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: ImageChanged
+                                    ? Image.file(
+                                  _image!,
+                                  fit: BoxFit.cover,
+
+                                )
+                                    : CachedNetworkImage(
+                                  imageUrl: widget.pp ?? 'https://via.placeholder.com/150',
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => FadeShimmer(
+                                    width: 60,
+                                    height: 60,
+                                    highlightColor: Colors.grey.shade200,
+                                    baseColor: Colors.grey.shade300,
+                                  ),
+                                  errorWidget: (context, url, error) => Icon(Icons.error),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20,),
+                            GestureDetector(
+                              onTap: _pickImage,
+                              child: Text(
+                                "Changer ta photo de profil",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 16, color: Colors.redAccent),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 15,),
+                        Container(color: CupertinoColors.systemGrey4, width: double.infinity, height: 1.5,),
+                        const SizedBox(height: 25,),
+
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(width: 10),
+                            GestureDetector(
+                              onTapUp: (t) async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ModifyTags(tags: tags),
+                                  ),
+                                );
+                                if (result != null) {
+                                  tags = result;
+                                  setState(() {});
+                                }
+                              },
+                              child: Text(
+                                "Tags",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                  color: Colors.redAccent,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 40),
+
+                            // Flexible widget to avoid overflow
+                            Flexible(
+                              child: SizedBox(
+                                height: 40,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: List.generate(
+                                      tags.length,
+                                          (index) => Padding(
+                                        padding: const EdgeInsets.only(left: 5.0),
+                                        child: getTag(tags[index], false),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 15,),
+                        Container(color: CupertinoColors.systemGrey4, width: double.infinity, height: 1.5,),
+                        const SizedBox(height: 25,),
+
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(width: 10),
+                            Text(
+                              "Nom",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 18, color: Colors.redAccent),
+                            ),
+                            SizedBox(width: 40),
+                            Expanded(  // Utilisation de Expanded ici
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => InputPage(text: "Modifiez votre nom"),
+                                    ),
+                                  );
+
+                                  if (result != null) {
+                                    nameController.text = result;
+                                    displayname = result;
+                                    setState(() {});
+                                  }
+                                },
+                                child: Container(
+                                  height: 50,
+                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: CupertinoColors.systemGrey5,
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    displayname,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 25,),
+                        Container(color: CupertinoColors.systemGrey4, width: double.infinity, height: 1.5,),
+                        const SizedBox(height: 15,),
+
+                        Row(
+                          children: [
+                            SizedBox(width: 10),
+                            Text(
+                              "Bio",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 18, color: Colors.redAccent),
+                            ),
+                            SizedBox(width: 40),
+                            Expanded(  // Utilisation de Expanded ici
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => InputPage(text: "Modifiez votre bio"),
+                                    ),
+                                  );
+
+                                  if (result != null) {
+                                    bioController.text = result;
+                                    bio = result;
+                                    setState(() {});
+                                  }
+                                },
+                                child: Container(
+                                  height: 50,
+                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: CupertinoColors.systemGrey5,
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    bio,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 25,),
+                        Container(color: CupertinoColors.systemGrey4, width: double.infinity, height: 1.5,),
+                        const SizedBox(height: 15,),
+                      ],
+                    ),
+                  )
       ),
+      )
+      )
+          ]
+      )
+    )
     );
   }
 }

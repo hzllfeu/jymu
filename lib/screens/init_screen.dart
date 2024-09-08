@@ -51,20 +51,20 @@ class _InitScreenState extends State<InitScreen> {
 
         items: [
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.house, size: 26*MediaQuery.of(context).textScaleFactor,),
-            activeIcon: Icon(CupertinoIcons.house_fill, color: Colors.redAccent,size: 28,),
+            icon: Icon(CupertinoIcons.house, size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+            activeIcon: Icon(CupertinoIcons.house_fill, color: Colors.redAccent,size: 11 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.command, size: 26*MediaQuery.of(context).textScaleFactor,),
-            activeIcon: Icon(CupertinoIcons.command, color: Colors.redAccent,size: 28,),
+            icon: Icon(CupertinoIcons.command, size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+            activeIcon: Icon(CupertinoIcons.command, color: Colors.redAccent,size: 11 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
           ),
           BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.search, size: 26*MediaQuery.of(context).textScaleFactor,),
-              activeIcon: Icon(CupertinoIcons.search, color: Colors.redAccent,size: 28,),
+              icon: Icon(CupertinoIcons.search, size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+              activeIcon: Icon(CupertinoIcons.search, color: Colors.redAccent,size: 11 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
           ),
           BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.person, size: 26*MediaQuery.of(context).textScaleFactor,),
-              activeIcon: Icon(CupertinoIcons.person_fill, color: Colors.redAccent,size: 28,),
+              icon: Icon(CupertinoIcons.person, size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+              activeIcon: Icon(CupertinoIcons.person_fill, color: Colors.redAccent,size: 11 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
           ),
         ],
       ),

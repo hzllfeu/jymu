@@ -15,6 +15,7 @@ Future<void> createProfile(User? user) async {
     'comments': [],
     'follow': [],
     'followed': [],
+    'tags': ["new"],
     'bio': ""
   });
 }
@@ -174,6 +175,13 @@ Future<void> addCommentToUser(String userID, String commentId, Timestamp timesta
   });
 }
 
+Future<void> addTagToUser(String userID, String tag) async {
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+  await userRef.update({
+    'tags': FieldValue.arrayUnion([tag]),
+  });
+}
+
 Future<void> addFollowToUser(String userID, String followUserId) async {
   final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
   await userRef.update({
@@ -211,6 +219,20 @@ Future<void> removeCommentFromUser(String userID, String commentId, Timestamp ti
   final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
   await userRef.update({
     'comments': FieldValue.arrayRemove([{'commentId': commentId, 'timestamp': timestamp}]),
+  });
+}
+
+Future<void> removeTagFromUser(String userID, String tag) async {
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+  await userRef.update({
+    'tags': FieldValue.arrayRemove([tag]),
+  });
+}
+
+Future<void> setTagFromUser(String userID, List<dynamic> tag) async {
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+  await userRef.update({
+    'tags': tag,
   });
 }
 
