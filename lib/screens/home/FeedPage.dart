@@ -14,6 +14,9 @@ import 'package:jymu/screens/home/components/NotificationPage.dart';
 import 'package:jymu/screens/home/components/PostCard.dart';
 import 'package:jymu/screens/home/components/ProfileComp.dart';
 import 'package:jymu/screens/home/components/SelectPost.dart';
+import 'package:jymu/screens/home/components/training_home.dart';
+
+import 'TrainingCard.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
@@ -127,10 +130,10 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                                   height: 40,
                                   margin: const EdgeInsets.symmetric(horizontal: 20),
                                   decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                    borderRadius: const BorderRadius.all(Radius.circular(18)),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
+                                        color: Colors.black.withOpacity(0.15),
                                         spreadRadius: 2,
                                         blurRadius: 3,
                                         offset: const Offset(0, 1),
@@ -141,12 +144,12 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                                 ),
                                 // Container pour le gradient
                                 ClipRRect(
-                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                  borderRadius: const BorderRadius.all(Radius.circular(18)),
                                   child: Container(
                                     height: 40,
                                     margin: const EdgeInsets.symmetric(horizontal: 20),
                                     decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                      borderRadius: const BorderRadius.all(Radius.circular(18)),
                                       gradient: LinearGradient(
                                         begin: Alignment.topRight,
                                         end: Alignment.bottomLeft,
@@ -158,7 +161,6 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                                     ),
                                     child: TabBar(
                                       controller: tabController,
-                                      enableFeedback: true,
                                       onTap: (i) {
                                         setState(() {
                                           Haptics.vibrate(HapticsType.light);
@@ -168,7 +170,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                                       dividerColor: Colors.transparent,
                                       indicator: const BoxDecoration(
                                         color: Colors.redAccent,
-                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                        borderRadius: BorderRadius.all(Radius.circular(18)),
                                       ),
                                       labelColor: Colors.white,
                                       unselectedLabelColor: Colors.black54,
@@ -220,48 +222,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                       ],
                     ),
                   const SizedBox(height: 30),
-                  Expanded(
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: getPosts(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting || _isLoading) {
-                          return SingleChildScrollView(
-                            child: Column(
-                              children: List.generate(
-                                4, // Nombre d'éléments de chargement
-                                    (index) => SizedBox(
-                                  height: 200,
-                                  child: Center(child: LoadingPost()),
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-
-                        if (!snapshot.hasData) {
-                          return const Center(child: Text('Aucun post disponible.'));
-                        }
-
-                        final posts = snapshot.data!.docs;
-
-                        return ListView.builder(
-                          itemCount: posts.length,
-                          itemBuilder: (context, index) {
-                            final post = posts[index].data() as Map<String, dynamic>;
-
-                            return PostCard(
-                              username: post['username'],
-                              content: post['content'],
-                              postTime: (post['postTime'] as Timestamp).toDate(),
-                              userId: post['id'],
-                              likes: post['likes'],
-                              postID: posts[index].id,
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
+                  TrainingCard(userId: FirebaseAuth.instance.currentUser!.uid, username: FirebaseAuth.instance.currentUser!.displayName)
                 ],
               ),
             ),

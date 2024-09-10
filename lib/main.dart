@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:jymu/page.dart';
@@ -18,18 +19,25 @@ import 'package:jymu/screens/home/FeedPage.dart';
 import 'package:jymu/screens/home/HomeScreen.dart';
 import 'package:jymu/screens/init_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:timeago/timeago.dart' as timeago_fr;
 
+
+List<CameraDescription> cameras = [];
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
 
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     timeago.setLocaleMessages('fr', timeago_fr.FrMessages());
+    final sharedPreferences = await SharedPreferences.getInstance();
     runApp(MyApp());
   } catch (e) {
     print('Erreur lors de l\'initialisation de Firebase: $e');

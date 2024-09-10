@@ -383,9 +383,12 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                   gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    colors: [Color(0xffF14BA9).withOpacity(0.3), Colors.redAccent.withOpacity(0.3)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.redAccent.withOpacity(0.3),
+                      Colors.deepOrange.withOpacity(0.3),
+                    ],
                   ),
                 ),
                 child: TabBar(

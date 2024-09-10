@@ -67,6 +67,8 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   late Map<String, dynamic> owndata;
   bool ownProf = false;
   bool friendppempty = true;
+  bool followppempty = true;
+  bool followedppempty = true;
 
   late final TabController tabController;
   final GlobalKey _containerKey = GlobalKey();
@@ -330,6 +332,12 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
       finalppList[id] = tmp;
     }
 
+    if(finalList.isNotEmpty){
+      setState(() {
+        followedppempty = false;
+      });
+    }
+
     return Row(
       children: [
         ...finalList.map((id) => Container(
@@ -374,6 +382,12 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
       finalppList[id] = tmp;
     }
 
+    if(finalList.isNotEmpty){
+      setState(() {
+        followppempty = false;
+      });
+    }
+
     return Row(
       children: [
         ...finalList.map((id) => Container(
@@ -410,7 +424,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF3F5F8),
+      backgroundColor: const Color(0xFFF3F5F8),
       body: FutureBuilder(
           future: _fetchDataFuture,
           builder: (context, snapshot) {
@@ -489,7 +503,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
             if (!ownProf)
               Positioned(
-                top: 70,
+                top: 60,
                 left: 15,
                 child: GestureDetector(
                   onTapUp: (t) {
@@ -515,7 +529,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
             if (!ownProf && !friendppempty)
               Positioned(
-                top: 70,
+                top: 60,
                 right: 15,
                 child: GestureDetector(
                   onTapUp: (t) {
@@ -532,7 +546,6 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                   child: GlassContainer(
                     height: 38,
                     blur: 16,
-                    border: Border.fromBorderSide(BorderSide.none),
                     color: Colors.white.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(18),
                     child: Padding(
@@ -864,9 +877,10 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                         ],
                                       ),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: followedppempty ? MainAxisAlignment.center: MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          if(!followedppempty)
                                           FutureBuilder<Widget>(
                                             future: _followedPPFuture,
                                             builder: (context, snapshot) {
@@ -881,6 +895,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                               }
                                             },
                                           ),
+
                                           Row(
                                             children: [
                                               Text(formatNumber(followers.length), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
@@ -922,9 +937,10 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                         ],
                                       ),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: followppempty ? MainAxisAlignment.center: MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          if(!followppempty)
                                           FutureBuilder<Widget>(
                                             future: _followPPFuture,
                                             builder: (context, snapshot) {

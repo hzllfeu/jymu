@@ -13,7 +13,9 @@ import 'home/HomeScreen.dart';
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
 class InitScreen extends StatefulWidget {
-  const InitScreen({super.key});
+  final int initialIndex; // Ajoute ce paramètre
+
+  const InitScreen({Key? key, this.initialIndex = 0}) : super(key: key);
 
   static String routeName = "/";
 
@@ -21,14 +23,22 @@ class InitScreen extends StatefulWidget {
   State<InitScreen> createState() => _InitScreenState();
 }
 
+
 class _InitScreenState extends State<InitScreen> {
-  int currentSelectedIndex = 0;
+  late int currentSelectedIndex; // Utilise late pour initialiser plus tard
 
   void updateCurrentIndex(int index) {
     setState(() {
       currentSelectedIndex = index;
     });
   }
+
+  @override
+  void initState() {
+    super.initState();
+    currentSelectedIndex = widget.initialIndex;
+  }
+
 
    List<Widget> pages = [
       Center(

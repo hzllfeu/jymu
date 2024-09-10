@@ -6,6 +6,7 @@ import 'package:flutter/painting.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/UserManager.dart';
 import 'package:jymu/screens/home/PostWidget.dart';
+import 'package:jymu/screens/home/camera.dart';
 
 import '../../InputPage.dart';
 
@@ -48,7 +49,13 @@ class _SelectPostState extends State<SelectPost> {
             const SizedBox(height: 30,),
             GestureDetector(
               onTapUp: (t) {
-
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CameraPage(),
+                  ),
+                );
               },
               child: Container(
                   height: MediaQuery.of(context).size.height*0.09,
