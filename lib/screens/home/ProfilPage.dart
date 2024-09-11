@@ -479,14 +479,6 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
               right: 0,
               child: Container(
                 height: MediaQuery.of(context).size.height / 2,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(
-                      profileImageUrl ?? 'https://via.placeholder.com/150',
-                    ),
-                  ),
-                ),
                 child: CachedNetworkImage(
                   imageUrl: profileImageUrl ?? 'https://via.placeholder.com/150',
                   fit: BoxFit.cover,
