@@ -7,26 +7,29 @@ import 'package:jymu/screens/home/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:jymu/Alexis/page_terminer.dart';
+import 'package:jymu/Alexis/ia_init_var_user.dart';
 
 
 String generateFirebaseLikeId({int length = 20}) {
   const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   final Random random = Random.secure();
   return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join('');
+
 }
 
 Future<void> FetchProfile(BuildContext context) async {
   // Generate a new UUID
   var uuid = Uuid();
   String newUuid = uuid.v4();
-  print(uuid);
+  // Accéder à la liste dynamique partagée
+  List<double> tab = GlobalListManager().dynamicList;
 
 
   CollectionReference requests = FirebaseFirestore.instance.collection('requests');
   await requests.doc(newUuid).set({
-    'tab': [1, 2, 3, 4, 3, 3],
+    'tab': tab,
   });
-  print("cacacacca");
+
 
   Navigator.push(
     context,

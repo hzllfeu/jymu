@@ -17,16 +17,49 @@ class LoadingPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Flèche pour revenir en arrière
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTapUp: (t) {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        height: 38,
+                        width: 42,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 3,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Image.asset('assets/images/emoji_leftarrow.png', height: 24),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               // Titre de la page
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Text(
-                  "Chargement des paramètres",
+                  "Récap de tes infos",
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 24,
+                    fontSize: 20, // Taille réduite du titre
                     color: Colors.black.withOpacity(0.8),
                   ),
                   textAlign: TextAlign.center,
@@ -52,8 +85,8 @@ class LoadingPage extends StatelessWidget {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.blue.withOpacity(0.6),
-                            Colors.greenAccent.withOpacity(0.6),
+                            Color(0xffF14BA9).withOpacity(0.7),
+                            Colors.redAccent.withOpacity(0.7),
                           ],
                         ),
                         child: Center(
@@ -74,25 +107,32 @@ class LoadingPage extends StatelessWidget {
 
               // Bouton "Suivant"
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: GlassContainer(
-                  height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  height: 70,
                   width: double.infinity,
-                  blur: 5,
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(25),
-                  shadowColor: Colors.black,
-                  shadowStrength: 1.0,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.orange.withOpacity(0.6),
-                      Colors.pinkAccent.withOpacity(0.6),
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.orangeAccent.withOpacity(1),
+                        Colors.pinkAccent.withOpacity(1),
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 3,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
                     ],
                   ),
                   child: GestureDetector(
-                    onTapUp: (t) {
+                    onTap: () {
                       // Action à effectuer lorsque le bouton "Suivant" est pressé
                       Navigator.push(
                         context,
@@ -106,15 +146,14 @@ class LoadingPage extends StatelessWidget {
                         "Suivant",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 23,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
             ],
           ),

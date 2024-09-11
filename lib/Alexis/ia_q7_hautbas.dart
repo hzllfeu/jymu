@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
-import 'package:jymu/Alexis/ia_gene.dart';
-
-import 'package:jymu/Alexis/ia_init_var_user.dart';
 import 'package:jymu/Alexis/ia_q8_intensi.dart';
+import 'package:jymu/Alexis/ia_init_var_user.dart';
+import 'package:jymu/screens/init_screen.dart';
+
 
 class QuestionFocusCorps extends StatefulWidget {
   const QuestionFocusCorps({super.key});
@@ -19,14 +19,10 @@ class _QuestionFocusCorpsState extends State<QuestionFocusCorps> {
   final GlobalListManager listManager = GlobalListManager();
   double focusCorps = 5.0;
 
-  String _getFocusDescription(double focusValue) {
-    if (focusValue <= 3.0) {
-      return "Bas du corps";
-    } else if (focusValue >= 7.0) {
-      return "Haut du corps";
-    } else {
-      return "Équilibré";
-    }
+  String _getFocusDescription(double value) {
+    if (value <= 5.0) return "Plutot le bas du corps";
+
+    return "Plutot le haut du corps";
   }
 
   @override
@@ -36,7 +32,7 @@ class _QuestionFocusCorpsState extends State<QuestionFocusCorps> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 15),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -47,60 +43,136 @@ class _QuestionFocusCorpsState extends State<QuestionFocusCorps> {
                       onTapUp: (t) {
                         Navigator.pop(context);
                       },
-                      child: const Icon(CupertinoIcons.arrow_left, size: 28),
-                    ),
-                    Text(
-                      "Etape 7/8",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
+                      child: Container(
+                        height: 38,
+                        width: 42,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 3,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Image.asset('assets/images/emoji_leftarrow.png', height: 24),
+                        ),
                       ),
                     ),
-                    const Icon(
-                      CupertinoIcons.arrow_left,
-                      size: 28,
-                      color: Colors.transparent,
+                    // Barre de progression personnalisée
+                    Container(
+                      height: 28,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        color: Colors.grey.withOpacity(0.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 2,
+                            blurRadius: 3,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 7 * 200 / 8, // Largeur de la barre de progression colorée
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.green.withOpacity(0.8),
+                                  Colors.blue.withOpacity(0.5),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTapUp: (t) {
+                        _showExitConfirmationDialog(context);
+                      },
+                      child: Container(
+                        height: 38,
+                        width: 42,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 3,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Image.asset('assets/images/emoji_cross.png', height: 24),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-
-              const SizedBox(height: 50),
-              Column(
-                children: [
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Text(
-                      "Quelle partie du corps voulez-vous travailler ?",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 30,
-                        color: Colors.black.withOpacity(0.8),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey[200],
                       ),
-                      textAlign: TextAlign.center,
+                      child: Center(
+                        child: Image.asset('assets/images/emoji_panda.png', height: 20),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "0 : Bas du corps | 10 : Haut du corps",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                      color: Colors.black.withOpacity(0.6),
+                    SizedBox(width: 10),
+                    Text(
+                      "Encore un petit effort...",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
+                  ],
+                ),
+              ),
+              const SizedBox(height: 122),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: Text(
+                  "Veux tu travailler le haut ou le bas du corps ?",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 30,
+                    color: Colors.black.withOpacity(0.8),
                   ),
-                ],
+                  textAlign: TextAlign.center,
+                ),
               ),
               Column(
                 children: [
-                  const SizedBox(height: 70),
+                  const SizedBox(height: 143),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: GlassContainer(
-                      height: 120,
+                      height: 200,
                       width: double.infinity,
                       blur: 8,
                       color: Colors.white.withOpacity(0.2),
@@ -111,64 +183,77 @@ class _QuestionFocusCorpsState extends State<QuestionFocusCorps> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Colors.amberAccent.withOpacity(1),
-                          Colors.redAccent.withOpacity(1),
+                          Colors.orange,
+                          Colors.pinkAccent,
                         ],
                       ),
-                      child: Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Focus: ${_getFocusDescription(focusCorps)}",
-                              style: TextStyle(
-                                color: Colors.black54,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${focusCorps.toStringAsFixed(1)}",
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
                             ),
-                            CupertinoSlider(
-                              value: focusCorps,
-                              min: 0.0,
-                              max: 10.0,
-                              divisions: 100,
-                              onChanged: (value) {
-                                setState(() {
-                                  focusCorps = value;
-                                });
-                              },
+                          ),
+                          CupertinoSlider(
+                            value: focusCorps,
+                            min: 0.0,
+                            max: 10.0,
+                            divisions: 100,
+                            onChanged: (value) {
+                              setState(() {
+                                focusCorps = value;
+                              });
+                            },
+                            thumbColor: Colors.orange,
+                            activeColor: Colors.orange,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            _getFocusDescription(focusCorps),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black54,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: GlassContainer(
+                    child: Container(
                       height: 70,
                       width: double.infinity,
-                      blur: 8,
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(30),
-                      shadowColor: Colors.black,
-                      shadowStrength: 1.5,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.orange.withOpacity(0.8),
-                          Colors.pinkAccent.withOpacity(0.8),
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.orangeAccent.withOpacity(1),
+                            Colors.pinkAccent.withOpacity(1),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 3,
+                            blurRadius: 7,
+                            offset: Offset(0, 3),
+                          ),
                         ],
                       ),
                       child: GestureDetector(
-                        onTapUp: (t) {
-                          // Modifier la valeur dans la liste dynamique
+                        onTap: () {
                           setState(() {
                             listManager.dynamicList[8] = focusCorps;
                           });
-                          // Passer à l'étape suivante
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -181,7 +266,7 @@ class _QuestionFocusCorpsState extends State<QuestionFocusCorps> {
                             "Suivant",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: 23,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -192,22 +277,43 @@ class _QuestionFocusCorpsState extends State<QuestionFocusCorps> {
                   const SizedBox(height: 50),
                 ],
               ),
-              // Affichage de la liste dynamique en bas
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  listManager.dynamicList.toString(),
-                  style: TextStyle(
-                    color: Colors.black38,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 10,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showExitConfirmationDialog(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("Confirmation"),
+          content: Text("Êtes-vous sûr de vouloir abandonner le questionnaire ? Vos données ne seront pas sauvegardées."),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("Annuler"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text("Oui"),
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InitScreen(initialIndex: 1), // Rediriger vers la page IaGene
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

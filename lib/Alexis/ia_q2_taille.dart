@@ -5,8 +5,8 @@ import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 
 import 'package:jymu/Alexis/ia_q3_poids.dart';
 import 'package:jymu/Alexis/ia_init_var_user.dart';
-
-const Color inActiveIconColor = Color(0xFFB6B6B6);
+import 'package:jymu/screens/init_screen.dart';
+const Color inActiveIconColor = Color(0xFFFFC0CB);
 
 class QuestionTaillee extends StatefulWidget {
   const QuestionTaillee({super.key});
@@ -18,8 +18,9 @@ class QuestionTaillee extends StatefulWidget {
 }
 
 class _QuestionTailleState extends State<QuestionTaillee> {
-  int ob = 145;
+  int ob = 175;
   final GlobalListManager listManager = GlobalListManager();
+  double valeur_progbarre = 200;
 
   @override
   Widget build(BuildContext context) {
@@ -39,28 +40,124 @@ class _QuestionTailleState extends State<QuestionTaillee> {
                       onTapUp: (t) {
                         Navigator.pop(context);
                       },
-                      child: const Icon(CupertinoIcons.arrow_left, size: 28,),
+                      child: Container(
+                        height: 38,
+                        width: 42,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 3,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                            child: Image.asset('assets/images/emoji_leftarrow.png', height: 24,)
+                        ),
+                      ),
                     ),
-                    Text(
-                      "Etape 8/22",
-                      style: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.w700),
+                    // Barre de progression personnalisée
+                    Container(
+                      height: 28,
+                      width: valeur_progbarre,  // Ajuste cette largeur comme tu le souhaites
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        color: Colors.grey.withOpacity(0.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 2,
+                            blurRadius: 3,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            // Cette partie représente la progression actuelle (50% pour l'exemple)
+                            width: 2*valeur_progbarre/8, // Ajuste cette valeur pour la progression
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.green.withOpacity(0.8),
+                                  Colors.blue.withOpacity(0.5),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     GestureDetector(
                       onTapUp: (t) {
-                        Navigator.pop(context);
+                        _showExitConfirmationDialog(context);
                       },
-                      child: const Icon(CupertinoIcons.arrow_left, size: 28, color: Colors.transparent,),
+                      child: Container(
+                        height: 38,
+                        width: 42,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 3,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Image.asset('assets/images/emoji_cross.png', height: 24),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25,vertical: 1),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey[200], // Couleur de fond du cercle
+                      ),
+                      child: Center(
+                        child: Image.asset('assets/images/emoji_panda.png', height: 20),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      "Continuons ainsi ...",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 80,),
               Column(
                 children: [
-                  Image.asset("assets/images/emoji_rocket.png", height: 32,),
+
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 25),
                     child: Text(
-                      "Quelle est votre taille ?",
+                      "Quelle est ta taille actuel ?",
                       style: TextStyle(fontWeight: FontWeight.w700, fontSize: 30, color: Colors.black.withOpacity(0.8)),
                       textAlign: TextAlign.center,
                     ),
@@ -69,7 +166,7 @@ class _QuestionTailleState extends State<QuestionTaillee> {
               ),
               Column(
                 children: [
-                  const SizedBox(height: 70,),
+                  const SizedBox(height: 65,),
                   Padding(padding: EdgeInsets.symmetric(horizontal: 20),
                     child: GlassContainer(
                         height: 120,
@@ -118,7 +215,7 @@ class _QuestionTailleState extends State<QuestionTaillee> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        "Vous faites $ob cm",
+                                        "Tu mesures $ob cms",
                                         style: TextStyle(color: Colors.black54, fontSize: 16, fontWeight: FontWeight.w600),
                                         textAlign: TextAlign.center,
                                       ),
@@ -204,7 +301,7 @@ class _QuestionTailleState extends State<QuestionTaillee> {
                                 });
                               },
                               scrollController: FixedExtentScrollController(
-                                  initialItem: 0
+                                  initialItem: 30
                               ),
                               children: List.generate(66, (index) {
                                 return Text((145 + index).toString());
@@ -216,18 +313,44 @@ class _QuestionTailleState extends State<QuestionTaillee> {
                   const SizedBox(height: 50,),
                 ],
               ),
-              // Affichage de la liste dynamique comme texte
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25),
-                child: Text(
-                  listManager.dynamicList.toString(), // Affiche la liste dynamique
-                  style: TextStyle(color: Colors.black38, fontWeight: FontWeight.w500, fontSize: 10),
-                ),
-              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // Fonction pour afficher le dialogue de confirmation lors de la sortie
+  void _showExitConfirmationDialog(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("Confirmation"),
+          content: Text("Êtes-vous sûr de vouloir abandonner le questionnaire ? Vos données ne seront pas sauvegardées."),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("Annuler"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text("Oui"),
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InitScreen(initialIndex: 1), // Rediriger vers la page IaGene
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -8,17 +8,13 @@ import 'package:jymu/screens/home/HomeScreen.dart';
 
 import '../home/components/ProfileComp.dart';
 
+
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
 class Paiement extends StatefulWidget {
 
-  final int poidobj;
-  final int sexe;
-  final int obj;
-  final int taille;
-  final int poid;
 
-  const Paiement({super.key, required this.sexe, required this.obj, required this.poidobj, required this.taille, required this.poid});
+  const Paiement({super.key});
 
   static String routeName = "/";
 
@@ -29,10 +25,11 @@ class Paiement extends StatefulWidget {
 class _PaiementState extends State<Paiement> {
 
   double calculateIMC() {
-    double heightInMeters = widget.taille / 100.0;
-    double imc = widget.poid / (heightInMeters * heightInMeters);
+    double heightInMeters = 100 / 100.0;
+    double imc = 100 / (heightInMeters * heightInMeters);
     return double.parse(imc.toStringAsFixed(1));
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -455,7 +452,7 @@ class _PaiementState extends State<Paiement> {
                 const SizedBox(height: 30,),
                 GestureDetector(
                   onTapUp: (tap) {
-                    FetchProfile(context, widget.sexe, widget.poidobj, widget.obj, widget.taille, widget.poid, imc);
+                    FetchProfile(context);
                   },
                   child: Container(
                     width: double.infinity,
