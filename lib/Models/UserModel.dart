@@ -5,6 +5,7 @@ class UserModel {
   String? id;
   String? displayName;
   String? username;
+  bool? etat_jymupro;
   List<dynamic>? likes;
   List<dynamic>? comments;
   List<dynamic>? follow;
@@ -53,6 +54,7 @@ class UserModel {
     followed = data['followed'];
     tags = data['tags'];
     bio = data['bio'];
+    etat_jymupro = data['etat_jymupro'];
   }
 
   void _resetUserData() {
@@ -65,6 +67,7 @@ class UserModel {
     followed = [];
     tags = [];
     bio = null;
+    etat_jymupro = null;
   }
 
   static UserModel get currentUser => _instance;
