@@ -7,19 +7,10 @@ import 'package:jymu/screens/Connexion/EmailVerif.dart';
 import 'package:jymu/screens/Connexion/LoginPage.dart';
 import 'package:jymu/screens/Connexion/PfPage.dart';
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
-import 'package:jymu/screens/Onboarding/SplashOB.dart';
-import 'package:jymu/screens/Onboarding/paiment.dart';
-import 'package:jymu/screens/Questions/QuestionObj.dart';
-import 'package:jymu/screens/Questions/QuestionPoid.dart';
-import 'package:jymu/screens/Questions/QuestionPoidAc.dart';
-import 'package:jymu/screens/Questions/QuestionSexe.dart';
-import 'package:jymu/screens/Questions/QuestionTaille.dart';
-import 'package:jymu/screens/Questions/Template_question_choix.dart';
-import 'package:jymu/screens/home/FeedPage.dart';
-import 'package:jymu/screens/home/HomeScreen.dart';
 import 'package:jymu/screens/init_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Models/UserModel.dart';
 import 'firebase_options.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:timeago/timeago.dart' as timeago_fr;
@@ -38,6 +29,7 @@ void main() async {
     );
     timeago.setLocaleMessages('fr', timeago_fr.FrMessages());
     final sharedPreferences = await SharedPreferences.getInstance();
+    UserModel.currentUser.fetchUserData();
     runApp(MyApp());
   } catch (e) {
     print('Erreur lors de l\'initialisation de Firebase: $e');

@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jymu/Alexis/ia_gene.dart';
-import 'package:jymu/screens/Questions/QuestionSexe.dart';
 import 'package:jymu/screens/home/FeedPage.dart';
 import 'package:jymu/screens/home/ProfilPage.dart';
 import 'package:jymu/screens/home/RecherchePage.dart';

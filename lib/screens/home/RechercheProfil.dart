@@ -7,10 +7,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
-import 'package:jymu/UserManager.dart';
+import 'package:jymu/UserManager.dart' as um;
 import 'package:jymu/screens/home/LoadingProfileList.dart';
 import 'package:jymu/screens/home/ProfileListComp.dart';
 
+import '../../Models/UserModel.dart';
 import 'components/TabItem.dart';
 
 class RechercheProfil extends StatefulWidget {
@@ -41,8 +42,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
   List<dynamic> followers = [];
   List<dynamic> follow = [];
   List<dynamic> likes = [];
-  Map<String, dynamic> data = {};
-  Map<String, dynamic> owndata = {};
+
   bool ownProf = false;
 
   List<String> displayedProfiles = [];
@@ -93,12 +93,12 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
       });
     } else {
       setState(() {
-        if(isSecondSelected){
-          displayedProfiles = (data['followed'] as List<dynamic>).where((userId) => profilesData.containsKey(userId)).cast<String>().toList();
-        } else if(isThirdSelected){
-          displayedProfiles = (data['follow'] as List<dynamic>).where((userId) => profilesData.containsKey(userId)).cast<String>().toList();
+        if (isFirstSelected) {
+          displayedProfiles = followers.toSet().intersection(UserModel.currentUser.followed!.toSet()).toList().cast<String>();
+        } else if (isSecondSelected) {
+          displayedProfiles = followers.cast<String>();
         } else {
-          displayedProfiles = data['followed'].toSet().intersection(owndata['followed'].toSet()).toList();
+          displayedProfiles = follow.cast<String>();
         }
       });
     }
@@ -108,12 +108,12 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
     List<String> searchResults = [];
     try {
       List<String> allProfiles;
-      if(isSecondSelected){
-         allProfiles = data['followed'].cast<String>();
-      } else if(isThirdSelected){
-         allProfiles = data['follow'].cast<String>();
+      if (isFirstSelected) {
+        allProfiles = followers.toSet().intersection(UserModel.currentUser.followed!.toSet()).toList().cast<String>();
+      } else if (isSecondSelected) {
+        allProfiles = followers.cast<String>();
       } else {
-        allProfiles = data['followed'].toSet().intersection(owndata['followed'].toSet()).toList();
+        allProfiles = follow.cast<String>();
       }
 
       for (String userId in allProfiles) {
@@ -121,7 +121,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
         if(cachedProfiles.containsKey(userId)){
           profileData = cachedProfiles[userId];
         } else {
-          var profileData = await getProfile(userId);
+          var profileData = await um.getProfile(userId);
 
           String tm = await getProfileImageUrl(userId);
 
@@ -130,8 +130,8 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
             profilesData[userId]?.addAll({'pp': tm});
             if (!ownProf) {
               profilesData[userId]?.addAll({
-                'followedbis': owndata['followed'].contains(userId),
-                'followbis': owndata['follow'].contains(userId)
+                'followedbis': UserModel.currentUser.followed!.contains(userId),
+                'followbis': UserModel.currentUser.follow!.contains(userId)
               });
             }
             loadingProfiles[userId] = false;
@@ -157,27 +157,28 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
     return searchResults;
   }
 
+  UserModel targetUser = UserModel();
+
   Future<void> _fetchData() async {
     try {
       if (id != null) {
         if (id == FirebaseAuth.instance.currentUser?.uid) {
           ownProf = true;
         }
-        data = (await getProfile(id!))!;
         if (!ownProf) {
-          owndata = (await getProfile(FirebaseAuth.instance.currentUser!.uid))!;
+          await targetUser.fetchExternalData(id!);
         }
 
         if (!mounted) return;
 
         setState(() {
           _fetchProfileImageUrl();
-          followers = data['followed'];
-          likes = data['likes'];
-          username = data['username'];
-          displayName = data['displayname'];
-          follow = data['follow'];
-          bio = data['bio'];
+          followers = (ownProf ? UserModel.currentUser.followed : targetUser.followed)!;
+          likes = (ownProf ? UserModel.currentUser.likes : targetUser.likes)!;
+          username = (ownProf ? UserModel.currentUser.username : targetUser.username)!;
+          displayName = (ownProf ? UserModel.currentUser.displayName : targetUser.displayName)!;
+          follow = (ownProf ? UserModel.currentUser.follow : targetUser.follow)!;
+          bio = (ownProf ? UserModel.currentUser.bio : targetUser.bio)!;
 
           if (!ownProf && followers.contains(FirebaseAuth.instance.currentUser?.uid)) {
             followed = true;
@@ -189,7 +190,6 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
             friend = true;
           }
 
-          // Charger les profils initiaux
           isLoadingBis = false;
           _loadMoreProfiles();
         });
@@ -208,7 +208,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
 
     List<String>? newProfiles;
     if (isFirstSelected) {
-      newProfiles = data['followed'].toSet().intersection(owndata['followed'].toSet()).toList().cast<String>();
+      newProfiles = followers.toSet().intersection(UserModel.currentUser.followed!.toSet()).toList().cast<String>();
     } else if (isSecondSelected) {
       newProfiles = followers.cast<String>();
     } else {
@@ -258,7 +258,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
         isLoading = true;
       });
       await Future.delayed(Duration(milliseconds: 500));
-      var profileData = await getProfile(profileId);
+      var profileData = await um.getProfile(profileId);
 
       if (!mounted) return;
 
@@ -269,8 +269,8 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
         profilesData[profileId]?.addAll({'pp': tm});
         if (!ownProf) {
           profilesData[profileId]?.addAll({
-            'followedbis': owndata['followed'].contains(profileId),
-            'followbis': owndata['follow'].contains(profileId)
+            'followedbis': UserModel.currentUser.followed!.contains(profileId),
+            'followbis': UserModel.currentUser.follow!.contains(profileId)
           });
         }
         loadingProfiles[profileId] = false;

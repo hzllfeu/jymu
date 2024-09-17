@@ -9,6 +9,7 @@ import 'package:jymu/UserManager.dart';
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
 import 'package:jymu/screens/init_screen.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../Models/UserModel.dart';
 import 'AuthPage.dart';
 import 'LoginPage.dart';
 
@@ -134,6 +135,7 @@ class _EmailVerifState extends State<EmailVerif> {
                         onTapUp: (t) async {
                           if (verif) {
                             await createProfile(user);
+                            UserModel.currentUser.fetchUserData();
                             Navigator.push(
                               context,
                               CupertinoPageRoute(builder: (context) => InitScreen()),

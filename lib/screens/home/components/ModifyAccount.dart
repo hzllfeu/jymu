@@ -10,6 +10,7 @@ import 'package:flutter/painting.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jymu/Models/UserModel.dart';
 import 'package:jymu/UserManager.dart';
 import 'package:jymu/screens/home/ModifyTags.dart';
 
@@ -20,9 +21,8 @@ const Color inActiveIconColor = Color(0xFFB6B6B6);
 
 class ModifyAccount extends StatefulWidget {
   final String? pp;
-  final Map<String, dynamic> data;
 
-  const ModifyAccount({super.key, required this.pp, required this.data});
+  const ModifyAccount({super.key, required this.pp});
 
   static String routeName = "/";
 
@@ -60,10 +60,10 @@ class _ModifyAccountState extends State<ModifyAccount> {
   @override
   void initState() {
     super.initState();
-    id = widget.data["id"];
-    displayname = widget.data["displayname"];
-    bio = widget.data["bio"];
-    tags = widget.data['tags'];
+    id = UserModel.currentUser.id!;
+    displayname = UserModel.currentUser.displayName!;
+    bio = UserModel.currentUser.bio!;
+    tags = UserModel.currentUser.tags!;
   }
 
 

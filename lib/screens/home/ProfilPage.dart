@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
-import 'package:jymu/UserManager.dart';
+import 'package:jymu/Models/UserModel.dart';
+import 'package:jymu/UserManager.dart' as um;
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
 import 'package:jymu/screens/home/LoadingLikes.dart';
 import 'package:jymu/screens/home/LoadingPost.dart';
@@ -59,12 +60,10 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   bool followed = false;
   bool isFollowing = false;
   bool friend = false;
-  late List<dynamic> followers;
-  late List<dynamic> follow;
-  late List<dynamic> likes;
-  late List<dynamic> tags;
-  late Map<String, dynamic> data;
-  late Map<String, dynamic> owndata;
+  List<dynamic>? followers;
+  List<dynamic>? follow;
+  List<dynamic>? likes;
+  List<dynamic>? tags;
   bool ownProf = false;
   bool friendppempty = true;
   bool followppempty = true;
@@ -76,6 +75,10 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   Future<Widget>? _friendsPPFuture;
   Future<Widget>? _followedPPFuture;
   Future<Widget>? _followPPFuture;
+
+  late UserModel ownUser;
+  UserModel targetUser = UserModel();
+
 
   void _getContainerSize() {
     final RenderBox renderBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
@@ -125,7 +128,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   }
 
   Future<void> handleUnFollow() async {
-    await unfollowUser(FirebaseAuth.instance.currentUser!.uid, id!);
+    await um.unfollowUser(FirebaseAuth.instance.currentUser!.uid, id!);
     setState(() {
       followed = false;
       friend = false;
@@ -158,27 +161,29 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
         if (id == FirebaseAuth.instance.currentUser?.uid) {
           ownProf = true;
         }
-        data = (await getProfile(id!))!;
         if (!ownProf) {
-          owndata = (await getProfile(FirebaseAuth.instance.currentUser!.uid))!;
+          await targetUser.fetchExternalData(id!);
+          setState(() {
+
+          });
         }
 
         if (!mounted) return;
 
         setState(() {
           _fetchProfileImageUrl();
-          followers = data['followed'];
-          likes = data['likes'];
-          username = data['username'];
-          displayName = data['displayname'];
-          follow = data['follow'];
-          bio = data['bio'];
-          tags = data['tags'];
+          followers = (ownProf ? UserModel.currentUser.followed : targetUser.followed)!;
+          likes = (ownProf ? UserModel.currentUser.likes : targetUser.likes)!;
+          username = (ownProf ? UserModel.currentUser.username : targetUser.username)!;
+          displayName = (ownProf ? UserModel.currentUser.displayName : targetUser.displayName)!;
+          follow = (ownProf ? UserModel.currentUser.follow : targetUser.follow)!;
+          bio = (ownProf ? UserModel.currentUser.bio : targetUser.bio)!;
+          tags = (ownProf ? UserModel.currentUser.tags : targetUser.tags)!;
 
-          if (!ownProf && followers.contains(FirebaseAuth.instance.currentUser?.uid)) {
+          if (!ownProf && followers!.contains(FirebaseAuth.instance.currentUser?.uid)) {
             followed = true;
           }
-          if (!ownProf && follow.contains(FirebaseAuth.instance.currentUser?.uid)) {
+          if (!ownProf && follow!.contains(FirebaseAuth.instance.currentUser?.uid)) {
             isFollowing = true;
           }
           if (!ownProf && followed && isFollowing) {
@@ -238,9 +243,9 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   Future<Widget> getFriendspp() async {
     String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-    List<String> friends = data['followed']
+    List<String> friends = (ownProf ? UserModel.currentUser.followed : targetUser.followed)!
         .toSet()
-        .intersection(owndata['follow'].toSet())
+        .intersection(UserModel.currentUser.follow!.toSet())
         .where((id) => id != currentUserId)
         .toList()
         .cast<String>();
@@ -325,7 +330,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
     List<String> finalList = [];
     Map<String, String> finalppList = {};
 
-    finalList.addAll(followers.take(4).cast());
+    finalList.addAll(followers!.take(4).cast());
 
     for(String id in finalList){
       String tmp = await getProfileImageUrl(id);
@@ -375,7 +380,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
     List<String> finalList = [];
     Map<String, String> finalppList = {};
 
-    finalList.addAll(follow.take(4).cast());
+    finalList.addAll(follow!.take(4).cast());
 
     for(String id in finalList){
       String tmp = await getProfileImageUrl(id);
@@ -676,7 +681,6 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                           builder: (context) => Scaffold(
                                             body: ModifyAccount(
                                               pp: profileImageUrl,
-                                              data: data,
                                             ),
                                           ),
                                         ),
@@ -684,7 +688,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                       _fetchDataFuture = _fetchData();
                                     } else {
                                       if (!followed) {
-                                        await followUser(FirebaseAuth.instance.currentUser!.uid, id!);
+                                        await um.followUser(FirebaseAuth.instance.currentUser!.uid, id!);
                                         handleFollow();
                                         Haptics.vibrate(HapticsType.success);
                                       } else {
@@ -890,7 +894,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
                                           Row(
                                             children: [
-                                              Text(formatNumber(followers.length), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
+                                              Text(formatNumber(followers?.length ?? 0), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
                                               Text(" Abonnés", style: TextStyle(color: CupertinoColors.systemGrey, fontWeight: FontWeight.w600, fontSize: 14),),
                                             ],
                                           )
@@ -949,7 +953,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                           ),
                                           Row(
                                             children: [
-                                              Text(formatNumber(follow.length), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
+                                              Text(formatNumber(follow?.length ?? 0), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
                                               Text(" Abonnements", style: TextStyle(color: CupertinoColors.systemGrey, fontWeight: FontWeight.w600, fontSize: 14),),
                                             ],
                                           )
@@ -975,7 +979,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
 
                         SizedBox(height: MediaQuery.of(context).size.height*0.015,),
-                        if(tags.isNotEmpty)
+                        if(tags?.isNotEmpty ?? false)
                           SizedBox(
                             height: 40,
                             child: SingleChildScrollView(
@@ -983,8 +987,8 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: List.generate(
-                                      tags.length,
-                                      (index) => index == 0 ? Row(children: [SizedBox(width: 0,),getTag(tags[index], false)],) : getTag(tags[index], false)
+                                      tags?.length ?? 0,
+                                      (index) => index == 0 ? Row(children: [SizedBox(width: 0,),getTag(tags![index] ?? "false", false)],) : getTag(tags![index] ?? "false", false)
                                 )
                               ),
                             ),
@@ -1032,7 +1036,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                   tabs: [
                                     Tab(text: '0 Trainings'),
                                     Tab(text: '0 Posts'),
-                                    Tab(text: '${likes.length} Likes'),
+                                    Tab(text: '${likes?.length ?? 0} Likes'),
                                   ],
                                 ),
                               ),
@@ -1051,7 +1055,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
                         if(isThirdSelected)
                           Expanded(
-                            child: LikeComp(likes: likes),
+                            child: LikeComp(likes: likes!),
                           ),
                       ],
                     ),

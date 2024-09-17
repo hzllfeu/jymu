@@ -1,6 +1,43 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 Widget getTag(String tag, bool list){
+  if(tag == "showmore"){
+    return IntrinsicWidth(
+      child: Container(
+        height: 32,
+        padding: EdgeInsets.symmetric(horizontal: list ? 10 : 5),
+        margin: EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            DefaultTextStyle(
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: Colors.black.withOpacity(0.7),
+              ),
+              child: Text("Voir plus "),
+            ),
+            SizedBox(width: 5),
+            Icon(CupertinoIcons.plus_circled, color: Colors.black.withOpacity(0.7), size: 16,)
+          ],
+        ),
+      ),
+    );
+  }
   if(tag == "muscu"){
     return IntrinsicWidth(
       child: Container(

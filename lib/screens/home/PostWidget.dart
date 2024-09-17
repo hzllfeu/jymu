@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/PostManager.dart';
 
@@ -10,11 +11,13 @@ class NewPostWidget extends StatefulWidget {
   _NewPostWidgetState createState() => _NewPostWidgetState();
 }
 
-class _NewPostWidgetState extends State<NewPostWidget> {
+class _NewPostWidgetState extends State<NewPostWidget> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FocusNode _focusNode = FocusNode();
   bool private = false;
+  late final TabController tabController;
+
 
   Future<void> _addPost() async {
     final String content = _controller.text.trim();
@@ -35,6 +38,7 @@ class _NewPostWidgetState extends State<NewPostWidget> {
     super.initState();
 
     _controller.addListener(_updateCharacterCount);
+    tabController = TabController(length: 2, vsync: this, initialIndex: 1);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(_focusNode);

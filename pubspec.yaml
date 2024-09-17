@@ -43,6 +43,8 @@ dependencies:
   share_plus: ^7.0.2
   url_launcher: ^6.1.10
   palette_generator: ^0.3.3+4
+  image: ^4.2.0
+  tiktoklikescroller: ^0.2.8
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +72,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/animations/
   fonts:
     - family: Muli
       fonts:
