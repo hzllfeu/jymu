@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jymu/screens/Connexion/MdpComp.dart';
+import '../../Models/UserModel.dart';
 import '../init_screen.dart';
 
 class LoginPage extends StatefulWidget {
@@ -60,6 +61,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver{
 
       // Si la connexion réussit, l'utilisateur est connecté
       User? user = userCredential.user;
+      print(user?.displayName);
+      UserModel.currentUser.fetchUserData();
 
       if (user != null) {
         Navigator.push(

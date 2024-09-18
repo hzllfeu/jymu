@@ -159,7 +159,10 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
     try {
       if (id != null) {
         if (id == FirebaseAuth.instance.currentUser?.uid) {
-          ownProf = true;
+          setState(() {
+            ownProf = true;
+          });
+          await UserModel.currentUser.fetchUserData();
         }
         if (!ownProf) {
           await targetUser.fetchExternalData(id!);
@@ -167,6 +170,8 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
           });
         }
+
+
 
         if (!mounted) return;
 

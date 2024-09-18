@@ -7,6 +7,7 @@ import 'package:jymu/screens/home/ProfilPage.dart';
 import 'package:jymu/screens/home/RecherchePage.dart';
 import 'package:jymu/Alexis/ia_gene.dart';
 import '../Alexis/ia_gene.dart';
+import '../Models/UserModel.dart';
 import 'home/HomeScreen.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
@@ -32,10 +33,15 @@ class _InitScreenState extends State<InitScreen> {
     });
   }
 
+  Future<void> loadProfile() async {
+    await UserModel.currentUser.fetchUserData();
+  }
+
   @override
   void initState() {
     super.initState();
     currentSelectedIndex = widget.initialIndex;
+    loadProfile();
   }
 
 
