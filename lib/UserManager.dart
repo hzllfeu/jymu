@@ -16,7 +16,8 @@ Future<void> createProfile(User? user) async {
     'follow': [],
     'followed': [],
     'tags': ["new"],
-    'bio': ""
+    'bio': "",
+    'etat_jymupro': 0
   });
 }
 

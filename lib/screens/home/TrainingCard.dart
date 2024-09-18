@@ -84,7 +84,7 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
     }
   }
 
-  Future<void> getPostData()async {
+  Future<void> getPostData() async {
     await training.fetchExternalData(widget.postID);
     await targetUser.fetchExternalData(training.userId!);
     fistImage = (await getImage(training.firstImage!))!;

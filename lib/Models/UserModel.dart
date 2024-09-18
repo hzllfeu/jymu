@@ -5,7 +5,7 @@ class UserModel {
   String? id;
   String? displayName;
   String? username;
-  bool? etat_jymupro;
+  int? etat_jymupro;
   List<dynamic>? likes;
   List<dynamic>? comments;
   List<dynamic>? follow;

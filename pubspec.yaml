@@ -45,6 +45,7 @@ dependencies:
   palette_generator: ^0.3.3+4
   image: ^4.2.0
   tiktoklikescroller: ^0.2.8
+  video_player: ^2.9.1
 
 dev_dependencies:
   flutter_test:
