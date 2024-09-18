@@ -34,7 +34,7 @@ class _InitScreenState extends State<InitScreen> {
   }
 
   Future<void> loadProfile() async {
-    await UserModel.currentUser.fetchUserData();
+    await UserModel.currentUser().fetchUserData();
   }
 
   @override

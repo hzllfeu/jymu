@@ -162,7 +162,6 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
           setState(() {
             ownProf = true;
           });
-          await UserModel.currentUser.fetchUserData();
         }
         if (!ownProf) {
           await targetUser.fetchExternalData(id!);
@@ -170,20 +169,17 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
           });
         }
-
-
-
         if (!mounted) return;
 
         setState(() {
           _fetchProfileImageUrl();
-          followers = (ownProf ? UserModel.currentUser.followed : targetUser.followed)!;
-          likes = (ownProf ? UserModel.currentUser.likes : targetUser.likes)!;
-          username = (ownProf ? UserModel.currentUser.username : targetUser.username)!;
-          displayName = (ownProf ? UserModel.currentUser.displayName : targetUser.displayName)!;
-          follow = (ownProf ? UserModel.currentUser.follow : targetUser.follow)!;
-          bio = (ownProf ? UserModel.currentUser.bio : targetUser.bio)!;
-          tags = (ownProf ? UserModel.currentUser.tags : targetUser.tags)!;
+          followers = (ownProf ? UserModel.currentUser().followed : targetUser.followed)!;
+          likes = (ownProf ? UserModel.currentUser().likes : targetUser.likes)!;
+          username = (ownProf ? UserModel.currentUser().username : targetUser.username)!;
+          displayName = (ownProf ? UserModel.currentUser().displayName : targetUser.displayName)!;
+          follow = (ownProf ? UserModel.currentUser().follow : targetUser.follow)!;
+          bio = (ownProf ? UserModel.currentUser().bio : targetUser.bio)!;
+          tags = (ownProf ? UserModel.currentUser().tags : targetUser.tags)!;
 
           if (!ownProf && followers!.contains(FirebaseAuth.instance.currentUser?.uid)) {
             followed = true;
@@ -248,9 +244,9 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   Future<Widget> getFriendspp() async {
     String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-    List<String> friends = (ownProf ? UserModel.currentUser.followed : targetUser.followed)!
+    List<String> friends = (ownProf ? UserModel.currentUser().followed : targetUser.followed)!
         .toSet()
-        .intersection(UserModel.currentUser.follow!.toSet())
+        .intersection(UserModel.currentUser().follow!.toSet())
         .where((id) => id != currentUserId)
         .toList()
         .cast<String>();

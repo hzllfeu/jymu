@@ -60,10 +60,10 @@ class _ModifyAccountState extends State<ModifyAccount> {
   @override
   void initState() {
     super.initState();
-    id = UserModel.currentUser.id!;
-    displayname = UserModel.currentUser.displayName!;
-    bio = UserModel.currentUser.bio!;
-    tags = UserModel.currentUser.tags!;
+    id = UserModel.currentUser().id!;
+    displayname = UserModel.currentUser().displayName!;
+    bio = UserModel.currentUser().bio!;
+    tags = UserModel.currentUser().tags!;
   }
 
 

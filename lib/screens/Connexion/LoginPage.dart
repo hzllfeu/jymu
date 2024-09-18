@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver{
       // Si la connexion réussit, l'utilisateur est connecté
       User? user = userCredential.user;
       print(user?.displayName);
-      UserModel.currentUser.fetchUserData();
+      await UserModel.currentUser().fetchUserData();
 
       if (user != null) {
         Navigator.push(

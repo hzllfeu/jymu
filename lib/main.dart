@@ -29,7 +29,6 @@ void main() async {
     );
     timeago.setLocaleMessages('fr', timeago_fr.FrMessages());
     final sharedPreferences = await SharedPreferences.getInstance();
-    UserModel.currentUser.fetchUserData();
     runApp(MyApp());
   } catch (e) {
     print('Erreur lors de l\'initialisation de Firebase: $e');

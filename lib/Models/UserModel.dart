@@ -13,11 +13,15 @@ class UserModel {
   List<dynamic>? tags;
   String? bio;
 
-  static final UserModel _instance = UserModel._internal();
-  factory UserModel() => _instance;
+  static final UserModel _currentUserInstance = UserModel._internal();
+  factory UserModel.currentUser() => _currentUserInstance;
+
+  // Constructor pour d'autres utilisateurs
+  UserModel();
 
   UserModel._internal();
 
+  // Récupération des données du currentUser
   Future<void> fetchUserData() async {
     User? user = FirebaseAuth.instance.currentUser;
 
@@ -32,18 +36,15 @@ class UserModel {
     }
   }
 
+  // Récupération des données pour un utilisateur externe (nouvelle instance)
   Future<void> fetchExternalData(String id) async {
-
-      Map<String, dynamic>? userData = await getProfile(id);
-      if (userData != null) {
-        _updateFromMap(userData);
-      }
+    Map<String, dynamic>? userData = await getProfile(id);
+    if (userData != null) {
+      _updateFromMap(userData);
+    }
   }
 
-  Future<void> reloadUserData() async {
-    await fetchUserData();
-  }
-
+  // Méthode de mise à jour des données
   void _updateFromMap(Map<String, dynamic> data) {
     id = data['id'];
     displayName = data['displayname'];
@@ -57,6 +58,7 @@ class UserModel {
     etat_jymupro = data['etat_jymupro'];
   }
 
+  // Réinitialisation des données utilisateur
   void _resetUserData() {
     id = null;
     displayName = null;
@@ -69,8 +71,6 @@ class UserModel {
     bio = null;
     etat_jymupro = null;
   }
-
-  static UserModel get currentUser => _instance;
 }
 
 Future<Map<String, dynamic>?> getProfile(String uid) async {

@@ -955,8 +955,8 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
   }
 
   Future<void> pushToServer(String desc) async {
-    String firstPath = '${UserModel.currentUser.id}_${Path.basename(fistImage.path)}}.jpg';
-    String secondPath = '${UserModel.currentUser.id}_${Path.basename(secondImage.path)}}.jpg';
+    String firstPath = '${UserModel.currentUser().id}_${Path.basename(fistImage.path)}}.jpg';
+    String secondPath = '${UserModel.currentUser().id}_${Path.basename(secondImage.path)}}.jpg';
     await uploadToStorage(fistImage, firstPath);
     await uploadToStorage(secondImage, secondPath);
     await postTraining(firstPath, secondPath);
@@ -982,9 +982,9 @@ Future<void> postTraining(String path1, String path2) async {
   final trainingCollection = FirebaseFirestore.instance.collection('trainings');
 
   await trainingCollection.add({
-    'id': UserModel.currentUser.id,
-    'displayname': UserModel.currentUser.displayName,
-    'username': UserModel.currentUser.username,
+    'id': UserModel.currentUser().id,
+    'displayname': UserModel.currentUser().displayName,
+    'username': UserModel.currentUser().username,
     'date': Timestamp.now(),
     'desc': "",
     'likes': [],

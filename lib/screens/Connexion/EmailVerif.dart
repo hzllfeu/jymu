@@ -135,7 +135,7 @@ class _EmailVerifState extends State<EmailVerif> {
                         onTapUp: (t) async {
                           if (verif) {
                             await createProfile(user);
-                            UserModel.currentUser.fetchUserData();
+                            UserModel.currentUser().fetchUserData();
                             Navigator.push(
                               context,
                               CupertinoPageRoute(builder: (context) => InitScreen()),

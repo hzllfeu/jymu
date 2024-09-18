@@ -94,7 +94,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
     } else {
       setState(() {
         if (isFirstSelected) {
-          displayedProfiles = followers.toSet().intersection(UserModel.currentUser.followed!.toSet()).toList().cast<String>();
+          displayedProfiles = followers.toSet().intersection(UserModel.currentUser().followed!.toSet()).toList().cast<String>();
         } else if (isSecondSelected) {
           displayedProfiles = followers.cast<String>();
         } else {
@@ -109,7 +109,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
     try {
       List<String> allProfiles;
       if (isFirstSelected) {
-        allProfiles = followers.toSet().intersection(UserModel.currentUser.followed!.toSet()).toList().cast<String>();
+        allProfiles = followers.toSet().intersection(UserModel.currentUser().followed!.toSet()).toList().cast<String>();
       } else if (isSecondSelected) {
         allProfiles = followers.cast<String>();
       } else {
@@ -130,8 +130,8 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
             profilesData[userId]?.addAll({'pp': tm});
             if (!ownProf) {
               profilesData[userId]?.addAll({
-                'followedbis': UserModel.currentUser.followed!.contains(userId),
-                'followbis': UserModel.currentUser.follow!.contains(userId)
+                'followedbis': UserModel.currentUser().followed!.contains(userId),
+                'followbis': UserModel.currentUser().follow!.contains(userId)
               });
             }
             loadingProfiles[userId] = false;
@@ -173,12 +173,12 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
 
         setState(() {
           _fetchProfileImageUrl();
-          followers = (ownProf ? UserModel.currentUser.followed : targetUser.followed)!;
-          likes = (ownProf ? UserModel.currentUser.likes : targetUser.likes)!;
-          username = (ownProf ? UserModel.currentUser.username : targetUser.username)!;
-          displayName = (ownProf ? UserModel.currentUser.displayName : targetUser.displayName)!;
-          follow = (ownProf ? UserModel.currentUser.follow : targetUser.follow)!;
-          bio = (ownProf ? UserModel.currentUser.bio : targetUser.bio)!;
+          followers = (ownProf ? UserModel.currentUser().followed : targetUser.followed)!;
+          likes = (ownProf ? UserModel.currentUser().likes : targetUser.likes)!;
+          username = (ownProf ? UserModel.currentUser().username : targetUser.username)!;
+          displayName = (ownProf ? UserModel.currentUser().displayName : targetUser.displayName)!;
+          follow = (ownProf ? UserModel.currentUser().follow : targetUser.follow)!;
+          bio = (ownProf ? UserModel.currentUser().bio : targetUser.bio)!;
 
           if (!ownProf && followers.contains(FirebaseAuth.instance.currentUser?.uid)) {
             followed = true;
@@ -208,7 +208,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
 
     List<String>? newProfiles;
     if (isFirstSelected) {
-      newProfiles = followers.toSet().intersection(UserModel.currentUser.followed!.toSet()).toList().cast<String>();
+      newProfiles = followers.toSet().intersection(UserModel.currentUser().followed!.toSet()).toList().cast<String>();
     } else if (isSecondSelected) {
       newProfiles = followers.cast<String>();
     } else {
@@ -269,8 +269,8 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
         profilesData[profileId]?.addAll({'pp': tm});
         if (!ownProf) {
           profilesData[profileId]?.addAll({
-            'followedbis': UserModel.currentUser.followed!.contains(profileId),
-            'followbis': UserModel.currentUser.follow!.contains(profileId)
+            'followedbis': UserModel.currentUser().followed!.contains(profileId),
+            'followbis': UserModel.currentUser().follow!.contains(profileId)
           });
         }
         loadingProfiles[profileId] = false;
