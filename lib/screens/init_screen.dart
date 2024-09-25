@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jymu/Alexis/get_processed.dart';
 import 'package:jymu/Alexis/ia_gene.dart';
+import 'package:jymu/Alexis/page_zexo.dart';
 import 'package:jymu/screens/home/FeedPage.dart';
 import 'package:jymu/screens/home/ProfilPage.dart';
 import 'package:jymu/screens/home/RecherchePage.dart';
@@ -9,6 +11,7 @@ import 'package:jymu/Alexis/ia_gene.dart';
 import '../Alexis/ia_gene.dart';
 import '../Models/UserModel.dart';
 import 'home/HomeScreen.dart';
+import 'package:jymu/Alexis/get_exercise.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
@@ -26,7 +29,6 @@ class InitScreen extends StatefulWidget {
 
 class _InitScreenState extends State<InitScreen> {
   late int currentSelectedIndex; // Utilise late pour initialiser plus tard
-
   void updateCurrentIndex(int index) {
     setState(() {
       currentSelectedIndex = index;
@@ -34,7 +36,14 @@ class _InitScreenState extends State<InitScreen> {
   }
 
   Future<void> loadProfile() async {
+    /// trouver un moyen d'app 1 seule fois
     await UserModel.currentUser().fetchUserData();
+    if (UserModel.currentUser().etat_jymupro == 1) {
+      await ExerciseDataService.instance.fetchExercises();
+      await ProcessedDataService.instance.fetchProcessedData();
+    }
+
+    ////ICIICICICICI A RECUPPPERER
   }
 
   @override
@@ -49,8 +58,12 @@ class _InitScreenState extends State<InitScreen> {
       Center(
       child: FeedPage(),
       ),
-      IaGene(),
-      RecherchePage(id: FirebaseAuth.instance.currentUser!.uid),
+     UserModel.currentUser().etat_jymupro == 1
+         ? ExercisePage()
+         : IaGene(),
+
+
+     RecherchePage(id: FirebaseAuth.instance.currentUser!.uid),
       ProfilPage(id: FirebaseAuth.instance.currentUser!.uid),
   ];
 

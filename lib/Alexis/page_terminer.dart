@@ -1,14 +1,21 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 
 import 'package:jymu/Alexis/page_zexo.dart';
+import 'package:jymu/Models/UserModel.dart';
+import 'package:jymu/UserManager.dart';
+import 'package:jymu/screens/home/FeedPage.dart';
+import 'package:jymu/screens/init_screen.dart';
 
 class EndPage extends StatelessWidget {
   EndPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    setEtatJymuPro(UserModel.currentUser().id!, 1);
+    UserModel.currentUser().etat_jymupro = 1;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -71,7 +78,12 @@ class EndPage extends StatelessWidget {
                   child: GestureDetector(
                     onTapUp: (t) {
                       // Action à effectuer lorsque le bouton "Terminer" est pressé
-                      Navigator.popUntil(context, (route) => route.isFirst);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InitScreen(),
+                        ),
+                      );
                     },
                     child: Center(
                       child: Text(

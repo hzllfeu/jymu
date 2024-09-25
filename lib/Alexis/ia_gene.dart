@@ -3,13 +3,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:jymu/Alexis/ia_introtimy.dart';
+import 'package:jymu/Alexis/page_zexo.dart';
+import 'package:jymu/UserManager.dart';
 import 'package:lottie/lottie.dart'; // Pour les animations Lottie
 
 import 'package:jymu/screens/home/components/SelectPost.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:jymu/Models/UserModel.dart';
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
+import 'package:jymu/Alexis/get_exercise.dart';
+import 'package:jymu/UserManager.dart';
 
 
 const Color inActiveIconColor = Color(0xFFFFC0CB);
@@ -29,6 +33,7 @@ class _IaGeneState extends State<IaGene> with SingleTickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   bool _isAccepted = false; // État de la checkbox
+
 
   @override
   void initState() {
@@ -57,6 +62,9 @@ class _IaGeneState extends State<IaGene> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+   // UserModel.currentUser().etat_jymupro = 4;
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -246,7 +254,7 @@ class _IaGeneState extends State<IaGene> with SingleTickerProviderStateMixin {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Padding(
+                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 25),
                               child: Text(
                                 "Prêt à démarrer !",

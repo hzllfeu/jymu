@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jymu/Models/UserModel.dart';
 import 'package:jymu/screens/home/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -19,8 +20,7 @@ String generateFirebaseLikeId({int length = 20}) {
 
 Future<void> FetchProfile(BuildContext context) async {
   // Generate a new UUID
-  var uuid = Uuid();
-  String newUuid = uuid.v4();
+  String newUuid = UserModel.currentUser().id!;
   // Accéder à la liste dynamique partagée
   List<double> tab = GlobalListManager().dynamicList;
 
@@ -29,6 +29,7 @@ Future<void> FetchProfile(BuildContext context) async {
   await requests.doc(newUuid).set({
     'tab': tab,
   });
+
 
 
   Navigator.push(
