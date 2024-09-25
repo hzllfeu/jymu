@@ -14,6 +14,7 @@ import 'Models/UserModel.dart';
 import 'firebase_options.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:timeago/timeago.dart' as timeago_fr;
+import 'package:jymu/Alexis/get_exercise.dart';
 
 
 List<CameraDescription> cameras = [];
