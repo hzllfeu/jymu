@@ -10,6 +10,7 @@ import 'package:jymu/Models/TrainingModel.dart';
 import 'package:jymu/PostManager.dart';
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
 import 'package:jymu/screens/home/LoadingPost.dart';
+import 'package:jymu/screens/home/LoadingProfileList.dart';
 import 'package:jymu/screens/home/LoadingTraining.dart';
 import 'package:jymu/screens/home/PostWidget.dart';
 
@@ -37,28 +38,40 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
   bool isFirstSelected = true;
   late final TabController tabController;
   List<String> listPosts = [];
+  List<String> LoadedPosts = [];
   final Map<int, TrainingCard> cachedTrainings = {};
   final Map<int, TrainingModel> cachedTrainingsModels = {};
   int counter = 0;
   int lastcounter = 0;
   late PageController pc;
   bool loading = false;
+  int _previousPage = 0;
+
 
   @override
   void initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
     pc = PageController();
+    pc.addListener(scrollListener);
 
     loadTrainingModels();
   }
 
-  void scrollListener(int index) {
-    print(index);
-    if(index > counter - 2 && !loading){
-      loadTrainingModels();
+  void scrollListener() {
+    int index = pc.page!.toInt();
+    if(index != _previousPage){
+      setState(() {
+        _previousPage = index;
+      });
+
+      if(index > counter - 2 && !loading && counter > 0){
+        loadTrainingModels();
+      }
+
     }
   }
+
 
   Future<void> loadTrainingModels() async {
     if(loading) {
@@ -71,11 +84,11 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
 
     lastcounter = counter;
 
-    cachedTrainingsModels.clear();
     setState(() {
 
     });
-    for (String s in listPosts) {
+    for (int i = lastcounter; i < listPosts.length; i++) {
+      String s = listPosts[counter];
       TrainingModel tmp = TrainingModel();
 
       if (CachedData().trainings.containsKey(s)) {
@@ -98,8 +111,9 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
   Future<void> loadTrainings() async {
     for (int i = lastcounter; i < cachedTrainingsModels.length; i++) {
       if (!cachedTrainings.containsKey(i)) {
-        cachedTrainings[i] = TrainingCard(trn: cachedTrainingsModels[lastcounter + i]!);
-        print("key: $i, id: ${cachedTrainingsModels[lastcounter + i]!.id}");
+        setState(() {
+          cachedTrainings[i] = TrainingCard(trn: cachedTrainingsModels[i]!);
+        });
       }
     }
     setState(() {
@@ -123,13 +137,12 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
       body: Stack(
         children: [
           PageView.builder(
-            controller: PageController(),
+            controller: pc,
             scrollDirection: Axis.vertical,
             itemCount: counter,
             itemBuilder: (context, index) {
-              scrollListener(index);
               return !cachedTrainings.containsKey(index)
-                  ? const LoadingTraining()
+                  ? const LoadingProfileList()
                   : cachedTrainings[index];
             },
           ),

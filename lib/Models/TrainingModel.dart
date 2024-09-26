@@ -108,22 +108,45 @@ Future<Map<String, dynamic>?> getTraining(String uid) async {
 }
 
 Future<List<String>> getTrainingsForUser(String targetID, int n, List<String> excluded) async {
-  Query query = FirebaseFirestore.instance
-      .collection('trainings')
-      .limit(n);
-  if(excluded.isNotEmpty){
-    query = FirebaseFirestore.instance
+  List<String> documentIds = [];
+
+  if (excluded.length > 10) {
+    List<List<String>> excludedChunks = [];
+
+    for (var i = 0; i < excluded.length; i += 10) {
+      excludedChunks.add(excluded.sublist(i, i + 10 > excluded.length ? excluded.length : i + 10));
+    }
+
+    for (var chunk in excludedChunks) {
+      Query query = FirebaseFirestore.instance
+          .collection('trainings')
+          .where(FieldPath.documentId, whereNotIn: chunk)
+          .limit(n);
+
+      QuerySnapshot querySnapshot = await query.get();
+
+      documentIds.addAll(
+          querySnapshot.docs
+              .map((doc) => doc.id)
+              .where((id) => id != "default")
+              .toList()
+      );
+
+      if (documentIds.length >= n) break; // Stopper si on a assez de documents
+    }
+  } else {
+    Query query = FirebaseFirestore.instance
         .collection('trainings')
         .where(FieldPath.documentId, whereNotIn: excluded)
         .limit(n);
+
+    QuerySnapshot querySnapshot = await query.get();
+
+    documentIds = querySnapshot.docs
+        .map((doc) => doc.id)
+        .where((id) => id != "default")
+        .toList();
   }
-
-  QuerySnapshot querySnapshot = await query.get();
-
-  List<String> documentIds = querySnapshot.docs
-      .map((doc) => doc.id)
-      .where((id) => id != "default")
-      .toList();
 
   return documentIds.take(n).toList();
 }

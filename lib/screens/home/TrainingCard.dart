@@ -117,12 +117,15 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
       CachedData().links[targetUser.id!] = pp;
     }
 
+
     loaded = true;
 
     if(training.likes!.contains(UserModel.currentUser().id)){
       liked = true;
     }
+    setState(() {
 
+    });
   }
 
   @override
