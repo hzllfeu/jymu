@@ -142,7 +142,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
             itemCount: counter,
             itemBuilder: (context, index) {
               return !cachedTrainings.containsKey(index)
-                  ? const LoadingProfileList()
+                  ? const LoadingPost()
                   : cachedTrainings[index];
             },
           ),

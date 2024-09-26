@@ -134,10 +134,21 @@ Future<List<String>> getTrainingsForUser(String targetID, int n, List<String> ex
 
       if (documentIds.length >= n) break; // Stopper si on a assez de documents
     }
-  } else {
+  } else if(excluded.isNotEmpty){
     Query query = FirebaseFirestore.instance
         .collection('trainings')
         .where(FieldPath.documentId, whereNotIn: excluded)
+        .limit(n);
+
+    QuerySnapshot querySnapshot = await query.get();
+
+    documentIds = querySnapshot.docs
+        .map((doc) => doc.id)
+        .where((id) => id != "default")
+        .toList();
+  } else {
+    Query query = FirebaseFirestore.instance
+        .collection('trainings')
         .limit(n);
 
     QuerySnapshot querySnapshot = await query.get();
