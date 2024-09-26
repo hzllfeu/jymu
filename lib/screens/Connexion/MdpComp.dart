@@ -64,7 +64,7 @@ class _MdpCompState extends State<MdpComp> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => InputPage(text: "Entrer un email"),
+                          builder: (context) => InputPage(text: "Entrer un email", limit: 50,),
                         ),
                       );
 

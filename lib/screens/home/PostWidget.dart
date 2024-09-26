@@ -6,6 +6,8 @@ import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/PostManager.dart';
 
+import '../../Models/UserModel.dart';
+
 class NewPostWidget extends StatefulWidget {
   @override
   _NewPostWidgetState createState() => _NewPostWidgetState();
@@ -25,6 +27,7 @@ class _NewPostWidgetState extends State<NewPostWidget> with TickerProviderStateM
 
     try {
       addPost(FirebaseAuth.instance.currentUser, content);
+
 
       _controller.clear();
       Haptics.vibrate(HapticsType.success);

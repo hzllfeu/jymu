@@ -335,7 +335,7 @@ class _ModifyAccountState extends State<ModifyAccount> {
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => InputPage(text: "Modifiez votre nom"),
+                                      builder: (context) => InputPage(text: "Modifiez votre nom", limit: 30),
                                     ),
                                   );
 
@@ -385,7 +385,7 @@ class _ModifyAccountState extends State<ModifyAccount> {
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => InputPage(text: "Modifiez votre bio"),
+                                      builder: (context) => InputPage(text: "Modifiez votre bio", limit: 100,),
                                     ),
                                   );
 

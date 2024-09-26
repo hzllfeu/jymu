@@ -25,6 +25,7 @@ import 'package:jymu/screens/home/components/PostCard.dart';
 import 'package:jymu/screens/home/components/ProfileComp.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
+import '../../Models/CachedData.dart';
 import 'LoadingProfile.dart';
 import 'components/PostsComp.dart';
 import 'components/TagList.dart';
@@ -164,7 +165,13 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
           });
         }
         if (!ownProf) {
-          await targetUser.fetchExternalData(id!);
+          if(CachedData().users.containsKey(id!)){
+            targetUser = CachedData().users[id!]!;
+          } else {
+            await targetUser.fetchExternalData(id!);
+            CachedData().users[id!] = targetUser;
+          }
+
           setState(() {
 
           });
@@ -232,7 +239,13 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
   Future<void> _fetchProfileImageUrl() async {
     if (id != "") {
-      String tmp = await getProfileImageUrl(id!);
+      late String tmp;
+      if(CachedData().links.containsKey(id!)){
+        tmp = CachedData().links[id!]!;
+      } else {
+        tmp = await getProfileImageUrl(id!);
+        CachedData().links[id!] = tmp;
+      }
 
       if (!mounted) return;
       setState(() {
@@ -510,15 +523,14 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                   child: GlassContainer(
                     height: 38,
                     width: 43,
-                    blur: 8,
-                    shadowStrength: 5,
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.black.withOpacity(0.5),
+                    blur: 10,
                     borderRadius: BorderRadius.circular(16),
                     child: Center(
                       child: Icon(
                         CupertinoIcons.arrow_left,
                         size: 22,
-                        color: CupertinoColors.black.withOpacity(0.8),
+                        color: CupertinoColors.white.withOpacity(0.8),
                       ),
                     ),
                   ),
@@ -543,8 +555,8 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                   },
                   child: GlassContainer(
                     height: 38,
-                    blur: 16,
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.black.withOpacity(0.5),
+                    blur: 10,
                     borderRadius: BorderRadius.circular(18),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -555,7 +567,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                           Text(
                             "Suivi(e) par   ",
                             style: TextStyle(
-                              color: Colors.black.withOpacity(0.8),
+                              color: Colors.white.withOpacity(0.8),
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
@@ -686,6 +698,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                           ),
                                         ),
                                       );
+                                      CachedData().links.remove(id!);
                                       _fetchDataFuture = _fetchData();
                                     } else {
                                       if (!followed) {

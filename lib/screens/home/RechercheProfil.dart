@@ -11,6 +11,7 @@ import 'package:jymu/UserManager.dart' as um;
 import 'package:jymu/screens/home/LoadingProfileList.dart';
 import 'package:jymu/screens/home/ProfileListComp.dart';
 
+import '../../Models/CachedData.dart';
 import '../../Models/UserModel.dart';
 import 'components/TabItem.dart';
 
@@ -121,7 +122,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
         if(cachedProfiles.containsKey(userId)){
           profileData = cachedProfiles[userId];
         } else {
-          var profileData = await um.getProfile(userId);
+          var profileData = await um.getProfile(userId);  //TODO: Optimiser avec la classe Cached et UserModel
 
           String tm = await getProfileImageUrl(userId);
 
@@ -166,7 +167,12 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
           ownProf = true;
         }
         if (!ownProf) {
-          await targetUser.fetchExternalData(id!);
+          if(CachedData().users.containsKey(id!)){
+            targetUser = CachedData().users[id!]!;
+          } else {
+            await targetUser.fetchExternalData(id!);
+            CachedData().users[id!] = targetUser;
+          }
         }
 
         if (!mounted) return;
@@ -296,20 +302,19 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
 
   Future<void> _fetchProfileImageUrl() async {
     if (id != "") {
-      String tmp = await getProfileImageUrl(id!);
+      late String tmp;
+      if(CachedData().links.containsKey(id!)){
+        tmp = CachedData().links[id!]!;
+      } else {
+        tmp = await getProfileImageUrl(id!);
+        CachedData().links[id!] = tmp;
+      }
 
       if (!mounted) return;
       setState(() {
         profileImageUrl = tmp;
       });
     }
-  }
-  @override
-  void dispose() {
-    tabController.dispose();
-    _scrollController.dispose();
-
-    super.dispose();
   }
 
   @override

@@ -1,13 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:jymu/UserManager.dart' as um;
 import 'package:jymu/UserManager.dart';
+import 'package:uuid/uuid.dart';
+
+import 'Models/UserModel.dart';
 
 
 Future<void> addPost(User? user, String content) async {
+  final uuid = Uuid();
+  String trainingId = uuid.v4();
   final postCollection = FirebaseFirestore.instance.collection('posts');
 
-  await postCollection.add({
+  await postCollection.doc(trainingId).set({
     'id': user?.uid,
     'username': user?.displayName,
     'content': content,
@@ -15,6 +20,9 @@ Future<void> addPost(User? user, String content) async {
     'likes': [],
     'comments': [],
   });
+
+  UserModel.currentUser().posts?.add([{'post': trainingId, 'timestamp': Timestamp.now()}]);
+  um.addPost(UserModel.currentUser().id!, trainingId, Timestamp.now());
 }
 
 QuerySnapshot? lastDocument;
@@ -55,7 +63,7 @@ Future<void> addLike(String postId, String userID) async {
         'likes': FieldValue.arrayUnion([userID]),
       });
 
-      addLikeToUser(userID, postId, Timestamp.now());
+      addLikeToUser(userID, false, postId, Timestamp.now());
     }
   }
 }
@@ -74,7 +82,7 @@ Future<void> removeLike(String postId, String userID) async {
         'likes': FieldValue.arrayRemove([userID]),
       });
 
-      removeLikeFromUser(userID, postId, Timestamp.now());
+      removeLikeFromUser(userID, false, postId, Timestamp.now());
     }
   }
 }

@@ -7,8 +7,9 @@ import 'package:haptic_feedback/haptic_feedback.dart';
 
 class InputPage extends StatefulWidget {
   final String text;
+  final int limit;
 
-  const InputPage({super.key, required this.text});
+  const InputPage({super.key, required this.text, required this.limit});
 
   @override
   _InputPageState createState() => _InputPageState();
@@ -91,6 +92,7 @@ class _InputPageState extends State<InputPage> {
                               focusNode: _focusNode, // Ajoutez ceci
                               padding: EdgeInsets.all(15),
                               cursorColor: Colors.redAccent,
+                              maxLength: widget.limit,
                               placeholder: "Ecrire ici",
                               onSubmitted: (String s){String result = _usernameController.text.trim();
                               Navigator.pop(context, result);},

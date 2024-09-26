@@ -7,6 +7,8 @@ class UserModel {
   String? username;
   int? etat_jymupro;
   List<dynamic>? likes;
+  List<dynamic>? trainings;
+  List<dynamic>? posts;
   List<dynamic>? comments;
   List<dynamic>? follow;
   List<dynamic>? followed;
@@ -55,6 +57,8 @@ class UserModel {
     followed = data['followed'];
     tags = data['tags'];
     bio = data['bio'];
+    trainings = data['trainings'];
+    posts = data['posts'];
     etat_jymupro = data['etat_jymupro'];
   }
 
@@ -67,6 +71,8 @@ class UserModel {
     comments = [];
     follow = [];
     followed = [];
+    trainings = [];
+    posts = [];
     tags = [];
     bio = null;
     etat_jymupro = null;

@@ -14,7 +14,7 @@ class EndPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    setEtatJymuPro(UserModel.currentUser().id!, 1);
+    //setEtatJymuPro(UserModel.currentUser().id!, 1); TODO: Je sais pas ou est la fonction setEtatJymupPro et je crois que comme t'appelles ca dans le build la fonction est appellée + de 60 fois par secondes
     UserModel.currentUser().etat_jymupro = 1;
     return Scaffold(
       body: SafeArea(

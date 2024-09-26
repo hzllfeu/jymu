@@ -13,14 +13,18 @@ import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/Alexis/ia_gene.dart';
 import 'package:jymu/Models/UserModel.dart';
+import 'package:jymu/UserManager.dart';
 import 'package:jymu/screens/home/ModifyTags.dart';
 import 'package:jymu/screens/home/PostWidget.dart';
 import 'package:jymu/screens/home/components/TagList.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:path/path.dart' as Path;
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../../main.dart';
 import 'package:image/image.dart' as img;
+
+import '../InputPage.dart';
 
 
 class CameraPage extends StatefulWidget {
@@ -74,6 +78,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
   bool _hasAnimated = false;
   bool showFirstImage = true;
   String ppurl = "";
+  String desc = "";
 
   bool posting = false;
   Timer? _timer;
@@ -82,7 +87,6 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
 
   List<dynamic> tags = [];
 
-  TextEditingController descController = TextEditingController();
 
   Future<void> _updatePalette(bool b) async {
     if(b == false){
@@ -141,7 +145,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
     tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     _fetchProfileImageUrl();
     setState(() {
-      tags = getTagList();
+      tags = getTagList().take(2).toList();
     });
 
     rotationController = AnimationController(
@@ -396,7 +400,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                           posting = true;
                         });
                         Haptics.vibrate(HapticsType.light);
-                        await pushToServer("");
+                        await pushToServer(desc, tags);
                         Haptics.vibrate(HapticsType.success);
                         setState(() {
                           posting = false;
@@ -682,18 +686,28 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                                         ? _controller!.value.previewSize!.height
                                                         : sizeY) - 150,
                                                     child: Center(
-                                                      child: CupertinoTextField(
-                                                        controller: descController,
-                                                        focusNode: _focusNode,
-                                                        cursorColor: Colors.redAccent,
-                                                        maxLength: 22,
-                                                        decoration: BoxDecoration(
-                                                            color: Colors.transparent
-                                                        ),
-                                                        placeholder: "Ecris ici une courte description...",
-                                                        placeholderStyle: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 30, fontWeight: FontWeight.w500),
-                                                        style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 30, fontWeight: FontWeight.w500),
-                                                      ),
+                                                      child: GestureDetector(
+                                                        onTapUp: (t) async {
+                                                          final result = await Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) => InputPage(text: "Ajouter une description", limit: 23),
+                                                            ),
+                                                          );
+
+                                                          if (result != null) {
+                                                            desc = result;
+                                                            setState(() {});
+                                                          }
+                                                        },
+                                                        child: Align(
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Text(
+                                                            desc.isEmpty? "Ecris ici une courte description...": desc,
+                                                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 30, fontWeight: FontWeight.w500),
+                                                          ),
+                                                        )
+                                                      )
                                                     )
                                                 ),
                                                 Icon(CupertinoIcons.pen, color: Colors.white.withOpacity(0.7), size: 36,),
@@ -717,7 +731,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
             SizedBox(height: size.height*0.01),
             if(!firstTaken || !secondTaken)
               SizedBox(height: size.height*0.05),
-            if(!firstTaken || !secondTaken)
+            if(!firstTaken || !secondTaken && !showLoading) //TODO Annimation
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: GestureDetector(
@@ -758,14 +772,23 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
               SizedBox(width: 20,),
             if(firstTaken && secondTaken)
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15), //TODO Padding dynamic
+                padding: EdgeInsets.symmetric(horizontal: size.width*0.1),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("Tags suggérés", style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600,fontSize: 14)),
                     GestureDetector(
-                      onTapUp: (t){
-
+                      onTapUp: (t) async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ModifyTags(tags: tags),
+                          ),
+                        );
+                        if (result != null) {
+                          tags = result;
+                          setState(() {});
+                        }
                       },
                       child: Text("Voir plus", style: TextStyle(color: CupertinoColors.systemRed, fontWeight: FontWeight.w500,fontSize: 14)),
                     )
@@ -782,9 +805,9 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: List.generate(
-                            3,
+                            tags.length,
                                 (index) => getTag(tags[index] ?? "none", false)
                         )
                     ),
@@ -954,12 +977,12 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> pushToServer(String desc) async {
+  Future<void> pushToServer(String desc, List<dynamic> tags) async {
     String firstPath = '${UserModel.currentUser().id}_${Path.basename(fistImage.path)}}.jpg';
     String secondPath = '${UserModel.currentUser().id}_${Path.basename(secondImage.path)}}.jpg';
     await uploadToStorage(fistImage, firstPath);
     await uploadToStorage(secondImage, secondPath);
-    await postTraining(firstPath, secondPath);
+    await postTraining(firstPath, secondPath, desc, tags);
   }
 }
 
@@ -978,20 +1001,27 @@ Future<void> uploadToStorage(File imageFile, String fileName) async {
   }
 }
 
-Future<void> postTraining(String path1, String path2) async {
+Future<void> postTraining(String path1, String path2, String desc, List<dynamic> tags) async {
+  final uuid = Uuid();
   final trainingCollection = FirebaseFirestore.instance.collection('trainings');
 
-  await trainingCollection.add({
+  String trainingId = uuid.v4();
+
+  await trainingCollection.doc(trainingId).set({
+    'trainingId': trainingId,
     'id': UserModel.currentUser().id,
     'displayname': UserModel.currentUser().displayName,
     'username': UserModel.currentUser().username,
     'date': Timestamp.now(),
-    'desc': "",
+    'desc': desc,
     'likes': [],
     'comments': [],
-    'tags': [],
+    'tags': tags,
     'seance': [],
     'firstImage': path1,
     'secondImage': path2,
   });
+
+  UserModel.currentUser().trainings?.add([{'training': trainingId, 'timestamp': Timestamp.now()}]);
+  addTraining(UserModel.currentUser().id!, trainingId, Timestamp.now());
 }

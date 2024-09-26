@@ -12,6 +12,8 @@ Future<void> createProfile(User? user) async {
     'username': user?.displayName,
     'creation': Timestamp.now(),
     'likes': [],
+    'trainings': [],
+    'posts': [],
     'comments': [],
     'follow': [],
     'followed': [],
@@ -162,10 +164,10 @@ Future<void> setLikes(String userID, List<dynamic> likes) async {
   });
 }
 
-Future<void> addLikeToUser(String userID, String postId, Timestamp timestamp) async {
+Future<void> addLikeToUser(String userID, bool trn, String postId, Timestamp timestamp) async {
   final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
   await userRef.update({
-    'likes': FieldValue.arrayUnion([{'postId': postId, 'timestamp': timestamp}]),
+    'likes': FieldValue.arrayUnion([{trn ? 'trnId' : 'postId': postId, 'timestamp': timestamp}]),
   });
 }
 
@@ -174,6 +176,58 @@ Future<void> addCommentToUser(String userID, String commentId, Timestamp timesta
   await userRef.update({
     'comments': FieldValue.arrayUnion([{'commentId': commentId, 'timestamp': timestamp}]),
   });
+}
+
+Future<void> addTraining(String userID, String trainingID, Timestamp timestamp) async {
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+  await userRef.update({
+    'trainings': FieldValue.arrayUnion([{'training': trainingID, 'timestamp': timestamp}]),
+  });
+}
+
+Future<void> addPost(String userID, String postID, Timestamp timestamp) async {
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+  await userRef.update({
+    'posts': FieldValue.arrayUnion([{'post': postID, 'timestamp': timestamp}]),
+  });
+}
+
+Future<void> removeTraining(String userID, String postId, Timestamp timestamp) async { //TODO: optimiser par rapport aux nombre d'appels
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+  final userSnapshot = await userRef.get();
+  List<dynamic> userLikes = userSnapshot['trainings'];
+  Map<String, dynamic>? likeToRemove;
+  for (var like in userLikes) {
+    if (like['training'] == postId) {
+      likeToRemove = like;
+      break;
+    }
+  }
+
+  if (likeToRemove != null) {
+    await userRef.update({
+      'trainings': FieldValue.arrayRemove([likeToRemove]),
+    });
+  }
+}
+
+Future<void> removePost(String userID, String postId, Timestamp timestamp) async { //TODO: optimiser par rapport aux nombre d'appels
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+  final userSnapshot = await userRef.get();
+  List<dynamic> userLikes = userSnapshot['posts'];
+  Map<String, dynamic>? likeToRemove;
+  for (var like in userLikes) {
+    if (like['post'] == postId) {
+      likeToRemove = like;
+      break;
+    }
+  }
+
+  if (likeToRemove != null) {
+    await userRef.update({
+      'posts': FieldValue.arrayRemove([likeToRemove]),
+    });
+  }
 }
 
 Future<void> addTagToUser(String userID, String tag) async {
@@ -197,13 +251,13 @@ Future<void> addFollowedToUser(String userID, String followedUserId) async {
   });
 }
 
-Future<void> removeLikeFromUser(String userID, String postId, Timestamp timestamp) async {
+Future<void> removeLikeFromUser(String userID, bool trn, String postId, Timestamp timestamp) async {
   final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
   final userSnapshot = await userRef.get();
   List<dynamic> userLikes = userSnapshot['likes'];
   Map<String, dynamic>? likeToRemove;
   for (var like in userLikes) {
-    if (like['postId'] == postId) {
+    if (like[trn ? 'trnId': 'postId'] == postId) {
       likeToRemove = like;
       break;
     }

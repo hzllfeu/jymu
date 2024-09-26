@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:jymu/Models/UserModel.dart';
+
+import '../UserManager.dart';
 
 class TrainingModel {
   String? userId;
@@ -15,10 +18,7 @@ class TrainingModel {
   String? firstImage;
   String? secondImage;
 
-  static final TrainingModel _instance = TrainingModel._internal();
-  factory TrainingModel() => _instance;
-
-  TrainingModel._internal();
+  TrainingModel();
 
 
   Future<void> fetchExternalData(String id) async {
@@ -46,10 +46,47 @@ class TrainingModel {
     desc = data['desc'];
     firstImage = data['firstImage'];
     secondImage = data['secondImage'];
-
   }
 
-  static TrainingModel get currentUser => _instance;
+  Future<void> addLike() async {
+    final postRef = FirebaseFirestore.instance.collection('trainings').doc(id);
+    String userID = UserModel.currentUser().id!;
+
+    final postSnapshot = await postRef.get();
+
+    if (postSnapshot.exists) {
+      List<dynamic> postLikes = postSnapshot['likes'];
+
+      if (!postLikes.contains(userID)) {
+        await postRef.update({
+          'likes': FieldValue.arrayUnion([userID]),
+        });
+
+        addLikeToUser(userID, true, id!, Timestamp.now());
+      }
+    }
+    likes?.add(userID);
+  }
+
+
+  Future<void> removeLike() async {
+    final postRef = FirebaseFirestore.instance.collection('trainings').doc(id);
+    String userID = UserModel.currentUser().id!;
+    final postSnapshot = await postRef.get();
+
+    if (postSnapshot.exists) {
+      List<dynamic> postLikes = postSnapshot['likes'];
+
+      if (postLikes.contains(userID)) {
+        await postRef.update({
+          'likes': FieldValue.arrayRemove([userID]),
+        });
+
+        removeLikeFromUser(userID, true, id!, Timestamp.now());
+      }
+    }
+    likes?.remove(userID);
+  }
 }
 
 Future<Map<String, dynamic>?> getTraining(String uid) async {
@@ -68,4 +105,25 @@ Future<Map<String, dynamic>?> getTraining(String uid) async {
     print('Erreur lors de la récupération du post: $e');
   }
   return null;
+}
+
+Future<List<String>> getTrainingsForUser(String targetID, int n, List<String> excluded) async {
+  Query query = FirebaseFirestore.instance
+      .collection('trainings')
+      .limit(n);
+  if(excluded.isNotEmpty){
+    query = FirebaseFirestore.instance
+        .collection('trainings')
+        .where(FieldPath.documentId, whereNotIn: excluded)
+        .limit(n);
+  }
+
+  QuerySnapshot querySnapshot = await query.get();
+
+  List<String> documentIds = querySnapshot.docs
+      .map((doc) => doc.id)
+      .where((id) => id != "default")
+      .toList();
+
+  return documentIds.take(n).toList();
 }

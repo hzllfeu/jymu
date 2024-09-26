@@ -9,27 +9,31 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
+import 'package:jymu/Models/CachedData.dart';
 import 'package:jymu/Models/TrainingModel.dart';
 import 'package:jymu/Models/UserModel.dart';
 import 'package:jymu/PostManager.dart';
+import 'package:jymu/screens/home/LoadingTraining.dart';
 import 'package:jymu/screens/home/ProfilPage.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
 
+import 'components/TagList.dart';
+
 class TrainingCard extends StatefulWidget {
-  final String postID;
+  final TrainingModel trn;
 
   TrainingCard({
-    required this.postID,
+    required this.trn,
   });
 
   @override
   _TrainingCardState createState() => _TrainingCardState();
 }
 
-class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderStateMixin {
+class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMixin, AutomaticKeepAliveClientMixin<TrainingCard> {
   bool liked = false;
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -52,6 +56,7 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
   late AnimationController _animationController;
   late Animation<Offset> _animation;
   String pp = "";
+  bool loaded = false;
 
 
   Future<void> _updatePalette(bool b) async {
@@ -60,17 +65,13 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
         Image.file(fistImage).image,
       );
 
-      setState(() {
         firstMainColor = paletteGenerator.dominantColor?.color ?? Colors.transparent;
-      });
     } else {
       final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
         Image.file(secondImage).image,
       );
 
-      setState(() {
         secondMainColor = paletteGenerator.dominantColor?.color ?? Colors.transparent;
-      });
     }
   }
 
@@ -85,19 +86,50 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
   }
 
   Future<void> getPostData() async {
-    await training.fetchExternalData(widget.postID);
-    await targetUser.fetchExternalData(training.userId!);
-    fistImage = (await getImage(training.firstImage!))!;
-    secondImage = (await getImage(training.secondImage!))!;
+
+    if(CachedData().users.containsKey(training.userId!)){
+      targetUser = CachedData().users[training.userId!]!;
+    } else {
+      await targetUser.fetchExternalData(training.userId!);
+      CachedData().users[training.userId!] = targetUser;
+    }
+    if(CachedData().images.containsKey(training.firstImage!)){
+      fistImage = CachedData().images[training.firstImage!]!;
+    } else {
+      fistImage = (await getImage(training.firstImage!))!;
+      CachedData().images[training.firstImage!] = fistImage;
+    }
+    if(CachedData().images.containsKey(training.secondImage!)){
+      secondImage = CachedData().images[training.secondImage!]!;
+    } else {
+      secondImage = (await getImage(training.secondImage!))!;
+      CachedData().images[training.secondImage!] = secondImage;
+    }
+
+
     _updatePalette(true);
     _updatePalette(false);
-    pp = await getProfileImageUrl(targetUser.id!);
+
+    if(CachedData().links.containsKey(targetUser.id!)){
+      pp = CachedData().links[targetUser.id!]!;
+    } else {
+      pp = await getProfileImageUrl(targetUser.id!);
+      CachedData().links[targetUser.id!] = pp;
+    }
+
+    loaded = true;
+
+    if(training.likes!.contains(UserModel.currentUser().id)){
+      liked = true;
+    }
+
   }
 
   @override
   void initState() {
     super.initState();
 
+    training = widget.trn;
     fetchPostData = getPostData();
 
     _animationController = AnimationController(
@@ -109,6 +141,42 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
         .chain(CurveTween(curve: Curves.easeInOut))
         .animate(_animationController);
 
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.2, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
+      ),
+    );
+
+    _colorAnimation = Tween<double>(begin: 0.4, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    );
+    _controller.reset();
+    _controller.forward();
+  }
+
+  Future<void> _handleTap() async {
+    setState(() {
+      liked = !liked;
+      if (liked) {
+         training.addLike();
+        _controller.forward();
+        Haptics.vibrate(HapticsType.medium);
+        CachedData().trainings[training.id]?.likes?.add(UserModel.currentUser().id);
+      } else {
+         training.removeLike();
+        _controller.reverse();
+         CachedData().trainings[training.id]?.likes?.remove(UserModel.currentUser().id);
+      }
+    });
   }
 
   Future<String> getProfileImageUrl(String uid) async {
@@ -144,8 +212,9 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
 
   @override
   void dispose() {
-    super.dispose();
     _animationController.dispose();
+    _controller.dispose();
+    super.dispose();
   }
 
   void _checkAndAnimate() {
@@ -154,59 +223,62 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-
-    return FutureBuilder(
-        future: fetchPostData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CupertinoActivityIndicator(radius: 18,);
-          } else{
-            final size = MediaQuery.of(context).size;
-            return SizedBox(
-              child: Column(
-                children: [
-                  SizedBox(height: size.height*0.02),
-                  SizedBox(height: size.height*0.03),
-                  SizedBox(
-                    height: size.height*0.58,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned(
-                            top: 30,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width * 0.2,
-                              height: MediaQuery.of(context).size.height * 0.4,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(18),
-                                color: Color(0xffff5d5d),
-                                boxShadow: [ BoxShadow(
-                                  color: firstTaken && !showFirstImage ? firstMainColor.withOpacity(0.3) : secondTaken && showFirstImage ? secondMainColor.withOpacity(0.3) : Colors.black.withOpacity(0.3),
-                                  spreadRadius: 3,
-                                  blurRadius: 5,
-                                  offset: Offset(0, -1),
-                                ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(18),
-                                child: Stack(
-                                  fit: StackFit.expand, // Makes sure the image covers the entire container
-                                  children: [
-                                    Image(
-                                      image: showFirstImage ? Image.file(secondImage).image : Image.file(fistImage).image,
-                                      fit: BoxFit.cover,
-                                    ).blur(blur: 3)
-                                  ],
-                                ),
-                              ),
-                            ),
+    final size = MediaQuery.of(context).size;
+    super.build(context);
+    return GestureDetector(
+      onDoubleTap: _handleTap,
+      child: Container(
+        height: size.height*0.8,
+        color: Colors.transparent,
+        child: Column(
+          children: [
+            SizedBox(height: size.height*0.07),
+            if(loaded)
+              SizedBox(height: size.height*0.04),
+            if(loaded)
+              SizedBox(
+                height: size.height*0.58,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(
+                      top: 30,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width * 0.2,
+                        height: MediaQuery.of(context).size.height * 0.4,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          color: Color(0xffff5d5d),
+                          boxShadow: [ BoxShadow(
+                            color: !showFirstImage ? firstMainColor.withOpacity(0.3) : showFirstImage ? secondMainColor.withOpacity(0.3) : Colors.black.withOpacity(0.3),
+                            spreadRadius: 3,
+                            blurRadius: 5,
+                            offset: Offset(0, -1),
+                          ),
+                          ],
                         ),
-                        Positioned(
-                          top: 50,
-                          child: SlideTransition(
-                            position: _animation,
-                            child: Container(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Stack(
+                            fit: StackFit.expand, // Makes sure the image covers the entire container
+                            children: [
+                              Image(
+                                image: showFirstImage ? Image.file(secondImage).image : Image.file(fistImage).image,
+                                fit: BoxFit.cover,
+                              ).blur(blur: 3)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 50,
+                      child: SlideTransition(
+                        position: _animation,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
                               width: MediaQuery.of(context).size.width - 40,
                               height: MediaQuery.of(context).size.height * 0.5,
                               decoration: BoxDecoration(
@@ -220,7 +292,7 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
                                   ],
                                 ),
                                 boxShadow: [ BoxShadow(
-                                  color: firstTaken && showFirstImage ? firstMainColor.withOpacity(0.5) : secondTaken && !showFirstImage ? secondMainColor.withOpacity(0.5) : Colors.black.withOpacity(0.3),
+                                  color: showFirstImage ? firstMainColor.withOpacity(0.5) : !showFirstImage ? secondMainColor.withOpacity(0.5) : Colors.black.withOpacity(0.3),
                                   spreadRadius: 5,
                                   blurRadius: 8,
                                   offset: Offset(0, 2),
@@ -236,21 +308,22 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
                                       width: MediaQuery.of(context).size.width - 40,
                                       child: Stack(
                                         alignment: Alignment.center,
+                                        clipBehavior: Clip.none,
                                         children: [
                                           Stack(
                                             alignment: Alignment.center,
                                             fit: StackFit.expand,
                                             children: [
-                                                GestureDetector(
-                                                  onTapUp: (t){
-                                                      setState(() {
-                                                        showFirstImage = !showFirstImage;
-                                                      });
-                                                      HapticFeedback.lightImpact();
-                                                      _checkAndAnimate();
-                                                  },
-                                                  child: Image.file(showFirstImage ? fistImage : secondImage, fit: BoxFit.cover,),
-                                                ),
+                                              Listener(
+                                                onPointerUp: (event) {
+                                                  setState(() {
+                                                    showFirstImage = !showFirstImage;
+                                                  });
+                                                  HapticFeedback.lightImpact();
+                                                  _checkAndAnimate();
+                                                },
+                                                child: Image.file(showFirstImage ? fistImage : secondImage, fit: BoxFit.cover),
+                                              ),
                                               Positioned(
                                                   bottom: 10,
                                                   child: SizedBox(
@@ -265,38 +338,48 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
                                                               backgroundImage: CachedNetworkImageProvider(pp),
                                                             ),
                                                             SizedBox(width: 5,),
-                                                            GlassContainer(
-                                                              height: 50,
-                                                              width: size.width*0.2,
-                                                              color: Colors.black.withOpacity(0.5),
-                                                              blur: 10,
-                                                              borderRadius: BorderRadius.circular(18),
-                                                              child: Padding(
-                                                                padding: EdgeInsets.symmetric(horizontal: 15),
-                                                                child: Column(
-                                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                  children: [
-                                                                    DefaultTextStyle(
-                                                                      style: TextStyle(
-                                                                        fontWeight: FontWeight.w700,
-                                                                        fontSize: 14,
-                                                                        color: Colors.white.withOpacity(0.9),
-                                                                      ),
-                                                                      child: Text(targetUser.displayName!),
-                                                                    ),
-                                                                    DefaultTextStyle(
-                                                                      style: TextStyle(
-                                                                        fontWeight: FontWeight.w700,
-                                                                        fontSize: 12,
-                                                                        color: Colors.white.withOpacity(0.7),
-                                                                      ),
-                                                                      child: Text("@${targetUser.username!}"),
-                                                                    ),
-                                                                  ],
+                                                            ConstrainedBox(
+                                                                constraints: BoxConstraints(
+                                                                  maxWidth: size.width*0.25
                                                                 ),
-                                                              )
-                                                            ),
+                                                              child: GlassContainer(
+                                                                height: 50,
+                                                                color: Colors.black.withOpacity(0.5),
+                                                                blur: 10,
+                                                                borderRadius: BorderRadius.circular(18),
+                                                                child: Padding(
+                                                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                                                  child: Column(
+                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: [
+                                                                      FittedBox(
+                                                                        fit: BoxFit.scaleDown,
+                                                                        child: Text(
+                                                                          targetUser.displayName!,
+                                                                          style: TextStyle(
+                                                                            fontWeight: FontWeight.w700,
+                                                                            fontSize: 13,
+                                                                            color: Colors.white.withOpacity(0.9),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      FittedBox(
+                                                                        fit: BoxFit.scaleDown,
+                                                                        child: Text(
+                                                                          "@${targetUser.username!}",
+                                                                          style: TextStyle(
+                                                                            fontWeight: FontWeight.w700,
+                                                                            fontSize: 12,
+                                                                            color: Colors.white.withOpacity(0.7),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            )
                                                           ],
                                                         ),
                                                         if(training.desc!.isNotEmpty)
@@ -309,7 +392,7 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
                                                                 blur: 10,
                                                                 borderRadius: BorderRadius.circular(14),
                                                                 child: Padding(
-                                                                  padding: EdgeInsets.symmetric(horizontal: 20), // Léger padding horizontal autour du texte
+                                                                  padding: EdgeInsets.symmetric(horizontal: 15),
                                                                   child: Row(
                                                                     mainAxisAlignment: MainAxisAlignment.center,
                                                                     children: [
@@ -320,7 +403,7 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
                                                                         child: DefaultTextStyle(
                                                                           style: TextStyle(
                                                                             fontWeight: FontWeight.w700,
-                                                                            fontSize: 12,
+                                                                            fontSize: 11,
                                                                             color: Colors.white.withOpacity(0.9),
                                                                           ),
                                                                           child: Text(
@@ -358,16 +441,78 @@ class _TrainingCardState extends State<TrainingCard> with SingleTickerProviderSt
                                 ),
                               ),
                             ),
-                          ),
+                            if (liked)
+                              Positioned(
+                                bottom: -10,
+                                right: 20,
+                                child: AnimatedBuilder(
+                                  animation: _controller,
+                                  builder: (context, child) {
+                                    return Container(
+                                      height: 11* size.height/size.width,
+                                      width: 13 * size.height/size.width,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: Colors.white.withOpacity(_colorAnimation.value),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.15),
+                                            spreadRadius: 1,
+                                            blurRadius: 2,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Transform.scale(
+                                        scale: _scaleAnimation.value,
+                                        child: Center(
+                                          child: Image.asset(
+                                            "assets/images/emoji_coeur.png",
+                                            height: 7* size.height/size.width,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                          ],
                         )
-                      ],
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            if(loaded)
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: SizedBox(
+                height: 40,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: List.generate(
+                            training.tags!.length,
+                                (index) => getTag(training.tags![index] ?? "none", false)
+                        )
                     ),
                   ),
-                ],
+                )
               ),
-            );
-          }
-        }
+            ),
+            if(!loaded)
+              LoadingTraining(),
+          ],
+        ),
+      ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
