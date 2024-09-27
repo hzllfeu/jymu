@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
+import 'package:jymu/Models/TrainingModel.dart';
 import 'package:jymu/Models/UserModel.dart';
 import 'package:jymu/UserManager.dart' as um;
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
@@ -17,6 +18,8 @@ import 'package:jymu/screens/home/LoadingLikes.dart';
 import 'package:jymu/screens/home/LoadingPost.dart';
 import 'package:jymu/screens/home/PostWidget.dart';
 import 'package:jymu/screens/home/RechercheProfil.dart';
+import 'package:jymu/screens/home/TrainingLittle.dart';
+import 'package:jymu/screens/home/TrainingsProfile.dart';
 import 'package:jymu/screens/home/components/LikesComp.dart';
 import 'package:jymu/screens/home/components/ModifyAccount.dart';
 
@@ -96,7 +99,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
       vsync: this,
     );
 
-    tabController = TabController(length: 3, vsync: this);
+    tabController = TabController(length: 2, vsync: this);
 
     id = widget.id;
 
@@ -603,7 +606,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
               left: 0,
               right: 0,
               child: Container(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                 height: MediaQuery.of(context).size.height / 1.5 + 50,
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -625,456 +628,463 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                   constraints: BoxConstraints(
                     maxHeight: MediaQuery.of(context).size.height / 1.5,
                   ),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 10,),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: NestedScrollView(
+                    physics: NeverScrollableScrollPhysics(),
+                    headerSliverBuilder: (context,isScolled){
+                      return [
+                        SliverAppBar(
+                          backgroundColor: Colors.transparent,
+                          collapsedHeight: 250,
+                          expandedHeight: 250,
+                          flexibleSpace: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              SizedBox(height: 20,),
                               Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      constraints: BoxConstraints(
-                                        maxWidth: 150,
-                                      ),
-                                      child: DefaultTextStyle(
-                                        style: TextStyle(
-                                          color: Colors.black.withOpacity(0.7),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        child: AutoSizeText(
-                                          displayName ?? '',
-                                          maxLines: 1,
-                                          minFontSize: 11,
-                                          style: TextStyle(
-                                            fontSize: 5 * MediaQuery.of(context).size.width * 0.013,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Container(
-                                      constraints: const BoxConstraints(
-                                        maxWidth: 150,
-                                      ),
-                                      child: DefaultTextStyle(
-                                        style: TextStyle(
-                                          color: Colors.deepOrange.withOpacity(0.6),
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        child: AutoSizeText(
-                                          "@$username",
-                                          maxLines: 1,
-                                          minFontSize: 11,
-                                          style: TextStyle(
-                                            fontSize: 5 * MediaQuery.of(context).size.width * 0.008,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Flexible(  // Utilisation de Flexible pour que le bouton s'ajuste à l'espace disponible
-                                child: GestureDetector(
-                                  onTapUp: (t) async {
-                                    if (ownProf) {
-                                      await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Scaffold(
-                                            body: ModifyAccount(
-                                              pp: profileImageUrl,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                      CachedData().links.remove(id!);
-                                      _fetchDataFuture = _fetchData();
-                                    } else {
-                                      if (!followed) {
-                                        await um.followUser(FirebaseAuth.instance.currentUser!.uid, id!);
-                                        handleFollow();
-                                        Haptics.vibrate(HapticsType.success);
-                                      } else {
-                                        showCupertinoDialog<void>(
-                                          context: context,
-                                          builder: (BuildContext context) => CupertinoAlertDialog(
-                                            title: const Text('Ne plus suivre'),
-                                            content: Text('Es-tu sûr de ne plus vouloir suivre $username ?'),
-                                            actions: <CupertinoDialogAction>[
-                                              CupertinoDialogAction(
-                                                isDefaultAction: true,
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text('Non'),
-                                              ),
-                                              CupertinoDialogAction(
-                                                isDestructiveAction: true,
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  handleUnFollow();
-                                                },
-                                                child: const Text('Oui'),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                        Haptics.vibrate(HapticsType.success);
-                                      }
-                                    }
-                                  },
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,  // Permet de redimensionner le contenu si nécessaire
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 20),
-                                      height: 25 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(18),
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.redAccent,
-                                            Colors.redAccent,
-                                          ],
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.redAccent.withOpacity(0.5),
-                                            spreadRadius: 2,
-                                            blurRadius: 5,
-                                            offset: Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            constraints: const BoxConstraints(
-                                              maxWidth: 120,  // Limite la taille maximale du texte dans le bouton
-                                            ),
-                                            child: DefaultTextStyle(
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 8 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                              child: AutoSizeText(
-                                                ownProf ? "Modifier" : followed ? "ne plus suivre" : "Suivre",
-                                                maxLines: 1,
-                                                minFontSize: 12,
-                                                style: TextStyle(fontSize: 7 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width)),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                          if(ownProf)
-                                          const SizedBox(width: 10),
-                                          if(isFollowing)
-                                            const SizedBox(width: 10),
-                                          if (ownProf)
+                                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 10),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
                                             Container(
-                                              height: 12*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
-                                              width: 12*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width) + 5,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(14),
-                                                color: Colors.white.withOpacity(0.2),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.white.withOpacity(0.05),
-                                                    spreadRadius: 2,
-                                                    blurRadius: 3,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
+                                              constraints: BoxConstraints(
+                                                maxWidth: 150,
                                               ),
-                                              child: Center(
-                                                child: Image.asset(
-                                                  "assets/images/emoji_pencil.png",
-                                                  height: 8*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                              child: DefaultTextStyle(
+                                                style: TextStyle(
+                                                  color: Colors.black.withOpacity(0.7),
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                child: AutoSizeText(
+                                                  displayName ?? '',
+                                                  maxLines: 1,
+                                                  minFontSize: 11,
+                                                  style: TextStyle(
+                                                    fontSize: 5 * MediaQuery.of(context).size.width * 0.013,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ),
-                                          if (!ownProf && isFollowing)
-                                            AnimatedBuilder(
-                                              animation: _controller,
-                                              builder: (context, child) {
-                                                return Container(
-                                                  height: 12*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
-                                                  width: 12*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width) + 5,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(14),
-                                                    color: Colors.white.withOpacity(_colorAnimation.value),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black.withOpacity(0.2),
-                                                        spreadRadius: 2,
-                                                        blurRadius: 3,
-                                                        offset: Offset(0, 2),
+                                            const SizedBox(height: 2),
+                                            Container(
+                                              constraints: const BoxConstraints(
+                                                maxWidth: 150,
+                                              ),
+                                              child: DefaultTextStyle(
+                                                style: TextStyle(
+                                                  color: Colors.deepOrange.withOpacity(0.6),
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                                child: AutoSizeText(
+                                                  "@$username",
+                                                  maxLines: 1,
+                                                  minFontSize: 11,
+                                                  style: TextStyle(
+                                                    fontSize: 5 * MediaQuery.of(context).size.width * 0.008,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Flexible(  // Utilisation de Flexible pour que le bouton s'ajuste à l'espace disponible
+                                        child: GestureDetector(
+                                          onTapUp: (t) async {
+                                            if (ownProf) {
+                                              await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => Scaffold(
+                                                    body: ModifyAccount(
+                                                      pp: profileImageUrl,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                              CachedData().links.remove(id!);
+                                              _fetchDataFuture = _fetchData();
+                                            } else {
+                                              if (!followed) {
+                                                await um.followUser(FirebaseAuth.instance.currentUser!.uid, id!);
+                                                handleFollow();
+                                                Haptics.vibrate(HapticsType.success);
+                                              } else {
+                                                showCupertinoDialog<void>(
+                                                  context: context,
+                                                  builder: (BuildContext context) => CupertinoAlertDialog(
+                                                    title: const Text('Ne plus suivre'),
+                                                    content: Text('Es-tu sûr de ne plus vouloir suivre $username ?'),
+                                                    actions: <CupertinoDialogAction>[
+                                                      CupertinoDialogAction(
+                                                        isDefaultAction: true,
+                                                        onPressed: () {
+                                                          Navigator.pop(context);
+                                                        },
+                                                        child: const Text('Non'),
+                                                      ),
+                                                      CupertinoDialogAction(
+                                                        isDestructiveAction: true,
+                                                        onPressed: () {
+                                                          Navigator.pop(context);
+                                                          handleUnFollow();
+                                                        },
+                                                        child: const Text('Oui'),
                                                       ),
                                                     ],
                                                   ),
-                                                  child: Transform.scale(
-                                                    scale: _scaleAnimation.value,
-                                                    child: Center(
-                                                      child: Icon(
-                                                        !friend ? CupertinoIcons.person_add_solid : CupertinoIcons.person_2_fill,
-                                                        size: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
-                                                        color: Colors.black.withOpacity(0.7),
+                                                );
+                                                Haptics.vibrate(HapticsType.success);
+                                              }
+                                            }
+                                          },
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,  // Permet de redimensionner le contenu si nécessaire
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 20),
+                                              height: 25 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(18),
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.topCenter,
+                                                  end: Alignment.bottomCenter,
+                                                  colors: [
+                                                    Colors.redAccent,
+                                                    Colors.redAccent,
+                                                  ],
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.redAccent.withOpacity(0.5),
+                                                    spreadRadius: 2,
+                                                    blurRadius: 5,
+                                                    offset: Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    constraints: const BoxConstraints(
+                                                      maxWidth: 120,  // Limite la taille maximale du texte dans le bouton
+                                                    ),
+                                                    child: DefaultTextStyle(
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 8 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),
+                                                        fontWeight: FontWeight.w700,
+                                                      ),
+                                                      child: AutoSizeText(
+                                                        ownProf ? "Modifier" : followed ? "ne plus suivre" : "Suivre",
+                                                        maxLines: 1,
+                                                        minFontSize: 12,
+                                                        style: TextStyle(fontSize: 7 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width)),
+                                                        overflow: TextOverflow.ellipsis,
                                                       ),
                                                     ),
                                                   ),
-                                                );
-                                              },
+                                                  if(ownProf)
+                                                    const SizedBox(width: 10),
+                                                  if(isFollowing)
+                                                    const SizedBox(width: 10),
+                                                  if (ownProf)
+                                                    Container(
+                                                      height: 12*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                                      width: 12*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width) + 5,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius.circular(14),
+                                                        color: Colors.white.withOpacity(0.2),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.white.withOpacity(0.05),
+                                                            spreadRadius: 2,
+                                                            blurRadius: 3,
+                                                            offset: const Offset(0, 2),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Center(
+                                                        child: Image.asset(
+                                                          "assets/images/emoji_pencil.png",
+                                                          height: 8*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  if (!ownProf && isFollowing)
+                                                    AnimatedBuilder(
+                                                      animation: _controller,
+                                                      builder: (context, child) {
+                                                        return Container(
+                                                          height: 12*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                                          width: 12*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width) + 5,
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(14),
+                                                            color: Colors.white.withOpacity(_colorAnimation.value),
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: Colors.black.withOpacity(0.2),
+                                                                spreadRadius: 2,
+                                                                blurRadius: 3,
+                                                                offset: Offset(0, 2),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: Transform.scale(
+                                                            scale: _scaleAnimation.value,
+                                                            child: Center(
+                                                              child: Icon(
+                                                                !friend ? CupertinoIcons.person_add_solid : CupertinoIcons.person_2_fill,
+                                                                size: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                                                color: Colors.black.withOpacity(0.7),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                ],
+                                              ),
                                             ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ),
-                        if(bio!.isNotEmpty)
-                          SizedBox(height: MediaQuery.of(context).size.height*0.03,),
-
-                        if(bio!.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.0 + 3),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(bio!, style: TextStyle(
-                                  color: Colors.black.withOpacity(0.8),
-                                  fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
-                                  fontWeight: FontWeight.w600), textAlign: TextAlign.left,),
-                            ),
-                          ),
-                        SizedBox(height: MediaQuery.of(context).size.height*0.02,),
-
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                  child: GestureDetector(
-                                    child: Container(
-                                      height: 80,
-                                      padding: EdgeInsets.only(left: 20, top: 10, bottom: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(14),
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.1),
-                                            spreadRadius: 1,
-                                            blurRadius: 3,
-                                            offset: const Offset(0, 2),
                                           ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment: followedppempty ? MainAxisAlignment.center: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          if(!followedppempty)
-                                          FutureBuilder<Widget>(
-                                            future: _followedPPFuture,
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                                return CupertinoActivityIndicator(radius: 8,);
-                                              } else if (snapshot.hasError) {
-                                                return Text('Erreur : ${snapshot.error}');
-                                              } else if (snapshot.hasData) {
-                                                return snapshot.data!;
-                                              } else {
-                                                return Row();
-                                              }
-                                            },
-                                          ),
-
-                                          Row(
-                                            children: [
-                                              Text(formatNumber(followers?.length ?? 0), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
-                                              Text(" Abonnés", style: TextStyle(color: CupertinoColors.systemGrey, fontWeight: FontWeight.w600, fontSize: 14),),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ),
-
-                                    onTapUp: (t){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 1),),
                                         ),
-                                      );
-                                      Haptics.vibrate(HapticsType.light);
-
-                                    },
-                                  )
-                              ),
-                              SizedBox(width: 12,),
-                              Expanded(
-                                  child: GestureDetector(
-                                    child: Container(
-                                      height: 80,
-                                      padding: EdgeInsets.only(left: 20, top: 10, bottom: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(14),
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.1),
-                                            spreadRadius: 1,
-                                            blurRadius: 3,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
                                       ),
-                                      child: Column(
-                                        mainAxisAlignment: followppempty ? MainAxisAlignment.center: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          if(!followppempty)
-                                          FutureBuilder<Widget>(
-                                            future: _followPPFuture,
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                                return CupertinoActivityIndicator(radius: 8,);
-                                              } else if (snapshot.hasError) {
-                                                return Text('Erreur : ${snapshot.error}');
-                                              } else if (snapshot.hasData) {
-                                                return snapshot.data!;
-                                              } else {
-                                                return Row();
-                                              }
-                                            },
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(formatNumber(follow?.length ?? 0), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
-                                              Text(" Abonnements", style: TextStyle(color: CupertinoColors.systemGrey, fontWeight: FontWeight.w600, fontSize: 14),),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    onTapUp: (t){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 2),),
-                                        ),
-                                      );
-                                      Haptics.vibrate(HapticsType.light);
-
-                                    },
-                                  )
-                              ),
-
-                            ],
-                          ),
-                        ),
-
-
-                        SizedBox(height: MediaQuery.of(context).size.height*0.015,),
-                        if(tags?.isNotEmpty ?? false)
-                          SizedBox(
-                            height: 40,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(
-                                      tags?.length ?? 0,
-                                      (index) => index == 0 ? Row(children: [SizedBox(width: 0,),getTag(tags![index] ?? "false", false)],) : getTag(tags![index] ?? "false", false)
-                                )
-                              ),
-                            ),
-                          ),
-
-                        SizedBox(height: MediaQuery.of(context).size.height*0.02,),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.0),
-                          child: PreferredSize(
-                            preferredSize: const Size.fromHeight(40),
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
-                              child: Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.redAccent.withOpacity(0.3),
-                                      Colors.deepOrange.withOpacity(0.3),
                                     ],
+                                  )
+                              ),
+                              if(bio!.isNotEmpty)
+                                SizedBox(height: MediaQuery.of(context).size.height*0.03,),
+
+                              if(bio!.isNotEmpty)
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.0 + 3),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(bio!, style: TextStyle(
+                                        color: Colors.black.withOpacity(0.8),
+                                        fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                        fontWeight: FontWeight.w600), textAlign: TextAlign.left,),
                                   ),
                                 ),
-                                child: TabBar(
-                                  controller: tabController,
-                                  enableFeedback: true,
-                                  onTap: (i) {
-                                    setState(() {
-                                      isFirstSelected = i == 0;
-                                      isSecondSelected = i == 1;
-                                      isThirdSelected = i == 2;
-                                      Haptics.vibrate(HapticsType.light);
-                                    });
-                                  },
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  dividerColor: Colors.transparent,
-                                  indicator: const BoxDecoration(
-                                    color: Colors.redAccent,
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                                  ),
-                                  labelColor: Colors.white,
-                                  unselectedLabelColor: Colors.black54,
-                                  tabs: [
-                                    Tab(text: '0 Trainings'),
-                                    Tab(text: '0 Posts'),
-                                    Tab(text: '${likes?.length ?? 0} Likes'),
+                              SizedBox(height: MediaQuery.of(context).size.height*0.02,),
+
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                        child: GestureDetector(
+                                          child: Container(
+                                            height: 80,
+                                            padding: EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(14),
+                                              color: Colors.white,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.1),
+                                                  spreadRadius: 1,
+                                                  blurRadius: 3,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: followedppempty ? MainAxisAlignment.center: MainAxisAlignment.spaceBetween,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                if(!followedppempty)
+                                                  FutureBuilder<Widget>(
+                                                    future: _followedPPFuture,
+                                                    builder: (context, snapshot) {
+                                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                                        return CupertinoActivityIndicator(radius: 8,);
+                                                      } else if (snapshot.hasError) {
+                                                        return Text('Erreur : ${snapshot.error}');
+                                                      } else if (snapshot.hasData) {
+                                                        return snapshot.data!;
+                                                      } else {
+                                                        return Row();
+                                                      }
+                                                    },
+                                                  ),
+
+                                                Row(
+                                                  children: [
+                                                    Text(formatNumber(followers?.length ?? 0), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
+                                                    Text(" Abonnés", style: TextStyle(color: CupertinoColors.systemGrey, fontWeight: FontWeight.w600, fontSize: 14),),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+
+                                          onTapUp: (t){
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 1),),
+                                              ),
+                                            );
+                                            Haptics.vibrate(HapticsType.light);
+
+                                          },
+                                        )
+                                    ),
+                                    SizedBox(width: 12,),
+                                    Expanded(
+                                        child: GestureDetector(
+                                          child: Container(
+                                            height: 80,
+                                            padding: EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(14),
+                                              color: Colors.white,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.1),
+                                                  spreadRadius: 1,
+                                                  blurRadius: 3,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: followppempty ? MainAxisAlignment.center: MainAxisAlignment.spaceBetween,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                if(!followppempty)
+                                                  FutureBuilder<Widget>(
+                                                    future: _followPPFuture,
+                                                    builder: (context, snapshot) {
+                                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                                        return CupertinoActivityIndicator(radius: 8,);
+                                                      } else if (snapshot.hasError) {
+                                                        return Text('Erreur : ${snapshot.error}');
+                                                      } else if (snapshot.hasData) {
+                                                        return snapshot.data!;
+                                                      } else {
+                                                        return Row();
+                                                      }
+                                                    },
+                                                  ),
+                                                Row(
+                                                  children: [
+                                                    Text(formatNumber(follow?.length ?? 0), style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 14),),
+                                                    Text(" Abonnements", style: TextStyle(color: CupertinoColors.systemGrey, fontWeight: FontWeight.w600, fontSize: 14),),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          onTapUp: (t){
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 2),),
+                                              ),
+                                            );
+                                            Haptics.vibrate(HapticsType.light);
+
+                                          },
+                                        )
+                                    ),
+
                                   ],
                                 ),
                               ),
-                            ),
+
+
+                              SizedBox(height: MediaQuery.of(context).size.height*0.015,),
+                              if(tags?.isNotEmpty ?? false)
+                                SizedBox(
+                                  height: 40,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: List.generate(
+                                            tags?.length ?? 0,
+                                                (index) => index == 0 ? Row(children: [SizedBox(width: 0,),getTag(tags![index] ?? "false", false)],) : getTag(tags![index] ?? "false", false)
+                                        )
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-
-                        if(isFirstSelected)
-                          Expanded(
-                            child: LoadingLikes(),
+                        SliverPersistentHeader(
+                          delegate: MyDelegate(
+                            Padding(
+                              padding: EdgeInsets.only(top: 0),
+                              child: Container(
+                                height: 40,
+                                width: double.infinity,
+                                color: const Color(0xFFF3F5F8),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                  child: Container(
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.redAccent.withOpacity(0.3),
+                                          Colors.deepOrange.withOpacity(0.3),
+                                        ],
+                                      ),
+                                    ),
+                                    child: TabBar(
+                                      controller: tabController,
+                                      enableFeedback: true,
+                                      onTap: (i) {
+                                        setState(() {
+                                          isFirstSelected = i == 0;
+                                          isSecondSelected = i == 1;
+                                          isThirdSelected = i == 2;
+                                          Haptics.vibrate(HapticsType.light);
+                                        });
+                                      },
+                                      indicatorSize: TabBarIndicatorSize.tab,
+                                      dividerColor: Colors.transparent,
+                                      indicator: const BoxDecoration(
+                                        color: Colors.redAccent,
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      labelColor: Colors.white,
+                                      unselectedLabelColor: Colors.black54,
+                                      tabs: [
+                                        Tab(text: '${ownProf ? UserModel.currentUser().trainings?.length: targetUser.trainings?.length} Trainings'),
+                                        Tab(text: '${ownProf ? UserModel.currentUser().posts?.length: targetUser.posts?.length} Posts'),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
                           ),
-                        if(isSecondSelected)
-                          Expanded(
-                            child: LoadingLikes()
-                          ),
-
-                        if(isThirdSelected)
-                          Expanded(
-                            child: LikeComp(likes: likes!),
-                          ),
-                      ],
-                    ),
+                          floating: true,
+                          pinned: true,
+                        )
+                      ];
+                    },
+                    body: Padding(
+                      padding: EdgeInsets.only(top:10),
+                      child: TrainingsProfile(user: ownProf ? UserModel.currentUser(): targetUser),
+                    )
                   ),
                 ),
+              ),
             ),
           ],
         ),
@@ -1083,3 +1093,27 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   }
 }
 
+class MyDelegate extends SliverPersistentHeaderDelegate{
+  MyDelegate(this.tabBar);
+  final Widget tabBar;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: Colors.transparent,
+      child: tabBar,
+    );
+  }
+
+  @override
+  double get maxExtent => 50;
+
+  @override
+  double get minExtent => 50;
+
+  @override
+  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
+    return false;
+  }
+
+}
