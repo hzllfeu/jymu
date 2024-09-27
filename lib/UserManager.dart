@@ -348,13 +348,6 @@ Future<void> setEtatJymuPro(String userID, int etat) async {
   }
 }
 
-Future<void> setEtatJymupro(String userID, int etat) async {
-  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
-  await userRef.update({
-    'etat_jymupro': etat,
-  });
-}
-
 
 
 
