@@ -335,7 +335,25 @@ Future<void> unfollowUser(String userID, String targetUserId) async {
   });
 }
 
+Future<void> setEtatJymuPro(String userID, int etat) async {
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
 
+  try {
+    await userRef.update({
+      'etat_jymupro': etat,
+    });
+    print("etat_jymupro mis à jour avec succès à $etat.");
+  } catch (e) {
+    print("Erreur lors de la mise à jour de etat_jymupro : $e");
+  }
+}
+
+Future<void> setEtatJymupro(String userID, int etat) async {
+  final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+  await userRef.update({
+    'etat_jymupro': etat,
+  });
+}
 
 
 
