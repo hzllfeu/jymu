@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animated_page_transition/animated_page_transition.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:jymu/Models/TrainingModel.dart';
+import 'package:jymu/screens/home/TrainingCard.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,7 +24,7 @@ class TrainingLittle extends StatefulWidget {
   _TrainingLittleState createState() => _TrainingLittleState();
 }
 
-class _TrainingLittleState extends State<TrainingLittle> {
+class _TrainingLittleState extends State<TrainingLittle> with TickerProviderStateMixin {
   Future<void>? data;
   File? fistImage;
 
@@ -63,7 +65,7 @@ class _TrainingLittleState extends State<TrainingLittle> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   FadeShimmer(
-                    height: 20,
+                    height: 30,
                     width: 80,
                     radius: 6,
                     highlightColor: Colors.black.withOpacity(0.05),
@@ -76,58 +78,97 @@ class _TrainingLittleState extends State<TrainingLittle> {
         } else if (snapshot.hasError) {
           return Center(child: Text('Erreur de chargement du profil'));
         } else {
-          return ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 120,
-            ),
-            child: Container(
-              width: double.infinity,
-              height: 150,
-              padding: EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(5.0),
-                image: DecorationImage(
-                  image: Image.file(fistImage!).image,
-                  fit: BoxFit.cover
-                )
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width*0.2
-                    ),
-                    child: GlassContainer(
-                      height: 20,
-                      color: Colors.black.withOpacity(0.5),
-                      blur: 10,
-                      borderRadius: BorderRadius.circular(18),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                widget.trn.date!.toDate().day.toString(),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                  color: Colors.white.withOpacity(0.9),
+          return PageTransitionButton(
+              vsync: this, 
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 120,
+                ),
+                child: Container(
+                  width: double.infinity,
+                  height: 150,
+                  padding: EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(5.0),
+                      image: DecorationImage(
+                          image: Image.file(fistImage!).image,
+                          fit: BoxFit.cover
+                      )
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width*0.2
+                        ),
+                        child: GlassContainer(
+                          height: 30,
+                          color: Colors.black.withOpacity(0.5),
+                          blur: 10,
+                          borderRadius: BorderRadius.circular(18),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    formatDate(widget.trn.date!.toDate()),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ), 
+              nextPage: PageTransitionReceiver(
+                scaffold: Scaffold(
+                  body: SafeArea(
+                    child: Column(
+                      children: [
+                        SizedBox(height: 10,),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTapUp: (t) {
+                                  Navigator.pop(context);
+                                },
+                                child: Icon(
+                                  CupertinoIcons.arrow_left,
+                                  size: 22,
+                                  color: CupertinoColors.systemGrey,
                                 ),
                               ),
-                            ),
-                          ],
+                              Text(widget.trn.username??"", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.black.withOpacity(0.7)),),
+                              Icon(
+                                CupertinoIcons.arrow_left,
+                                size: 22,
+                                color: CupertinoColors.transparent,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                        TrainingCard(trn: widget.trn),
+                      ],
                     ),
                   )
-                ],
-              ),
-            ),
+                ),
+              )
           );
         }
       },

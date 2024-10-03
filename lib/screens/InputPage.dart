@@ -73,11 +73,17 @@ class _InputPageState extends State<InputPage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                widget.text,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 28),
-                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width*0.8,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child:Text(
+                                    widget.text,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700, fontSize: 28),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ],

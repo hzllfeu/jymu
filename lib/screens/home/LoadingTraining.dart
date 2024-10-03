@@ -11,7 +11,6 @@ class LoadingTraining extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         width: double.infinity,
-        height: MediaQuery.of(context).size.height*0.8,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

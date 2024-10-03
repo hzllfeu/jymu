@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
+import 'package:jymu/Models/CachedData.dart';
 import 'package:jymu/Models/UserModel.dart';
+import 'package:uuid/uuid.dart';
 
 import '../UserManager.dart';
 
@@ -17,6 +20,7 @@ class TrainingModel {
   Timestamp? date;
   String? firstImage;
   String? secondImage;
+  DocumentReference<Map<String, dynamic>>? docRef;
 
   TrainingModel();
 
@@ -26,6 +30,7 @@ class TrainingModel {
       Map<String, dynamic>? userData = await getTraining(id);
       if (userData != null) {
         _updateFromMap(userData, id);
+        docRef = FirebaseFirestore.instance.collection('trainings').doc(id);
       }
   }
 
@@ -49,16 +54,16 @@ class TrainingModel {
   }
 
   Future<void> addLike() async {
-    final postRef = FirebaseFirestore.instance.collection('trainings').doc(id);
+    final postRef = docRef;
     String userID = UserModel.currentUser().id!;
 
-    final postSnapshot = await postRef.get();
+    final postSnapshot = await postRef?.get();
 
-    if (postSnapshot.exists) {
+    if (postSnapshot!.exists) {
       List<dynamic> postLikes = postSnapshot['likes'];
 
       if (!postLikes.contains(userID)) {
-        await postRef.update({
+        await postRef?.update({
           'likes': FieldValue.arrayUnion([userID]),
         });
 
@@ -68,17 +73,49 @@ class TrainingModel {
     likes?.add(userID);
   }
 
+  Future<void> deletePost() async {
+    final postRef = docRef;
+
+    await postRef?.delete().then((_) {
+      if(CachedData().trainings.containsKey(id)){
+        CachedData().trainings.remove(id);
+      }
+      if(CachedData().users[UserModel.currentUser().id]!.trainings!.contains(id)){
+        CachedData().users[UserModel.currentUser().id]!.trainings!.remove(id);
+      }
+      UserModel.currentUser().trainings?.remove(id);
+      Haptics.vibrate(HapticsType.success);
+    }).catchError((error) {
+    });
+  }
+
+  Future<void> report(String reason) async {
+    final uuid = Uuid();
+    final trainingCollection = FirebaseFirestore.instance.collection('reports');
+
+    String trainingId = uuid.v4();
+
+    await trainingCollection.doc(trainingId).set({
+      'trainingId': id,
+      'ownerId': userId,
+      'displayname': displayName,
+      'username': username,
+      'date': Timestamp.now(),
+      'reason': reason,
+      'reporterId': UserModel.currentUser().id,
+    });
+  }
 
   Future<void> removeLike() async {
-    final postRef = FirebaseFirestore.instance.collection('trainings').doc(id);
+    final postRef = docRef;
     String userID = UserModel.currentUser().id!;
-    final postSnapshot = await postRef.get();
+    final postSnapshot = await postRef?.get();
 
-    if (postSnapshot.exists) {
+    if (postSnapshot!.exists) {
       List<dynamic> postLikes = postSnapshot['likes'];
 
       if (postLikes.contains(userID)) {
-        await postRef.update({
+        await postRef?.update({
           'likes': FieldValue.arrayRemove([userID]),
         });
 
@@ -88,6 +125,7 @@ class TrainingModel {
     likes?.remove(userID);
   }
 }
+
 
 Future<Map<String, dynamic>?> getTraining(String uid) async {
   try {
@@ -160,4 +198,25 @@ Future<List<String>> getTrainingsForUser(String targetID, int n, List<String> ex
   }
 
   return documentIds.take(n).toList();
+}
+
+
+String formatDate(DateTime date) {
+  DateTime now = DateTime.now();
+
+  List<String> months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  String day = date.day.toString();
+  String monthAbbr = months[date.month - 1];
+  String formattedDate = day;
+
+  if (date.month != now.month || date.year != now.year) {
+    formattedDate += ', $monthAbbr';
+
+    if (date.year != now.year) {
+      formattedDate += ' ${date.year}';
+    }
+  }
+
+  return formattedDate;
 }

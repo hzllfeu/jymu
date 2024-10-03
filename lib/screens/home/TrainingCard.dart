@@ -20,6 +20,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
 
+import '../InputPage.dart';
 import 'components/TagList.dart';
 
 class TrainingCard extends StatefulWidget {
@@ -33,7 +34,7 @@ class TrainingCard extends StatefulWidget {
   _TrainingCardState createState() => _TrainingCardState();
 }
 
-class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMixin, AutomaticKeepAliveClientMixin<TrainingCard> {
+class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMixin{
   bool liked = false;
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -44,6 +45,9 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
   bool firstTaken = false;
   bool secondTaken = false;
   bool showFirstImage = true;
+  bool friendppempty = true;
+
+  Future<Widget>? _friendsPPFuture;
 
   Color firstMainColor = Colors.transparent;
   Color secondMainColor = Colors.transparent;
@@ -85,6 +89,99 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
     }
   }
 
+  Future<Widget> getFriendspp() async {
+    String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    List<String> friends = (targetUser.followed)!
+        .toSet()
+        .intersection(training.likes!.toSet())
+        .where((id) => id != currentUserId)
+        .toList()
+        .cast<String>();
+
+    List<String> finalList = [];
+    Map<String, String> finalppList = {};
+
+    finalList.addAll(friends.take(2));
+
+    int excludedCount = friends.length- finalList.length;
+
+    if(excludedCount == 0 && finalList.isNotEmpty){
+      excludedCount = 1;
+    }
+
+    for(String id in finalList){
+      String tmp = "";
+      if(CachedData().links.containsKey(id)){
+        tmp = CachedData().links[id]!;
+      } else {
+        tmp = await getProfileImageUrl(id);
+        CachedData().links[id] = tmp;
+      }
+      finalppList[id] = tmp;
+    }
+
+    if(finalList.isNotEmpty){
+      setState(() {
+        friendppempty = false;
+      });
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        ...finalList.map((id) => Container(
+          width: 18,
+          height: 18,
+          margin: const EdgeInsets.only(right: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                spreadRadius: 1,
+                blurRadius: 2,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(50),
+            child: Image(
+              fit: BoxFit.cover,
+              image: CachedNetworkImageProvider(
+                finalppList[id] ?? 'https://via.placeholder.com/150',
+              ),
+            ),
+          ),
+        ),
+        ),
+
+
+        if (excludedCount > 0)
+          Container(
+            height: 16,
+            width: 20,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Center(
+                child: Text(excludedCount > 9 ? "+9" : "+$excludedCount", style: TextStyle(color: Colors.black.withOpacity(0.8), fontWeight: FontWeight.w800, fontSize: 10),)
+            ),
+          ),
+      ],
+    );
+  }
+
   Future<void> getPostData() async {
 
     if(CachedData().users.containsKey(training.userId!)){
@@ -105,6 +202,8 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
       secondImage = (await getImage(training.secondImage!))!;
       CachedData().images[training.secondImage!] = secondImage;
     }
+
+    _friendsPPFuture = getFriendspp();
 
 
     _updatePalette(true);
@@ -227,7 +326,6 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    super.build(context);
     return GestureDetector(
       onDoubleTap: _handleTap,
       child: Container(
@@ -235,9 +333,118 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
         color: Colors.transparent,
         child: Column(
           children: [
-            SizedBox(height: size.height*0.07),
-            if(loaded)
+            if(!loaded)
+              SizedBox(height: size.height*0.00)
+            else
               SizedBox(height: size.height*0.04),
+            if(loaded)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: size.width*0.07),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        IntrinsicWidth(
+                          child: Container(
+                              height: 13 * (size.height/size.width),
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    spreadRadius: 1,
+                                    blurRadius: 2,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(CupertinoIcons.timer, color: Colors.redAccent, size: 6 * (size.height/size.width),),
+                                  SizedBox(width: 10,),
+                                  DefaultTextStyle(
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 6 * (size.height/size.width),
+                                      color: Colors.black.withOpacity(0.7),
+                                    ),
+                                    child: DateTime.now().day != training.date?.toDate().day
+                                        ? Text(formatDateMonth(training.date!.toDate()))
+                                        : Text('${training.date?.toDate().hour.toString().padLeft(2, '0')}:${training.date?.toDate().minute.toString().padLeft(2, '0')}'),
+                                  ),
+                                ],
+                              )
+                          ),
+                        ),
+                        const SizedBox(width: 10,),
+                        IntrinsicWidth(
+                          child: Container(
+                              height: 13 * (size.height/size.width),
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    spreadRadius: 1,
+                                    blurRadius: 2,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(CupertinoIcons.location_fill, color: Colors.redAccent, size: 6 * (size.height/size.width),),
+                                  SizedBox(width: 10,),
+                                  DefaultTextStyle(
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 6 * (size.height/size.width),
+                                      color: Colors.black.withOpacity(0.6),
+                                    ),
+                                    child: Text("On air la Défense"),
+                                  ),
+                                ],
+                              )
+                          ),
+                        ),
+                      ],
+                    ),
+                    IntrinsicWidth(
+                      child: GestureDetector(
+                        onTapUp: (t){
+                          _showActionSheet(context);
+                        },
+                        child: Container(
+                          height: 13 * (size.height/size.width),
+                          padding: EdgeInsets.symmetric(horizontal: 15),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                spreadRadius: 1,
+                                blurRadius: 2,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                              child: Image.asset("assets/images/emoji_clemolette.png", height: 8 * (size.height/size.width),)
+                          ),
+                        ),
+                      )
+                    ),
+                  ],
+                ),
+              ),
+            if(loaded)
+              SizedBox(height: size.height*0.01),
             if(loaded)
               SizedBox(
                 height: size.height*0.58,
@@ -245,25 +452,25 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                   alignment: Alignment.center,
                   children: [
                     Positioned(
-                      top: 30,
+                      top: 10,
                       child: Container(
                         width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width * 0.2,
                         height: MediaQuery.of(context).size.height * 0.4,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(18),
-                          color: Color(0xffff5d5d),
+                          color: const Color(0xffff5d5d),
                           boxShadow: [ BoxShadow(
                             color: !showFirstImage ? firstMainColor.withOpacity(0.3) : showFirstImage ? secondMainColor.withOpacity(0.3) : Colors.black.withOpacity(0.3),
                             spreadRadius: 3,
                             blurRadius: 5,
-                            offset: Offset(0, -1),
+                            offset: const Offset(0, -1),
                           ),
                           ],
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(18),
                           child: Stack(
-                            fit: StackFit.expand, // Makes sure the image covers the entire container
+                            fit: StackFit.expand,
                             children: [
                               Image(
                                 image: showFirstImage ? Image.file(secondImage).image : Image.file(fistImage).image,
@@ -275,7 +482,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                       ),
                     ),
                     Positioned(
-                      top: 50,
+                      top: 30,
                       child: SlideTransition(
                         position: _animation,
                         child: Stack(
@@ -444,6 +651,64 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                 ),
                               ),
                             ),
+                            if(!friendppempty)
+                              Positioned(
+                                top: -15,
+                                right: 5,
+                                child: GestureDetector(
+                                  onTapUp: (t) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Scaffold(
+                                        ),
+                                      ),
+                                    );
+                                    Haptics.vibrate(HapticsType.light);
+                                  },
+                                  child: GlassContainer(
+                                    height: 30,
+                                    color: Colors.black.withOpacity(0.5),
+                                    blur: 10,
+                                    borderRadius: BorderRadius.circular(18),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Aimé par   ",
+                                            style: TextStyle(
+                                              color: Colors.white.withOpacity(0.8),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          FutureBuilder<Widget>(
+                                            future: _friendsPPFuture,
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                return CupertinoActivityIndicator(radius: 8);
+                                              } else if (snapshot.hasError) {
+                                                return Text('Erreur : ${snapshot.error}');
+                                              } else if (snapshot.hasData) {
+                                                return GestureDetector(
+                                                  onTapUp: (t) {
+                                                  },
+                                                  child: snapshot.data!,
+                                                );
+                                              } else {
+                                                return SizedBox.shrink();
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             if (liked)
                               Positioned(
                                 bottom: -10,
@@ -515,7 +780,98 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
     );
   }
 
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
+  String formatDateMonth(DateTime date) {
+    DateTime now = DateTime.now();
+
+    List<String> months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    String day = date.day.toString();
+    String monthAbbr = months[date.month - 1];
+    String formattedDate = '$day, $monthAbbr';
+
+    if (date.year != now.year) {
+      formattedDate += ' ${date.year}';
+    }
+
+    return formattedDate;
+  }
+
+  void _showActionSheet(BuildContext context) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        title: const Text('Options'),
+        actions: <CupertinoActionSheetAction>[
+          if(UserModel.currentUser().id != training.userId)
+          CupertinoActionSheetAction(
+            isDefaultAction: false,
+            onPressed: () async {
+              Navigator.pop(context);
+              await training.report("No sport");
+              Haptics.vibrate(HapticsType.light);
+            },
+            child: const Text("Pas de rapport avec le sport"),
+          ),
+          if(UserModel.currentUser().id != training.userId)
+          CupertinoActionSheetAction(
+            onPressed: () async {
+              Navigator.pop(context);
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => InputPage(text: "Raison du signalement", limit: 300),
+                ),
+              );
+
+              if (result != null) {
+                await training.report(result.toString().trim());
+                Haptics.vibrate(HapticsType.light);
+              }
+            },
+            child: const Text('Signaler'),
+          ),
+          if(UserModel.currentUser().id == training.userId)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.pop(context);
+                showCupertinoDialog<void>(
+                  context: context,
+                  builder: (BuildContext context) => CupertinoAlertDialog(
+                    title: const Text('Supprimer'),
+                    content: Text('Es-tu vraiment sûr de vouloir supprimer ce post ?'),
+                    actions: <CupertinoDialogAction>[
+                      CupertinoDialogAction(
+                        isDefaultAction: true,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Non'),
+                      ),
+                      CupertinoDialogAction(
+                        isDestructiveAction: true,
+                        onPressed: () {
+                          Navigator.pop(context);
+                          training.deletePost();;
+                        },
+                        child: const Text('Oui'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: const Text('Supprimer'),
+            ),
+
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Annuler'),
+        ),
+      ),
+    );
+  }
+
 }

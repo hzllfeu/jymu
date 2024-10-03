@@ -19,6 +19,7 @@ import 'package:jymu/screens/home/components/PostCard.dart';
 import 'package:jymu/screens/home/components/ProfileComp.dart';
 import 'package:jymu/screens/home/components/SelectPost.dart';
 import 'package:jymu/screens/home/components/training_home.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
 
 import '../../Models/CachedData.dart';
@@ -43,7 +44,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
   final Map<int, TrainingModel> cachedTrainingsModels = {};
   int counter = 0;
   int lastcounter = 0;
-  late PageController pc;
+  late PreloadPageController pc;
   bool loading = false;
   int _previousPage = 0;
 
@@ -52,7 +53,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
-    pc = PageController();
+    pc = PreloadPageController();
     pc.addListener(scrollListener);
 
     loadTrainingModels();
@@ -136,14 +137,21 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
       backgroundColor: const Color(0xFFF3F5F8),
       body: Stack(
         children: [
-          PageView.builder(
+          PreloadPageView.builder(
             controller: pc,
             scrollDirection: Axis.vertical,
             itemCount: counter,
+            preloadPagesCount: 3,
             itemBuilder: (context, index) {
               return !cachedTrainings.containsKey(index)
-                  ? const LoadingPost()
-                  : cachedTrainings[index];
+                  ? Padding(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.1),
+                child: const LoadingPost(),
+                )
+                  : Padding(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.11),
+                child: cachedTrainings[index],
+              );
             },
           ),
           Padding(

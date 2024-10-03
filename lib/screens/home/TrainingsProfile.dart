@@ -74,8 +74,8 @@ class _TrainingsProfileState extends State<TrainingsProfile> {
       future: data,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: LoadingLikes(),
+          return const Center(
+            child: CupertinoActivityIndicator(radius: 18,),
           );
         } else if (snapshot.hasError) {
           return Center(child: Text('Erreur de chargement des trainings'));

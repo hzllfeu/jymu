@@ -277,15 +277,22 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
     if(excludedCount == 0 && finalList.isNotEmpty){
       excludedCount = 1;
     }
+
+    for(String id in finalList){
+      String tmp = "";
+      if(CachedData().links.containsKey(id)){
+        tmp = CachedData().links[id]!;
+      } else {
+        tmp = await getProfileImageUrl(id);
+        CachedData().links[id] = tmp;
+      }
+      finalppList[id] = tmp;
+    }
+
     if(finalList.isNotEmpty){
       setState(() {
         friendppempty = false;
       });
-    }
-
-    for(String id in finalList){
-      String tmp = await getProfileImageUrl(id);
-      finalppList[id] = tmp;
     }
 
     return Row(
@@ -350,7 +357,13 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
     finalList.addAll(followers!.take(4).cast());
 
     for(String id in finalList){
-      String tmp = await getProfileImageUrl(id);
+      String tmp = "";
+      if(CachedData().links.containsKey(id)){
+        tmp = CachedData().links[id]!;
+      } else {
+        tmp = await getProfileImageUrl(id);
+        CachedData().links[id] = tmp;
+      }
       finalppList[id] = tmp;
     }
 
@@ -400,7 +413,13 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
     finalList.addAll(follow!.take(4).cast());
 
     for(String id in finalList){
-      String tmp = await getProfileImageUrl(id);
+      String tmp = "";
+      if(CachedData().links.containsKey(id)){
+        tmp = CachedData().links[id]!;
+      } else {
+        tmp = await getProfileImageUrl(id);
+        CachedData().links[id] = tmp;
+      }
       finalppList[id] = tmp;
     }
 
