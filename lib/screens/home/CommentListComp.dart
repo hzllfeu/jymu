@@ -1,0 +1,140 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:jymu/screens/home/LoadingProfileList.dart';
+
+import '../../Models/CachedData.dart';
+import '../../Models/UserModel.dart';
+import 'ProfilPage.dart';
+
+class CommentListComp extends StatefulWidget {
+  final String id;
+  final List<dynamic> comment;
+
+  const CommentListComp({
+    super.key,
+    required this.id, required this.comment,
+  });
+
+  @override
+  _CommentListCompState createState() => _CommentListCompState();
+}
+
+class _CommentListCompState extends State<CommentListComp> {
+
+  Future<void>? data;
+  String userID = "";
+  String comment = "";
+  Timestamp? date;
+  UserModel targetUser = UserModel();
+  String pp = "";
+
+  @override
+  void initState() {
+    super.initState();
+    data = getCommentData();
+  }
+
+
+  Future<void> getCommentData() async {
+
+    userID = widget.comment[2];
+    comment = widget.comment[0];
+    date = widget.comment[1];
+
+
+    if(CachedData().users.containsKey(userID)){
+      targetUser = CachedData().users[userID]!;
+    } else {
+      await targetUser.fetchExternalData(userID);
+      CachedData().users[userID] = targetUser;
+    }
+
+    if(CachedData().links.containsKey(targetUser.id!)){
+      pp = CachedData().links[targetUser.id!]!;
+    } else {
+      pp = await getProfileImageUrl(targetUser.id!);
+      CachedData().links[targetUser.id!] = pp;
+    }
+
+    print("done");
+
+    setState(() {
+
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: data,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const LoadingProfileList();
+        } else if (snapshot.hasError) {
+          return Text('Erreur : ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          return const LoadingProfileList();
+        } else {
+          return  Container(
+            width: double.infinity,
+            height: 80,
+            color: Colors.transparent,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 25.0,
+                      backgroundImage: CachedNetworkImageProvider(pp),
+                    ),
+                    const SizedBox(width: 15),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          targetUser.displayName!,
+                          style: TextStyle(
+                            color: CupertinoColors.systemGrey,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 5*MediaQuery.of(context).size.width*0.007,
+                          ),
+                        ),
+                        Text(
+                          comment,
+                          style: TextStyle(
+                            color: Colors.black.withOpacity(0.7),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 5*MediaQuery.of(context).size.width*0.008,
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+}
+
+Future<String> getProfileImageUrl(String uid) async {
+  try {
+    final storageRef = FirebaseStorage.instance.ref().child('user_profiles/$uid.jpg');
+    final url = await storageRef.getDownloadURL();
+    return url;
+  } catch (e) {
+    print('Erreur lors de la récupération de l\'image de profil : $e');
+    return 'https://via.placeholder.com/150';
+  }
+}

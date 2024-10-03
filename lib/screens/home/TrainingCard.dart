@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +16,7 @@ import 'package:jymu/Models/UserModel.dart';
 import 'package:jymu/PostManager.dart';
 import 'package:jymu/screens/home/LoadingTraining.dart';
 import 'package:jymu/screens/home/ProfilPage.dart';
+import 'package:jymu/screens/home/components/CommentPage.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -69,13 +71,13 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
         Image.file(fistImage).image,
       );
 
-        firstMainColor = paletteGenerator.dominantColor?.color ?? Colors.transparent;
+      firstMainColor = paletteGenerator.dominantColor?.color ?? Colors.transparent;
     } else {
       final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
         Image.file(secondImage).image,
       );
 
-        secondMainColor = paletteGenerator.dominantColor?.color ?? Colors.transparent;
+      secondMainColor = paletteGenerator.dominantColor?.color ?? Colors.transparent;
     }
   }
 
@@ -459,8 +461,8 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                         color: const Color(0xffff5d5d),
                         boxShadow: [ BoxShadow(
                           color: !showFirstImage ? firstMainColor.withOpacity(0.3) : showFirstImage ? secondMainColor.withOpacity(0.3) : Colors.black.withOpacity(0.3),
-                          spreadRadius: 3,
-                          blurRadius: 5,
+                          spreadRadius: 2,
+                          blurRadius: 15,
                           offset: const Offset(0, -1),
                         ),
                         ],
@@ -501,8 +503,8 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                 ),
                                 boxShadow: [ BoxShadow(
                                   color: showFirstImage ? firstMainColor.withOpacity(0.5) : !showFirstImage ? secondMainColor.withOpacity(0.5) : Colors.black.withOpacity(0.3),
-                                  spreadRadius: 5,
-                                  blurRadius: 8,
+                                  spreadRadius: 2,
+                                  blurRadius: 15,
                                   offset: Offset(0, 2),
                                 ),
                                 ],
@@ -781,24 +783,54 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(training.likes!.length.toString(), style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 14, fontWeight: FontWeight.w600),),
+                                Text(formatNumber(training.likes!.length), style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 14, fontWeight: FontWeight.w600),),
                                 Image.asset("assets/images/emoji_coeur.png", height: 18,)
                               ],
                             ),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(training.likes!.length.toString(), style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 14, fontWeight: FontWeight.w600),),
+                                Text(formatNumber(377000), style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 14, fontWeight: FontWeight.w600),),
                                 Text("vues", style: TextStyle(color: Colors.black.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.w500),),
                               ],
                             ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(training.likes!.length.toString(), style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 14, fontWeight: FontWeight.w600),),
-                                Image.asset("assets/images/emoji_com.png", height: 18,)
-                              ],
-                            ),
+                            GestureDetector(
+                              onTapUp: (t){
+                                showModalBottomSheet(
+                                  context: context,
+                                  barrierColor: Colors.black.withOpacity(0.3),
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(24),
+                                    ),
+                                  ),
+                                  builder: (BuildContext context) {
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(24),
+                                      ),
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        width: double.infinity,
+                                        height: size.height * 0.8,
+                                        color: Colors.transparent,
+                                        child: CommentPage(trn: training),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(formatNumber(training.comments!.length), style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 14, fontWeight: FontWeight.w600),),
+                                  Image.asset("assets/images/emoji_com.png", height: 18,)
+                                ],
+                              ),
+                            )
+
                           ],
                         ),
                       ),

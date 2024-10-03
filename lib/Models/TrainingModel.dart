@@ -57,20 +57,69 @@ class TrainingModel {
     final postRef = docRef;
     String userID = UserModel.currentUser().id!;
 
-    final postSnapshot = await postRef?.get();
+    if (!likes!.contains(userID)) {
+      await postRef?.update({
+        'likes': FieldValue.arrayUnion([userID]),
+      });
 
-    if (postSnapshot!.exists) {
-      List<dynamic> postLikes = postSnapshot['likes'];
-
-      if (!postLikes.contains(userID)) {
-        await postRef?.update({
-          'likes': FieldValue.arrayUnion([userID]),
-        });
-
-        addLikeToUser(userID, true, id!, Timestamp.now());
-      }
+      addLikeToUser(userID, true, id!, Timestamp.now());
     }
     likes?.add(userID);
+  }
+
+  Future<void> addComment(String commentText) async {
+    final postRef = docRef;
+    String userID = UserModel.currentUser().id!;
+
+    final uuid = Uuid();
+    String commentID = uuid.v4();
+
+    Map<String, dynamic> newComment = {
+      commentID: [
+        commentText,
+        Timestamp.now(),
+        userID,
+      ]
+    };
+
+    await postRef?.update({
+      'comments': FieldValue.arrayUnion([newComment]),
+    });
+
+    comments?.add(newComment);
+  }
+
+  Future<List<dynamic>> getComment(String id) async {
+    List<dynamic> finalList = [];
+    for(Map<String, List<dynamic>> e in comments!){
+      if(e.containsKey(id)){
+        finalList.add(id);
+        finalList.add(e.values);
+      }
+    }
+    return finalList;
+  }
+
+  Future<void> deleteComment(String commentId) async {
+    final postRef = docRef;
+
+    if (comments != null && comments!.isNotEmpty) {
+      Map<String, dynamic>? commentToDelete;
+      for (var comment in comments!) {
+        if (comment.containsKey(commentId)) {
+          commentToDelete = comment;
+          break;
+        }
+      }
+
+      if (commentToDelete != null) {
+        await postRef?.update({
+          'comments': FieldValue.arrayRemove([commentToDelete]),
+        });
+
+        comments?.remove(commentToDelete);
+      }
+    }
   }
 
   Future<void> deletePost() async {
