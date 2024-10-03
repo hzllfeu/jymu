@@ -76,13 +76,14 @@ class TrainingModel {
   Future<void> deletePost() async {
     final postRef = docRef;
 
-    await postRef?.delete().then((_) {
+    await postRef?.delete().then((_) async {
       if(CachedData().trainings.containsKey(id)){
         CachedData().trainings.remove(id);
       }
       if(CachedData().users[UserModel.currentUser().id]!.trainings!.contains(id)){
         CachedData().users[UserModel.currentUser().id]!.trainings!.remove(id);
       }
+      await removeTraining(UserModel.currentUser().id!, id!);
       UserModel.currentUser().trainings?.remove(id);
       Haptics.vibrate(HapticsType.success);
     }).catchError((error) {

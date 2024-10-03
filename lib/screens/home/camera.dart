@@ -808,7 +808,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: List.generate(
                             tags.length,
-                                (index) => getTag(tags[index] ?? "none", false)
+                                (index) => getTag(tags[index] ?? "none", false, context)
                         )
                     ),
                   ),
@@ -824,7 +824,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
     final camera = cameras[_cameraIndex];
     _controller = CameraController(
       camera,
-      ResolutionPreset.high,
+      ResolutionPreset.veryHigh,
       enableAudio: false,
       imageFormatGroup: Platform.isAndroid
           ? ImageFormatGroup.nv21

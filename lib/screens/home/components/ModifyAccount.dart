@@ -305,7 +305,7 @@ class _ModifyAccountState extends State<ModifyAccount> {
                                       tags.length,
                                           (index) => Padding(
                                         padding: const EdgeInsets.only(left: 5.0),
-                                        child: getTag(tags[index], false),
+                                        child: getTag(tags[index], false, context),
                                       ),
                                     ),
                                   ),

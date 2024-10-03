@@ -1032,7 +1032,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: List.generate(
                                             tags?.length ?? 0,
-                                                (index) => index == 0 ? Row(children: [SizedBox(width: 0,),getTag(tags![index] ?? "false", false)],) : getTag(tags![index] ?? "false", false)
+                                                (index) => index == 0 ? Row(children: [SizedBox(width: 0,),getTag(tags![index] ?? "false", false, context)],) : getTag(tags![index] ?? "false", false, context)
                                         )
                                     ),
                                   ),

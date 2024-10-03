@@ -103,7 +103,7 @@ class _ModifyTagsState extends State<ModifyTags> {
                       children: tags.map((tag) {
                         return GestureDetector(
                             onTap: () => toggleTagSelection(tag),
-                            child: getTag(tag.toString(), true)
+                            child: getTag(tag.toString(), true, context)
                         );
                       }).toList(),
                     ),
@@ -150,7 +150,7 @@ class _ModifyTagsState extends State<ModifyTags> {
                               children: allTags.map((tag) {
                                 return GestureDetector(
                                     onTap: () => toggleTagSelection(tag), // Gère la sélection/désélection
-                                    child: getTag(tag.toString(), true)
+                                    child: getTag(tag.toString(), true, context)
                                 );
                               }).toList(),
                             ),

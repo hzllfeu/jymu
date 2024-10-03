@@ -192,7 +192,7 @@ Future<void> addPost(String userID, String postID, Timestamp timestamp) async {
   });
 }
 
-Future<void> removeTraining(String userID, String postId, Timestamp timestamp) async { //TODO: optimiser par rapport aux nombre d'appels
+Future<void> removeTraining(String userID, String postId) async { //TODO: optimiser par rapport aux nombre d'appels
   final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
   final userSnapshot = await userRef.get();
   List<dynamic> userLikes = userSnapshot['trainings'];
