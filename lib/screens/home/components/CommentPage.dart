@@ -67,7 +67,7 @@ class _CommentPageState extends State<CommentPage> {
                        Map<String, dynamic> comment = widget.trn.comments![index];
                        final commentId = comment.keys.first;
                        final commentDetails = comment.values.first;
-                       return Padding(padding: EdgeInsets.symmetric(horizontal: 15), child: CommentListComp(id: commentId, comment: commentDetails),);
+                       return Padding(padding: EdgeInsets.only(left: 15, right: 15, top: 25), child: CommentListComp(id: commentId, comment: commentDetails),);
                      } else {
                        return Container();
                      }

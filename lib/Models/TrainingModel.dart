@@ -79,6 +79,7 @@ class TrainingModel {
         commentText,
         Timestamp.now(),
         userID,
+        id
       ]
     };
 
@@ -153,6 +154,25 @@ class TrainingModel {
       'date': Timestamp.now(),
       'reason': reason,
       'reporterId': UserModel.currentUser().id,
+    });
+  }
+
+  Future<void> reportComment(String reason, String commentID, String comment) async {
+    final uuid = Uuid();
+    final trainingCollection = FirebaseFirestore.instance.collection('commentReports');
+
+    String trainingId = uuid.v4();
+
+    await trainingCollection.doc(trainingId).set({
+      'trainingId': id,
+      'ownerId': userId,
+      'displayname': displayName,
+      'username': username,
+      'date': Timestamp.now(),
+      'reason': reason,
+      'reporterId': UserModel.currentUser().id,
+      'commentId': commentID,
+      'comment': comment
     });
   }
 

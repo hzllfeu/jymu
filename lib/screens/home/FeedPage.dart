@@ -135,37 +135,44 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F8),
-      body: Stack(
-        children: [
-          PreloadPageView.builder(
-            controller: pc,
-            scrollDirection: Axis.vertical,
-            itemCount: counter,
-            preloadPagesCount: 3,
-            itemBuilder: (context, index) {
-              return !cachedTrainings.containsKey(index)
-                  ? Padding(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.1),
-                child: const LoadingPost(),
-                )
-                  : Padding(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.11),
-                child: cachedTrainings[index],
-              );
-            },
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.04),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: MediaQuery.of(context).size.height*0.07,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: PreloadPageView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 2,
+        preloadPagesCount: 1,
+        itemBuilder: (context, index) {
+          return index == 0 ?
+
+          Stack(
+            children: [
+              PreloadPageView.builder(
+                controller: pc,
+                scrollDirection: Axis.vertical,
+                itemCount: counter,
+                preloadPagesCount: 3,
+                itemBuilder: (context, index) {
+                  return !cachedTrainings.containsKey(index)
+                      ? Padding(
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.1),
+                    child: const LoadingPost(),
+                  )
+                      : Padding(
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.11),
+                    child: cachedTrainings[index],
+                  );
+                },
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.04),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      onTapUp: (t) {
-                        /*showCupertinoModalPopup(
+                    SizedBox(height: MediaQuery.of(context).size.height*0.07,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTapUp: (t) {
+                            /*showCupertinoModalPopup(
                           context: context,
                           barrierColor: Colors.black.withOpacity(0.4),
                           builder: (BuildContext build) {
@@ -195,91 +202,96 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                             );
                           },
                         );*/
-                      },
-                      child: GlassContainer(
-                        height: 38,
-                        width: 42,
-                        color: Colors.white54.withOpacity(0),
-                        borderRadius: BorderRadius.circular(14),
-                        blur: 0,
-                        child: Center(
-                            child: Image.asset('assets/images/emoji_settings.png', height: 0,)
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.65,
-                      child: PreferredSize(
-                        preferredSize: const Size.fromHeight(40),
-                        child:
-                        ClipRRect(
-                            borderRadius: const BorderRadius.all(Radius.circular(18)),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 25),
-                              child: GlassContainer(
-                                height: 40,
-                                borderRadius: BorderRadius.circular(18),
-                                color: Colors.white54.withOpacity(0.4),
-                                blur: 5,
-                                child: TabBar(
-                                  controller: tabController,
-                                  onTap: (i) {
-                                    setState(() {
-                                      Haptics.vibrate(HapticsType.light);
-                                    });
-                                  },
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  dividerColor: Colors.transparent,
-                                  indicatorColor: Colors.transparent,
-                                  indicator: BoxDecoration(
-                                    color: Colors.redAccent.withOpacity(0.8),
-                                    borderRadius: const BorderRadius.all(Radius.circular(18)),
-                                  ),
-                                  labelColor: Colors.white,
-                                  unselectedLabelColor: Colors.black54,
-                                  tabs: const [
-                                    Tab(text: 'For you'),
-                                    Tab(text: 'Amis'),
-                                  ],
-                                ),
-                              ),
-                            )
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTapUp: (t) async {
-                        try {
-                          await FirebaseAuth.instance.signOut();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => UsernamePage(),
+                          },
+                          child: GlassContainer(
+                            height: 38,
+                            width: 42,
+                            color: Colors.white54.withOpacity(0),
+                            borderRadius: BorderRadius.circular(14),
+                            blur: 0,
+                            child: Center(
+                                child: Image.asset('assets/images/emoji_settings.png', height: 0,)
                             ),
-                          );
-                        } catch (e) {
-                          print('Failed to sign out: $e');
-                        }
-                      },
-                      child: GlassContainer(
-                        height: 40,
-                        width: 42,
-                        color: Colors.white54.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(14),
-                        blur: 5,
-                        shadowStrength: 6,
-                        child: Center(
-                            child: Image.asset('assets/images/emoji_bell.png', height: 18,)
+                          ),
                         ),
-                      ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.65,
+                          child: PreferredSize(
+                            preferredSize: const Size.fromHeight(40),
+                            child:
+                            ClipRRect(
+                                borderRadius: const BorderRadius.all(Radius.circular(18)),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  child: GlassContainer(
+                                    height: 40,
+                                    borderRadius: BorderRadius.circular(18),
+                                    color: Colors.white54.withOpacity(0.4),
+                                    blur: 5,
+                                    child: TabBar(
+                                      controller: tabController,
+                                      onTap: (i) {
+                                        setState(() {
+                                          Haptics.vibrate(HapticsType.light);
+                                        });
+                                      },
+                                      indicatorSize: TabBarIndicatorSize.tab,
+                                      dividerColor: Colors.transparent,
+                                      indicatorColor: Colors.transparent,
+                                      indicator: BoxDecoration(
+                                        color: Colors.redAccent.withOpacity(0.8),
+                                        borderRadius: const BorderRadius.all(Radius.circular(18)),
+                                      ),
+                                      labelColor: Colors.white,
+                                      unselectedLabelColor: Colors.black54,
+                                      tabs: const [
+                                        Tab(text: 'For you'),
+                                        Tab(text: 'Amis'),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTapUp: (t) async {
+                            try {
+                              await FirebaseAuth.instance.signOut();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UsernamePage(),
+                                ),
+                              );
+                            } catch (e) {
+                              print('Failed to sign out: $e');
+                            }
+                          },
+                          child: GlassContainer(
+                            height: 40,
+                            width: 42,
+                            color: Colors.white54.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(14),
+                            blur: 5,
+                            shadowStrength: 6,
+                            child: Center(
+                                child: Image.asset('assets/images/emoji_bell.png', height: 18,)
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        ],
-      ),
+              ),
+            ],
+          )
+
+
+              : NotificationPage();
+        },
+      )
     );
   }
 }
