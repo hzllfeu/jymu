@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:jymu/screens/Connexion/UsernamePage.dart';
 import 'package:jymu/screens/init_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Models/NotificationService.dart';
 import 'Models/UserModel.dart';
 import 'firebase_options.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -24,10 +26,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
 
+
   try {
+
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    await NotificationController.initializeLocalNotifications();
+    await NotificationController.initializeIsolateReceivePort();
+
     timeago.setLocaleMessages('fr', timeago_fr.FrMessages());
     final sharedPreferences = await SharedPreferences.getInstance();
     runApp(MyApp());
@@ -38,6 +46,8 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  static final GlobalKey<NavigatorState> navigatorKey =
+  GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {

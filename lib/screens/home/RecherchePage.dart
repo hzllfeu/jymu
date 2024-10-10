@@ -7,6 +7,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:glassmorphism_ui/glassmorphism_ui.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/UserManager.dart';
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
 import 'package:jymu/screens/home/LoadingLikes.dart';
@@ -19,7 +21,10 @@ import 'package:jymu/screens/home/components/NotificationPage.dart';
 import 'package:jymu/screens/home/components/PostCard.dart';
 import 'package:jymu/screens/home/components/ProfileComp.dart';
 
+import '../../Models/CachedData.dart';
+import '../../Models/TrainingModel.dart';
 import 'LoadingProfile.dart';
+import 'TrainingLittle.dart';
 import 'components/PostsComp.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
@@ -39,73 +44,26 @@ class _RecherchePageState extends State<RecherchePage> with TickerProviderStateM
   late Animation<double> _colorAnimation;
   Future<void>? _fetchDataFuture;
 
+  Future<void>? data;
+  List<String> listPosts = [];
+  List<TrainingModel> listtrn = [];
 
-  bool isFirstSelected = true;
-  bool isSecondSelected = false;
-  bool isThirdSelected = false;
-  bool _isLoading = true;
-  User? user = FirebaseAuth.instance.currentUser;
-  String? displayName;
-  String? username;
-  String? bio = "";
-  String? id = "";
-  String? profileImageUrl;
-  bool followed = false;
-  bool isFollowing = false;
-  bool friend = false;
-  late List<dynamic> followers;
-  late List<dynamic> follow;
-  late List<dynamic> likes;
-  late Map<String, dynamic> data;
-  late Map<String, dynamic> owndata;
-  bool ownProf = false;
+
+  int selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      if(index != selectedIndex){
+        selectedIndex = index;
+        Haptics.vibrate(HapticsType.medium);
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    id = widget.id;
-
-    _fetchDataFuture = _fetchData();
-
-    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutBack,
-      ),
-    );
-
-    _colorAnimation = Tween<double>(begin: 0.2, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOut,
-      ),
-    );
-  }
-
-  void handleFollow() {
-    setState(() {
-      followed = true;
-      if (isFollowing) {
-        friend = true;
-      }
-      _controller.reset();
-      _controller.forward();
-    });
-  }
-
-  Future<void> handleUnFollow() async {
-    await unfollowUser(FirebaseAuth.instance.currentUser!.uid, id!);
-    setState(() {
-      followed = false;
-      friend = false;
-      _controller.reset();
-      _controller.forward();
-    });
+    data = loadTrainingModels();
   }
 
   @override
@@ -113,56 +71,6 @@ class _RecherchePageState extends State<RecherchePage> with TickerProviderStateM
     _controller.dispose();
     super.dispose();
   }
-
-  Future<void> _fetchData() async {
-    try {
-      if (id != null) {
-        if (id == FirebaseAuth.instance.currentUser?.uid) {
-          ownProf = true;
-        }
-        data = (await getProfile(id!))!;
-        if (!ownProf) {
-          owndata = (await getProfile(FirebaseAuth.instance.currentUser!.uid))!;
-        }
-
-        if (!mounted) return;  // Vérifiez si le widget est monté
-
-        setState(() {
-          _fetchProfileImageUrl();
-          followers = data['followed'];
-          likes = data['likes'];
-          username = data['username'];
-          displayName = data['displayname'];
-          follow = data['follow'];
-          bio = data['bio'];
-
-          if (!ownProf && followers.contains(FirebaseAuth.instance.currentUser?.uid)) {
-            followed = true;
-          }
-          if (!ownProf && follow.contains(FirebaseAuth.instance.currentUser?.uid)) {
-            isFollowing = true;
-          }
-          if (!ownProf && followed && isFollowing) {
-            friend = true;
-          }
-
-          if (!ownProf) {
-
-            if (isFollowing) {
-              _controller.forward();
-            }
-            if (friend) {
-              _controller.forward();
-            }
-          }
-        });
-      }
-    } catch (e) {
-      print('Error in _fetchData: $e');
-    }
-  }
-
-
 
   Future<String> getProfileImageUrl(String uid) async {
     try {
@@ -176,45 +84,203 @@ class _RecherchePageState extends State<RecherchePage> with TickerProviderStateM
     }
   }
 
-  Future<void> _fetchProfileImageUrl() async {
-    if (id != "") {
-      String tmp = await getProfileImageUrl(id!);
+  Future<void> loadTrainingModels() async {
+    List<String> tmp = await getTrainingsForUser("", 16, listPosts);
+    listPosts.addAll(tmp);
+    listPosts.where((id) => id != "default").toSet().toList();
 
-      if (!mounted) return;
-      setState(() {
-        profileImageUrl = tmp;
-      });
+    setState(() {
+
+    });
+    for (String s in listPosts) {
+      TrainingModel tmp = TrainingModel();
+
+      if (CachedData().trainings.containsKey(s)) {
+        tmp = CachedData().trainings[s]!;
+      } else {
+        await tmp.fetchExternalData(s);
+        CachedData().trainings[s] = tmp;
+      }
+
+      listtrn.add(tmp);
     }
+    setState(() {
+
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF3F5F8),
-      body: SafeArea(
-        child: FutureBuilder(
-          future: _fetchDataFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 25),
-                      child: CupertinoSearchTextField(),
+      body: Stack(
+        children: [
+          FutureBuilder(
+            future: data,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CupertinoActivityIndicator(radius: 14,),
+                );
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Erreur de chargement des trainings'));
+              } else {
+                return Padding(padding: EdgeInsets.symmetric(horizontal: 5),
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverPadding(
+                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.205),
+                        sliver: SliverGrid(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 4.0,
+                            mainAxisSpacing: 4.0,
+                            childAspectRatio: 0.7,
+                          ),
+                          delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                              final training = listtrn[index];
+                              return TrainingLittle(trn: training);
+                            },
+                            childCount: listtrn.length,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          GlassContainer(
+            height: MediaQuery.of(context).size.height*0.2,
+            width: MediaQuery.of(context).size.width,
+            color: Color(0xFFF3F5F8).withOpacity(0.85),
+            blur: 10,
+            child: Padding(
+              padding: EdgeInsets.only(right: MediaQuery.of(context).size.width*0.03, bottom: 0, left: MediaQuery.of(context).size.width*0.03),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GlassContainer(
+                    width: MediaQuery.of(context).size.width*0.8,
+                    height: MediaQuery.of(context).size.height*0.05,
+                    borderRadius: BorderRadius.circular(28),
+                    color: Colors.white.withOpacity(0.8),
+                    blur: 10,
+                    shadowStrength: 3,
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          children: [
+                            Icon(CupertinoIcons.search, size: 24, color: Colors.redAccent,),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width*0.65,
+                              child: CupertinoTextField(
+                                cursorColor: Colors.redAccent,
+                                placeholder: "N'importe quoi · Un profil · Un exercice",
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.8)),
+                                placeholderStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey.withOpacity(0.6)),
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    )
+                  ),
+                  SizedBox(height: 20,),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40),
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        AnimatedPositioned(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          left: 60.0 * selectedIndex*1.47,
+                          child: Container(
+                            height: 3,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildTabItem(
+                              index: 0,
+                              icon: CupertinoIcons.doc_text_search,
+                              label: "Posts",
+                            ),
+                            _buildTabItem(
+                              index: 1,
+                              icon: CupertinoIcons.person,
+                              label: "Profil",
+                            ),
+                            _buildTabItem(
+                              index: 2,
+                              icon: CupertinoIcons.text_bubble,
+                              label: "Exos",
+                            ),
+                            _buildTabItem(
+                              index: 3,
+                              icon: CupertinoIcons.house,
+                              label: "Salle",
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    Expanded(
-                      child: LoadingLikes(),
-                    ),
-                  ]
-              );
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Erreur de chargement du profil'));
-            } else {
-              return buildProfileContent(context);
-            }
-          },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      )
+    );
+  }
+
+  Widget _buildTabItem({required int index, required IconData icon, required String label}) {
+    bool isSelected = index == selectedIndex;
+
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: SizedBox(
+        width: 60,
+        child: Column(
+          children: [
+            AnimatedOpacity(
+              duration: Duration(milliseconds: 300),
+              opacity: isSelected ? 0.8 : 0.5,
+              child: Icon(
+                icon,
+                size: 21,
+                color: isSelected ? Colors.black.withOpacity(1) : Colors.black.withOpacity(0.8),
+              ),
+            ),
+            SizedBox(height: 2),
+            AnimatedOpacity(
+              duration: Duration(milliseconds: 300),
+              opacity: isSelected ? 0.8 : 0.5,
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.black.withOpacity(1) : Colors.black.withOpacity(0.8),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+          ],
         ),
       ),
     );

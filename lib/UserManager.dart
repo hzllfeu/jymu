@@ -1,10 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:jymu/Models/NotificationService.dart';
+
+import 'Models/CachedData.dart';
+import 'Models/UserModel.dart';
 
 
 Future<void> createProfile(User? user) async {
   final userCollection = FirebaseFirestore.instance.collection('users');
+  String? token = await FirebaseMessaging.instance.getToken();
 
   await userCollection.doc(user?.uid).set({
     'id': user?.uid,
@@ -17,8 +23,11 @@ Future<void> createProfile(User? user) async {
     'comments': [],
     'follow': [],
     'followed': [],
+    'notifs': [],
+    'notifparam': {"allnotifs":true, "likenotif": true, "comnotif": true, "abonotif": true},
     'tags': ["new"],
     'bio': "",
+    'fcmToken': token,
     'etat_jymupro': 0
   });
 }
@@ -318,6 +327,15 @@ Future<void> followUser(String userID, String targetUserId) async {
       'followed': FieldValue.arrayUnion([userID]),
     });
   });
+  UserModel targetUser = UserModel();
+  if(CachedData().users.containsKey(targetUserId)){
+    targetUser = CachedData().users[targetUserId]!;
+  } else {
+    await targetUser.fetchExternalData(targetUserId!);
+    CachedData().users[targetUserId!] = targetUser;
+  }
+
+  sendPushNotification(targetUserId, "a commencer à vous suivre", "${UserModel.currentUser().username}",  targetUser.fcmToken!, true, userID, "", "abo");
 }
 
 Future<void> unfollowUser(String userID, String targetUserId) async {

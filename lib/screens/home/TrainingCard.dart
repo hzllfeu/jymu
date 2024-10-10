@@ -23,6 +23,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
 
 import '../InputPage.dart';
+import '../ProfilPageBis.dart';
 import 'components/TagList.dart';
 
 class TrainingCard extends StatefulWidget {
@@ -334,117 +335,9 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
       child: Column(
         children: [
           if(!loaded)
-            SizedBox(height: size.height*0.00)
+            SizedBox(height: size.height*0.01)
           else
-            SizedBox(height: size.height*0.03),
-          if(loaded)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: size.width*0.07),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      IntrinsicWidth(
-                        child: Container(
-                            height: 13 * (size.height/size.width),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  spreadRadius: 1,
-                                  blurRadius: 2,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(CupertinoIcons.timer, color: Colors.redAccent, size: 6 * (size.height/size.width),),
-                                SizedBox(width: 10,),
-                                DefaultTextStyle(
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 6 * (size.height/size.width),
-                                    color: Colors.black.withOpacity(0.7),
-                                  ),
-                                  child: DateTime.now().day != training.date?.toDate().day
-                                      ? Text(formatDateMonth(training.date!.toDate()))
-                                      : Text('${training.date?.toDate().hour.toString().padLeft(2, '0')}:${training.date?.toDate().minute.toString().padLeft(2, '0')}'),
-                                ),
-                              ],
-                            )
-                        ),
-                      ),
-                      const SizedBox(width: 10,),
-                      IntrinsicWidth(
-                        child: Container(
-                            height: 13 * (size.height/size.width),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  spreadRadius: 1,
-                                  blurRadius: 2,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(CupertinoIcons.location_fill, color: Colors.redAccent, size: 6 * (size.height/size.width),),
-                                SizedBox(width: 10,),
-                                DefaultTextStyle(
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 6 * (size.height/size.width),
-                                    color: Colors.black.withOpacity(0.6),
-                                  ),
-                                  child: Text("On air la Défense"),
-                                ),
-                              ],
-                            )
-                        ),
-                      ),
-                    ],
-                  ),
-                  IntrinsicWidth(
-                      child: GestureDetector(
-                        onTapUp: (t){
-                          _showActionSheet(context);
-                        },
-                        child: Container(
-                          height: 13 * (size.height/size.width),
-                          padding: EdgeInsets.symmetric(horizontal: 15),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                spreadRadius: 1,
-                                blurRadius: 2,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                              child: Image.asset("assets/images/emoji_clemolette.png", height: 8 * (size.height/size.width),)
-                          ),
-                        ),
-                      )
-                  ),
-                ],
-              ),
-            ),
-          if(loaded)
-            SizedBox(height: size.height*0.01),
+            SizedBox(height: size.height*0.02),
           if(loaded)
             SizedBox(
               height: size.height*0.55,
@@ -541,56 +434,69 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                                     child: Row(
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
-                                                        Row(
-                                                          children: [
-                                                            CircleAvatar(
-                                                              radius: 26.0,
-                                                              backgroundImage: CachedNetworkImageProvider(pp),
-                                                            ),
-                                                            SizedBox(width: 5,),
-                                                            ConstrainedBox(
-                                                              constraints: BoxConstraints(
-                                                                  maxWidth: size.width*0.25
+                                                        GestureDetector(
+                                                          onTapUp: (t){
+                                                            if(training.userId != FirebaseAuth.instance.currentUser?.uid) {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder: (context) =>
+                                                                      ProfilPageBis(id: training.userId!),
+                                                                ),
+                                                              );
+                                                            }
+                                                          },
+                                                          child: Row(
+                                                            children: [
+                                                              CircleAvatar(
+                                                                radius: 26.0,
+                                                                backgroundImage: CachedNetworkImageProvider(pp),
                                                               ),
-                                                              child: GlassContainer(
-                                                                height: 50,
-                                                                color: Colors.black.withOpacity(0.5),
-                                                                blur: 10,
-                                                                borderRadius: BorderRadius.circular(18),
-                                                                child: Padding(
-                                                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                                                  child: Column(
-                                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                    children: [
-                                                                      FittedBox(
-                                                                        fit: BoxFit.scaleDown,
-                                                                        child: Text(
-                                                                          targetUser.displayName!,
-                                                                          style: TextStyle(
-                                                                            fontWeight: FontWeight.w700,
-                                                                            fontSize: 13,
-                                                                            color: Colors.white.withOpacity(0.9),
+                                                              SizedBox(width: 5,),
+                                                              ConstrainedBox(
+                                                                constraints: BoxConstraints(
+                                                                    maxWidth: size.width*0.25
+                                                                ),
+                                                                child: GlassContainer(
+                                                                  height: 50,
+                                                                  color: Colors.black.withOpacity(0.5),
+                                                                  blur: 10,
+                                                                  borderRadius: BorderRadius.circular(18),
+                                                                  child: Padding(
+                                                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                                                    child: Column(
+                                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                      children: [
+                                                                        FittedBox(
+                                                                          fit: BoxFit.scaleDown,
+                                                                          child: Text(
+                                                                            targetUser.displayName!,
+                                                                            style: TextStyle(
+                                                                              fontWeight: FontWeight.w700,
+                                                                              fontSize: 13,
+                                                                              color: Colors.white.withOpacity(0.9),
+                                                                            ),
                                                                           ),
                                                                         ),
-                                                                      ),
-                                                                      FittedBox(
-                                                                        fit: BoxFit.scaleDown,
-                                                                        child: Text(
-                                                                          "@${targetUser.username!}",
-                                                                          style: TextStyle(
-                                                                            fontWeight: FontWeight.w700,
-                                                                            fontSize: 12,
-                                                                            color: Colors.white.withOpacity(0.7),
+                                                                        FittedBox(
+                                                                          fit: BoxFit.scaleDown,
+                                                                          child: Text(
+                                                                            "@${targetUser.username!}",
+                                                                            style: TextStyle(
+                                                                              fontWeight: FontWeight.w700,
+                                                                              fontSize: 12,
+                                                                              color: Colors.white.withOpacity(0.7),
+                                                                            ),
                                                                           ),
                                                                         ),
-                                                                      ),
-                                                                    ],
+                                                                      ],
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                            )
-                                                          ],
+                                                              )
+                                                            ],
+                                                          ),
                                                         ),
                                                         if(training.desc!.isNotEmpty)
                                                           Stack(
@@ -752,9 +658,115 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                 ],
               ),
             ),
-          if(loaded)
-            SizedBox(height: size.height*0.01),
 
+          if(loaded)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: size.width*0.055),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      IntrinsicWidth(
+                        child: Container(
+                            height: 13 * (size.height/size.width),
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  spreadRadius: 1,
+                                  blurRadius: 2,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(CupertinoIcons.timer, color: Colors.redAccent, size: 6 * (size.height/size.width),),
+                                SizedBox(width: 10,),
+                                DefaultTextStyle(
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 6 * (size.height/size.width),
+                                    color: Colors.black.withOpacity(0.7),
+                                  ),
+                                  child: DateTime.now().day != training.date?.toDate().day
+                                      ? Text(formatDateMonth(training.date!.toDate()))
+                                      : Text('${training.date?.toDate().hour.toString().padLeft(2, '0')}:${training.date?.toDate().minute.toString().padLeft(2, '0')}'),
+                                ),
+                              ],
+                            )
+                        ),
+                      ),
+                      const SizedBox(width: 10,),
+                      IntrinsicWidth(
+                        child: Container(
+                            height: 13 * (size.height/size.width),
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  spreadRadius: 1,
+                                  blurRadius: 2,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(CupertinoIcons.location_fill, color: Colors.redAccent, size: 6 * (size.height/size.width),),
+                                SizedBox(width: 10,),
+                                DefaultTextStyle(
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 6 * (size.height/size.width),
+                                    color: Colors.black.withOpacity(0.6),
+                                  ),
+                                  child: Text("On air la Défense"),
+                                ),
+                              ],
+                            )
+                        ),
+                      ),
+                    ],
+                  ),
+                  IntrinsicWidth(
+                      child: GestureDetector(
+                        onTapUp: (t){
+                          _showActionSheet(context);
+                        },
+                        child: Container(
+                          height: 13 * (size.height/size.width),
+                          padding: EdgeInsets.symmetric(horizontal: 15),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                spreadRadius: 1,
+                                blurRadius: 2,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                              child: Image.asset("assets/images/emoji_clemolette.png", height: 8 * (size.height/size.width),)
+                          ),
+                        ),
+                      )
+                  ),
+                ],
+              ),
+            ),
+          if(loaded)
+            SizedBox(height: size.height*0.015),
           if(loaded)
             GestureDetector(
               onDoubleTap: _handleTap,

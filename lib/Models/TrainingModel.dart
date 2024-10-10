@@ -6,6 +6,7 @@ import 'package:jymu/Models/UserModel.dart';
 import 'package:uuid/uuid.dart';
 
 import '../UserManager.dart';
+import 'NotificationService.dart';
 
 class TrainingModel {
   String? userId;
@@ -65,6 +66,15 @@ class TrainingModel {
       addLikeToUser(userID, true, id!, Timestamp.now());
     }
     likes?.add(userID);
+    UserModel targetUser = UserModel();
+    if(CachedData().users.containsKey(userId)){
+      targetUser = CachedData().users[userId]!;
+    } else {
+      await targetUser.fetchExternalData(userId!);
+      CachedData().users[userId!] = targetUser;
+    }
+
+    sendPushNotification(userId!, "a aimé votre training", "${UserModel.currentUser().username}",  targetUser.fcmToken!, true, userID, firstImage!, "like");
   }
 
   Future<void> addComment(String commentText) async {
@@ -88,6 +98,17 @@ class TrainingModel {
     });
 
     comments?.add(newComment);
+
+    UserModel targetUser = UserModel();
+    if(CachedData().users.containsKey(userId)){
+      targetUser = CachedData().users[userId]!;
+    } else {
+      await targetUser.fetchExternalData(userId!);
+      CachedData().users[userId!] = targetUser;
+    }
+
+    sendPushNotification(userId!,  commentText, "${UserModel.currentUser().username} a commenté", targetUser.fcmToken!, true, userID, firstImage!, "com");
+
   }
 
   Future<List<dynamic>> getComment(String id) async {

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
@@ -11,7 +12,9 @@ import '../Alexis/get_exercise.dart';
 import '../Alexis/get_processed.dart';
 import '../Alexis/ia_gene.dart';
 import '../Alexis/page_zexo.dart';
+import '../Models/NotificationService.dart';
 import '../Models/UserModel.dart';
+import 'ProfilPageBis.dart';
 import 'home/HomeScreen.dart';
 import 'home/camera.dart';
 
@@ -52,6 +55,10 @@ class _InitScreenState extends State<InitScreen> {
     super.initState();
     currentSelectedIndex = widget.initialIndex;
     loadProfile();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("debug");
+      UserModel.currentUser().notificationsloader = StoredNotification().getNotifications(UserModel.currentUser().id!);
+    });
   }
 
 
@@ -64,7 +71,7 @@ class _InitScreenState extends State<InitScreen> {
         : IaGene(),
 
     RecherchePage(id: FirebaseAuth.instance.currentUser!.uid),
-    ProfilPage(id: FirebaseAuth.instance.currentUser!.uid),
+    ProfilPageBis(id: FirebaseAuth.instance.currentUser!.uid),
   ];
 
   @override
@@ -82,29 +89,29 @@ class _InitScreenState extends State<InitScreen> {
 
             items: [
               BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.house, size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
-                activeIcon: Icon(CupertinoIcons.house_fill, color: Colors.redAccent,size: 11 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+                icon: Icon(CupertinoIcons.house, size: 9 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+                activeIcon: Icon(CupertinoIcons.house_fill, color: Colors.redAccent,size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
               ),
               BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.command, size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
-                activeIcon: Icon(CupertinoIcons.command, color: Colors.redAccent,size: 11 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+                icon: Icon(CupertinoIcons.command, size: 9 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+                activeIcon: Icon(CupertinoIcons.command, color: Colors.redAccent,size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
               ),
               BottomNavigationBarItem(
                 icon: Icon(CupertinoIcons.command, size: 5 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),color: Colors.transparent),
                 activeIcon: Icon(CupertinoIcons.command, color: Colors.transparent,size: 5 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
               ),
               BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.search, size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
-                activeIcon: Icon(CupertinoIcons.search, color: Colors.redAccent,size: 11 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+                icon: Icon(CupertinoIcons.search, size: 9 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+                activeIcon: Icon(CupertinoIcons.search, color: Colors.redAccent,size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
               ),
               BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.person, size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
-                activeIcon: Icon(CupertinoIcons.person_fill, color: Colors.redAccent,size: 11 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+                icon: Icon(CupertinoIcons.person, size: 9 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
+                activeIcon: Icon(CupertinoIcons.person_fill, color: Colors.redAccent,size: 10 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),),
               ),
             ],
           ),
           Positioned(
-            top: -20,
+            top: -10,
             child: GestureDetector(
               onTapUp: (t) {
                 Navigator.push(

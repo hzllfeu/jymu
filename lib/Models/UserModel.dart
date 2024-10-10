@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:jymu/Models/NotificationService.dart';
 
 class UserModel {
   String? id;
@@ -9,28 +11,42 @@ class UserModel {
   List<dynamic>? likes;
   List<dynamic>? trainings;
   List<dynamic>? posts;
+  List<dynamic> notifs = [];
   List<dynamic>? comments;
   List<dynamic>? follow;
   List<dynamic>? followed;
   List<dynamic>? tags;
+  Map<String, dynamic>? notifparam;
   String? bio;
+  String? fcmToken;
+  DocumentReference<Map<String, dynamic>>? docRef;
+  Future<void>? notificationsloader;
 
   static final UserModel _currentUserInstance = UserModel._internal();
   factory UserModel.currentUser() => _currentUserInstance;
 
-  // Constructor pour d'autres utilisateurs
   UserModel();
 
   UserModel._internal();
 
-  // Récupération des données du currentUser
   Future<void> fetchUserData() async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
+      docRef = FirebaseFirestore.instance.collection('users').doc(id);
       Map<String, dynamic>? userData = await getProfile(user.uid);
       if (userData != null) {
-        _updateFromMap(userData);
+          String? token;
+          if(!userData.containsKey('fcmToken')){
+            token = await FirebaseMessaging.instance.getToken();
+            await docRef?.update({
+              'fcmToken': token,
+            });
+            userData['fcmToken'] = token;
+          }
+          _updateFromMap(userData);
+
+        notificationsloader = StoredNotification().getNotifications(id!);
       }
     } else {
       print("Aucun utilisateur connecté.");
@@ -38,12 +54,18 @@ class UserModel {
     }
   }
 
-  // Récupération des données pour un utilisateur externe (nouvelle instance)
   Future<void> fetchExternalData(String id) async {
     Map<String, dynamic>? userData = await getProfile(id);
-    if (userData != null) {
-      _updateFromMap(userData);
+    docRef = FirebaseFirestore.instance.collection('users').doc(id);
+    String? token;
+    if(!userData!.containsKey('fcmToken')){
+      token = await FirebaseMessaging.instance.getToken();
+      await FirebaseFirestore.instance.collection('users').doc(userData['id']).update({
+        'fcmToken': token,
+      });
+      userData['fcmToken'] = token;
     }
+    _updateFromMap(userData);
   }
 
   // Méthode de mise à jour des données
@@ -59,10 +81,16 @@ class UserModel {
     bio = data['bio'];
     trainings = data['trainings'];
     posts = data['posts'];
+    notifs = data['notifs'];
+    fcmToken = data['fcmToken'];
+    notifparam = data['notifparam'];
     etat_jymupro = data['etat_jymupro'];
+
+    if(notifparam!.isEmpty){
+      notifparam = {"allnotifs":true, "likenotif": true, "comnotif": true, "abonotif": true}; //TODO a clean
+    }
   }
 
-  // Réinitialisation des données utilisateur
   void _resetUserData() {
     id = null;
     displayName = null;

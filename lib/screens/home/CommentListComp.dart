@@ -94,30 +94,56 @@ class _CommentListCompState extends State<CommentListComp> {
         } else {
           return Container(
             width: double.infinity,
-            // Retirer la hauteur fixe pour permettre l'adaptation de la hauteur du container
             color: Colors.transparent,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Alignement en haut pour s'adapter à plusieurs lignes
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 25.0,
-                      backgroundImage: CachedNetworkImageProvider(pp),
+                    GestureDetector(
+                      onTapUp: (t){
+                        if(targetUser.id != FirebaseAuth.instance.currentUser?.uid) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ProfilPage(id: targetUser.id!),
+                            ),
+                          );
+                        }
+                      },
+                      child: CircleAvatar(
+                        radius: 25.0,
+                        backgroundImage: CachedNetworkImageProvider(pp),
+                      ),
                     ),
+
                     const SizedBox(width: 15),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start, // Alignement du texte à gauche
                       children: [
                         Row(
                           children: [
-                            Text(
-                              targetUser.displayName!,
-                              style: TextStyle(
-                                color: Colors.black.withOpacity(0.6),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 5 * MediaQuery.of(context).size.width * 0.007,
+                            GestureDetector(
+                              onTapUp: (t){
+                                if(targetUser.id != FirebaseAuth.instance.currentUser?.uid) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProfilPage(id: targetUser.id!),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text(
+                                targetUser.displayName!,
+                                style: TextStyle(
+                                  color: Colors.black.withOpacity(0.6),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 5 * MediaQuery.of(context).size.width * 0.007,
+                                ),
                               ),
                             ),
                             SizedBox(width: 10,),

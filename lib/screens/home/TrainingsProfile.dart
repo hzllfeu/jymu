@@ -86,9 +86,11 @@ class _TrainingsProfileState extends State<TrainingsProfile> {
               crossAxisCount: 3,
               crossAxisSpacing: 4.0,
               mainAxisSpacing: 4.0,
-              childAspectRatio: 0.7
+              childAspectRatio: 0.7,
             ),
             itemCount: sortedTrainings.length,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               final training = sortedTrainings[index];
               return TrainingLittle(trn: training);
