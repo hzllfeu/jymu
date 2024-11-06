@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/PostManager.dart';
-import 'package:jymu/screens/home/ProfilPage.dart';
+import 'package:jymu/screens/ProfilPageBis.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class PostCard extends StatefulWidget {
@@ -149,7 +149,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      ProfilPage(id: widget.userId),
+                                      ProfilPageBis(id: widget.userId),
                                 ),
                               );
                             }
@@ -167,7 +167,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      ProfilPage(id: widget.userId),
+                                      ProfilPageBis(id: widget.userId),
                                 ),
                               );
                             }

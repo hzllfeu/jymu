@@ -51,30 +51,183 @@ class _NotificationPageState extends State<NotificationPage> {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Erreur: ${snapshot.error}'));
               } else if (StoredNotification().notifs.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                          padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.25),
-                          child: GestureDetector(
-                            onTapUp: (t){
-                            },
-                            child: Image.asset("assets/images/emoji_bell.png", height: 28,),
-                          )
-                      ),
-                      SizedBox(height: 15,),
-                      GestureDetector(
-                        onTapUp: (t){
-                          FirebaseAuth.instance.signOut();
-                        },
-                        child: DefaultTextStyle(
-                          style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 15),
-                          child: Text("Tu n'as pas de notifications !"),
+                return FutureBuilder<void>(
+                  future: UserModel.currentUser().notificationsloader,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CupertinoActivityIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Erreur: ${snapshot.error}'));
+                    } else if (StoredNotification().notifs.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.25),
+                                child: GestureDetector(
+                                  onTapUp: (t){
+                                  },
+                                  child: Image.asset("assets/images/emoji_bell.png", height: 28,),
+                                )
+                            ),
+                            SizedBox(height: 15,),
+                            GestureDetector(
+                              onTapUp: (t){
+                                FirebaseAuth.instance.signOut();
+                              },
+                              child: DefaultTextStyle(
+                                style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 15),
+                                child: Text("Tu n'as pas de notifications !"),
+                              ),
+                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
+                      );
+                    }
+
+                    final notifications = StoredNotification().notifs;
+
+                    bool isSameDay(DateTime date1, DateTime date2) {
+                      return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
+                    }
+
+                    final today = DateTime.now();
+                    final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
+
+                    final todayNotifications = notifications.where((notif) {
+                      final notifDate = notif.timestamp.toDate();
+                      return isSameDay(notifDate, today);
+                    }).toList();
+
+                    final thisWeekNotifications = notifications.where((notif) {
+                      final notifDate = notif.timestamp.toDate();
+                      return notifDate.isAfter(startOfWeek) && !isSameDay(notifDate, today);
+                    }).toList();
+
+                    final olderNotifications = notifications.where((notif) {
+                      final notifDate = notif.timestamp.toDate();
+                      return notifDate.isBefore(startOfWeek);
+                    }).toList();
+
+                    return ListView.builder(
+                      itemCount: todayNotifications.length + thisWeekNotifications.length + olderNotifications.length +
+                          (todayNotifications.isNotEmpty ? 1 : 0) +
+                          (thisWeekNotifications.isNotEmpty ? 1 : 0) +
+                          (olderNotifications.isNotEmpty ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        int itemIndex = 0;
+
+                        if (todayNotifications.isNotEmpty && index == itemIndex) {
+                          return Padding(
+                            padding: EdgeInsets.only(left: 15, top: MediaQuery.of(context).size.height*0.07),
+                            child: Text(
+                              "Aujourd'hui",
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          );
+                        }
+                        itemIndex += todayNotifications.isNotEmpty ? 1 : 0;
+
+                        if (index >= itemIndex && index < itemIndex + todayNotifications.length) {
+                          final notification = todayNotifications[index - itemIndex];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                            child: NotifListComp(notif: notification),
+                          );
+                        }
+                        itemIndex += todayNotifications.length;
+
+                        if (thisWeekNotifications.isNotEmpty && index == itemIndex) {
+                          return Padding(
+                              padding: EdgeInsets.only(left: 15,right: 15, bottom: 10, top: todayNotifications.isEmpty ? MediaQuery.of(context).size.height*0.07: 10),
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if(!todayNotifications.isEmpty)
+                                      Container(
+                                        width: double.infinity,
+                                        height: 1,
+                                        color: Colors.black.withOpacity(0.07),
+                                      ),
+                                    if(!todayNotifications.isEmpty)
+                                      SizedBox(height: 10,),
+                                    Text(
+                                      "Cette semaine",
+                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    ),
+                                  ]
+                              )
+                          );
+                        }
+                        itemIndex += thisWeekNotifications.isNotEmpty ? 1 : 0;
+
+                        if (index >= itemIndex && index < itemIndex + thisWeekNotifications.length) {
+                          final notification = thisWeekNotifications[index - itemIndex];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                            child: NotifListComp(notif: notification),
+                          );
+                        }
+                        itemIndex += thisWeekNotifications.length;
+
+                        if (olderNotifications.isNotEmpty && _numOldNotifsToShow < olderNotifications.length && index == itemIndex) {
+                          return Padding(
+                              padding: EdgeInsets.only(left: 15,right: 15, bottom: 10, top: todayNotifications.isEmpty ? MediaQuery.of(context).size.height*0.07: 10),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    height: 1,
+                                    color: Colors.black.withOpacity(0.07),
+                                  ),
+                                  SizedBox(height: 10,),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Plus anciennes",
+                                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                      ),
+                                      GestureDetector(
+                                        onTapUp: (t) {
+                                          setState(() {
+                                            if(olderNotifications.isNotEmpty){
+                                              _numOldNotifsToShow += 5;
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                            width: 120,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                                color: Colors.redAccent,
+                                                borderRadius: BorderRadius.circular(12)
+                                            ),
+                                            child: Center(
+                                              child: Text('Charger plus', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),),
+                                            )
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
+                          );
+                        }
+                        itemIndex += olderNotifications.isNotEmpty && _numOldNotifsToShow < olderNotifications.length ? 1 : 0;
+
+                        if (index >= itemIndex && index < itemIndex + _numOldNotifsToShow) {
+                          final notification = olderNotifications[index - itemIndex];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                            child: NotifListComp(notif: notification),
+                          );
+                        }
+
+                      },
+                    );
+                  },
                 );
               }
 
@@ -111,11 +264,12 @@ class _NotificationPageState extends State<NotificationPage> {
                   int itemIndex = 0;
 
                   if (todayNotifications.isNotEmpty && index == itemIndex) {
+                    StoredNotification().tday = true;
                     return Padding(
                       padding: EdgeInsets.only(left: 15, top: MediaQuery.of(context).size.height*0.07),
                       child: Text(
                         "Aujourd'hui",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.6)),
                       ),
                     );
                   }
@@ -146,7 +300,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                 SizedBox(height: 10,),
                               Text(
                                 "Cette semaine",
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.6)),
                               ),
                             ]
                         )
@@ -162,6 +316,30 @@ class _NotificationPageState extends State<NotificationPage> {
                     );
                   }
                   itemIndex += thisWeekNotifications.length;
+
+                  if(todayNotifications.isEmpty && thisWeekNotifications.isEmpty && index == itemIndex){
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                            padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.25),
+                            child: GestureDetector(
+                              onTapUp: (t){
+                              },
+                              child: Image.asset("assets/images/emoji_bell.png", height: 28,),
+                            )
+                        ),
+                        SizedBox(height: 15,),
+                        GestureDetector(
+                          onTapUp: (t){},
+                          child: DefaultTextStyle(
+                            style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 15),
+                            child: Text("Pas de notifications récentes"),
+                          ),
+                        )
+                      ],
+                    );
+                  }
 
                   if (olderNotifications.isNotEmpty && _numOldNotifsToShow < olderNotifications.length && index == itemIndex) {
                     return Padding(
@@ -179,7 +357,7 @@ class _NotificationPageState extends State<NotificationPage> {
                               children: [
                                 Text(
                                   "Plus anciennes",
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.6)),
                                 ),
                                 GestureDetector(
                                   onTapUp: (t) {
@@ -263,7 +441,7 @@ class _NotificationPageState extends State<NotificationPage> {
                               return SizedBox();
                             } else if (snapshot.hasError) {
                               return SizedBox();
-                            } else if (StoredNotification().n == 0) {
+                            } else if ((StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike) == 0) {
                               return Container(
                                   height: 25,
                                   padding: EdgeInsets.symmetric(horizontal: 8),
@@ -293,7 +471,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    StoredNotification().n < 10 ? StoredNotification().n.toString(): "9+",
+                                    (StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike) < 10 ? (StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike).toString(): "9+",
                                     style: TextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w700,

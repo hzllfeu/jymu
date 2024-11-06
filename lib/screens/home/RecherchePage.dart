@@ -163,7 +163,7 @@ class _RecherchePageState extends State<RecherchePage> with TickerProviderStateM
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GlassContainer(
-                    width: MediaQuery.of(context).size.width*0.8,
+                    width: MediaQuery.of(context).size.width*0.85,
                     height: MediaQuery.of(context).size.height*0.05,
                     borderRadius: BorderRadius.circular(28),
                     color: Colors.white.withOpacity(0.8),
@@ -194,7 +194,7 @@ class _RecherchePageState extends State<RecherchePage> with TickerProviderStateM
                   ),
                   SizedBox(height: 20,),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 40),
+                    padding: EdgeInsets.symmetric(horizontal: 30),
                     child: Stack(
                       alignment: Alignment.bottomCenter,
                       children: [

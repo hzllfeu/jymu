@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:jymu/Models/NotificationService.dart';
+import 'package:uuid/uuid.dart';
+
+import 'CachedData.dart';
 
 class UserModel {
   String? id;
@@ -15,6 +18,7 @@ class UserModel {
   List<dynamic>? comments;
   List<dynamic>? follow;
   List<dynamic>? followed;
+  List<dynamic>? ftoken;
   List<dynamic>? tags;
   Map<String, dynamic>? notifparam;
   String? bio;
@@ -33,7 +37,7 @@ class UserModel {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      docRef = FirebaseFirestore.instance.collection('users').doc(id);
+      docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
       Map<String, dynamic>? userData = await getProfile(user.uid);
       if (userData != null) {
           String? token;
@@ -44,15 +48,36 @@ class UserModel {
             });
             userData['fcmToken'] = token;
           }
+          if(!userData.containsKey('followerstokens')){
+            List<String?> ft = [];
+            for(String? s in userData["followed"]){
+              UserModel targetUser = UserModel();
+              if(CachedData().users.containsKey(s)){
+                targetUser = CachedData().users[s]!;
+              } else {
+                await targetUser.fetchExternalData(s!);
+                CachedData().users[s!] = targetUser;
+              }
+              if(targetUser.fcmToken != null && !ft.contains(targetUser.fcmToken)){
+                ft.add(targetUser.fcmToken);
+              }
+            }
+            await docRef?.update({
+              'followerstokens': ft,
+            });
+            ftoken = ft;
+          } else {
+            ftoken = userData['followerstokens'];
+          }
           _updateFromMap(userData);
 
-        notificationsloader = StoredNotification().getNotifications(id!);
       }
     } else {
       print("Aucun utilisateur connecté.");
       _resetUserData();
     }
   }
+  bool internal = false;
 
   Future<void> fetchExternalData(String id) async {
     Map<String, dynamic>? userData = await getProfile(id);
@@ -65,6 +90,7 @@ class UserModel {
       });
       userData['fcmToken'] = token;
     }
+    internal = true;
     _updateFromMap(userData);
   }
 
@@ -86,6 +112,10 @@ class UserModel {
     notifparam = data['notifparam'];
     etat_jymupro = data['etat_jymupro'];
 
+    if(internal){
+      notificationsloader = StoredNotification().getNotifications(id!);
+    }
+
     if(notifparam!.isEmpty){
       notifparam = {"allnotifs":true, "likenotif": true, "comnotif": true, "abonotif": true}; //TODO a clean
     }
@@ -104,6 +134,22 @@ class UserModel {
     tags = [];
     bio = null;
     etat_jymupro = null;
+  }
+
+  Future<void> report(String reason) async {
+    final uuid = Uuid();
+    final trainingCollection = FirebaseFirestore.instance.collection('reports');
+
+    String trainingId = uuid.v4();
+
+    await trainingCollection.doc(trainingId).set({
+      'profileId': id,
+      'displayname': displayName,
+      'username': username,
+      'date': Timestamp.now(),
+      'reason': reason,
+      'reporterId': UserModel.currentUser().id,
+    });
   }
 }
 

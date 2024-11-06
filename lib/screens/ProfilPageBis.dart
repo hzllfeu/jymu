@@ -31,6 +31,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:palette_generator/palette_generator.dart';
 
 import '../../Models/CachedData.dart';
+import 'InputPage.dart';
 import 'home/LoadingProfile.dart';
 import 'home/components/TagList.dart';
 import 'home/settings/AllSettings.dart';
@@ -530,184 +531,149 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
               } else if (snapshot.hasError) {
                 return Center(child: Text('Erreur de chargement des trainings'));
               } else {
-                return Padding(padding: EdgeInsets.only(right: 15, left: 15),
+                return Padding(padding: EdgeInsets.only(right: 8, left: 8),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(left: 15, top: size.height*0.15,),
+                          padding: EdgeInsets.only(left: 0, top: size.height*0.13,),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.redAccent.withOpacity(0),
-                                          spreadRadius: 5,
-                                          blurRadius: 30,
-                                          offset: Offset(0, 0),
-                                        ),
-                                      ],
+                              SizedBox(width: 10),
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.redAccent.withOpacity(0),
+                                      spreadRadius: 5,
+                                      blurRadius: 30,
+                                      offset: Offset(0, 0),
                                     ),
-                                    child: CircleAvatar(
-                                      radius: 42.0,
-                                      backgroundImage: CachedNetworkImageProvider(profileImageUrl!),
-                                    ),
-                                  ),
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  radius: 42.0,
+                                  backgroundImage: CachedNetworkImageProvider(profileImageUrl!),
+                                ),
+                              ),
 
-                                  const SizedBox(width: 20),
-                                  ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                        maxWidth: size.width*0.4
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          child: Text(
-                                            displayName!,
+                              SizedBox(width: 10),
+
+                              Flexible(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: size.width*0.06),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Text(
+                                            "Posts",
                                             style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 24,
-                                              color: Colors.black.withOpacity(0.9),
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 13,
+                                              color: CupertinoColors.systemGrey,
                                             ),
                                           ),
-                                        ),
-                                        FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Row(
-                                              children: [
-                                                Icon(CupertinoIcons.person_fill, size: 12, color: Colors.redAccent.withOpacity(0.7),),
-                                                SizedBox(width: 5,),
-                                                Text(
-                                                  username!,
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 14,
-                                                    color: Colors.redAccent.withOpacity(0.7),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Image.asset("assets/images/timy.jpeg", height: 40,),
-                              )
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 30,),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 40),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                children: [
-                                  Text(
-                                    "Posts",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 13,
-                                      color: CupertinoColors.systemGrey,
-                                    ),
-                                  ),
-                                  SizedBox(height: 3,),
-                                  Text(
-                                    formatNumber(trainings!.length),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 19,
-                                      color: Colors.black.withOpacity(0.8),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              GestureDetector(
-                                onTapUp: (t){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 1),),
-                                    ),
-                                  );
-                                  Haptics.vibrate(HapticsType.light);
-                                },
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      "Abonnés",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                        color: CupertinoColors.systemGrey,
+                                          SizedBox(height: 3),
+                                          Text(
+                                            formatNumber(trainings!.length),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 19,
+                                              color: Colors.black.withOpacity(0.8),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    SizedBox(height: 3,),
-                                    Text(
-                                      formatNumber(followers!.length),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 19,
-                                        color: Colors.black.withOpacity(0.8),
+
+                                      GestureDetector(
+                                        onTapUp: (t) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 1)),
+                                            ),
+                                          );
+                                          Haptics.vibrate(HapticsType.light);
+                                        },
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Abonnés",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 13,
+                                                color: CupertinoColors.systemGrey,
+                                              ),
+                                            ),
+                                            SizedBox(height: 3),
+                                            Text(
+                                              formatNumber(followers!.length),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 19,
+                                                color: Colors.black.withOpacity(0.8),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+
+                                      GestureDetector(
+                                        onTapUp: (t) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 2)),
+                                            ),
+                                          );
+                                          Haptics.vibrate(HapticsType.light);
+                                        },
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Suivis",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 13,
+                                                color: CupertinoColors.systemGrey,
+                                              ),
+                                            ),
+                                            SizedBox(height: 3),
+                                            Text(
+                                              formatNumber(follow!.length),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 19,
+                                                color: Colors.black.withOpacity(0.8),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              GestureDetector(
-                                onTapUp: (t){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 2),),
-                                    ),
-                                  );
-                                  Haptics.vibrate(HapticsType.light);
-                                },
-                                child:  Column(
-                                  children: [
-                                    Text(
-                                      "Suivis",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                        color: CupertinoColors.systemGrey,
-                                      ),
-                                    ),
-                                    SizedBox(height: 3,),
-                                    Text(
-                                      formatNumber(follow!.length),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 19,
-                                        color: Colors.black.withOpacity(0.8),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
                             ],
                           ),
                         ),
                         SizedBox(height: 10,),
-                        Container(
-                          width: double.infinity,
-                          height: 1,
-                          color: Colors.black.withOpacity(0.07),
-                        ),
+                        if(bio!.isNotEmpty)
+                          SizedBox(height: 10,),
+                        if(bio!.isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(left: 15),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(bio!, style: TextStyle(
+                                  color: Colors.black.withOpacity(0.8),
+                                  fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                  fontWeight: FontWeight.w600), textAlign: TextAlign.left,),
+                            ),
+                          ),
                         if (tags?.isNotEmpty ?? false)
                           SizedBox(height: 15,),
                         if (tags?.isNotEmpty ?? false)
@@ -753,20 +719,6 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                               ),
                             ),
                           ),
-                        if(bio!.isNotEmpty)
-                          SizedBox(height: 10,),
-                        if(bio!.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(left: 15),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(bio!, style: TextStyle(
-                                  color: Colors.black.withOpacity(0.8),
-                                  fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
-                                  fontWeight: FontWeight.w600), textAlign: TextAlign.left,),
-                            ),
-                          ),
-                        SizedBox(height: 10,),
                         Padding(
                             padding: EdgeInsets.symmetric(horizontal: 0),
                             child: GestureDetector(
@@ -823,29 +775,29 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                                 width: double.infinity,
                                 height: 45,
                                 decoration: BoxDecoration(
-                                    color: ownProf ? Colors.transparent : Colors.redAccent.withOpacity(0.9),
-                                    border: ownProf ? Border.all(color: Colors.redAccent.withOpacity(0.9),width: 1.5,) : Border.all(color: Colors.transparent,width: 0,),
-                                    borderRadius: BorderRadius.circular(14)
+                                    color: Colors.transparent,
+                                    border: Border.all(color: Colors.redAccent.withOpacity(0.9),width: 1.5,),
+                                    borderRadius: BorderRadius.circular(8)
                                 ),
                                 child: Center(
-                                  child: ownProf ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("Modifier", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),), SizedBox(width: 10,), Icon(CupertinoIcons.pencil, color: Colors.redAccent.withOpacity(0.9), size: 18,)],)
-                                      : followed ? Text("Ne plus suivre", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),)
-                                      : isFollowing ? Text("Suivre en retour", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),) : Text("Suivre", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),),
+                                  child: ownProf ? Text("Modifier", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
+                                      : followed ? Text("Ne plus suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
+                                      : isFollowing ? Text("Suivre en retour", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),) : Text("Suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),),
                                 ),
                               ),
                             )
                         ),
-                        SizedBox(height: 10,),
+                        SizedBox(height: 5,),
                         Container(
                           height: 40,
                           width: double.infinity,
                           color: const Color(0xFFF3F5F8),
                           child: ClipRRect(
-                            borderRadius: const BorderRadius.all(Radius.circular(10)),
+                            borderRadius: const BorderRadius.all(Radius.circular(7)),
                             child: Container(
                               height: 40,
                               decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                borderRadius: const BorderRadius.all(Radius.circular(7)),
                                 gradient: LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
@@ -868,9 +820,9 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                                 },
                                 indicatorSize: TabBarIndicatorSize.tab,
                                 dividerColor: Colors.transparent,
-                                indicator: const BoxDecoration(
-                                  color: Colors.redAccent,
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                indicator: BoxDecoration(
+                                  color: Colors.deepOrange,
+                                  borderRadius: BorderRadius.all(Radius.circular(7)),
                                 ),
                                 labelColor: Colors.white,
                                 unselectedLabelColor: Colors.black54,
@@ -902,69 +854,290 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 5),
-                    child: GestureDetector(
-                      onTapUp: (t) {
-                        if(!ownProf){
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: Icon(
-                        CupertinoIcons.arrow_left,
-                        size: 22,
-                        color: ownProf ? Colors.transparent : CupertinoColors.black.withOpacity(0.8),
-                      ),
-                    ),
-                  ),
-                  FutureBuilder(
-                    future: _fetchDataFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const SizedBox();
-                      } else if (snapshot.hasError) {
-                        return SizedBox();
-                      } else {
-                        return Text(
-                          username!,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 18,
-                              color: Colors.black.withOpacity(0.7)
+                  if(!ownProf)
+                    Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 5),
+                        child: GestureDetector(
+                          onTapUp: (t) {
+                            if(!ownProf){
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Icon(
+                            Icons.arrow_back_ios,
+                            size: 18,
+                            color: ownProf ? Colors.transparent : CupertinoColors.black.withOpacity(0.8),
                           ),
-                        );
-                      }
-                    },
-                  ),
-
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 5),
-                    child: GestureDetector(
-                      onTapUp: (t) {
-                        if(!ownProf){
-                          Navigator.pop(context);
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AllSettings(),
-                            ),
-                          );
-                        }
-                      },
-                      child: Icon(
-                        ownProf ? CupertinoIcons.settings : Icons.more_vert_sharp,
-                        size: 22,
-                        color: CupertinoColors.black.withOpacity(0.7),
+                        ),
                       ),
-                    ),
+                      SizedBox(width: 10,),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 5),
+                        child: FutureBuilder(
+                          future: _fetchDataFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const SizedBox();
+                            } else if (snapshot.hasError) {
+                              return SizedBox();
+                            } else {
+                              return Text(
+                                "$username",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 22,
+                                    color: Colors.black.withOpacity(0.7)
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 15,),
+                      if (!ownProf && !friendppempty)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 5),
+                          child: GestureDetector(
+                            onTapUp: (t) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Scaffold(
+                                    body: RechercheProfil(id: id, index: 0),
+                                  ),
+                                ),
+                              );
+                              Haptics.vibrate(HapticsType.light);
+                            },
+                            child: GlassContainer(
+                              height: 28,
+                              color: Colors.black.withOpacity(0.3),
+                              blur: 10,
+                              borderRadius: BorderRadius.circular(18),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Suivi(e) par   ",
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.8),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    FutureBuilder<Widget>(
+                                      future: _friendsPPFuture,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return CupertinoActivityIndicator(radius: 8);
+                                        } else if (snapshot.hasError) {
+                                          return Text('Erreur : ${snapshot.error}');
+                                        } else if (snapshot.hasData) {
+                                          return GestureDetector(
+                                            onTapUp: (t) {
+                                            },
+                                            child: snapshot.data!,
+                                          );
+                                        } else {
+                                          return SizedBox.shrink();
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      else if(friend)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 0),
+                          child: GestureDetector(
+                            onTapUp: (t) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Scaffold(
+                                    body: RechercheProfil(id: id, index: 0),
+                                  ),
+                                ),
+                              );
+                              Haptics.vibrate(HapticsType.light);
+                            },
+                            child: GlassContainer(
+                              height: 28,
+                              color: Colors.black.withOpacity(0.3),
+                              blur: 10,
+                              borderRadius: BorderRadius.circular(18),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 15),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Amis  ",
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.8),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    Icon(
+                                      CupertinoIcons.person_solid,
+                                      size: 13,
+                                      color: Colors.white.withOpacity(0.8),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                    ],
                   ),
+                  if(ownProf)
+                    Row(
+                      children: [
+                        SizedBox(width: 10,),
+                        Icon(
+                          CupertinoIcons.lock_open,
+                            color: Colors.black.withOpacity(0.6),
+                          size: 16,
+                        ),
+                        SizedBox(width: 7,),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 0),
+                          child: Text(
+                            UserModel.currentUser().username!,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 22,
+                                color: Colors.black.withOpacity(0.7)
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8,),
+                        FutureBuilder(
+                          future: _fetchDataFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const SizedBox();
+                            } else if (snapshot.hasError) {
+                              return SizedBox();
+                            } else {
+                              return Container(
+                                width: 7,
+                                height: 7,
+                                decoration: BoxDecoration(
+                                    color: Colors.deepOrange,
+                                    borderRadius: BorderRadius.circular(30)
+                                ),
+                              );
+                            }
+                          },
+                        ),
+
+                      ],
+                    ),
+                    
+
+                  Row(
+                    children: [
+                      if(ownProf)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 5),
+                          child: GestureDetector(
+                            onTapUp: (t) {
+                              if(!ownProf){
+                                Navigator.pop(context);
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ModifyAccount(pp: profileImageUrl),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Icon(
+                              CupertinoIcons.pencil,
+                              size: 22,
+                              color: CupertinoColors.black.withOpacity(0.7),
+                            ),
+                          ),
+                        ),
+                      if(ownProf)
+                        SizedBox(width: 15,),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 5),
+                        child: GestureDetector(
+                          onTapUp: (t) {
+                            if(!ownProf){
+                              _showActionSheet(context);
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AllSettings(),
+                                ),
+                              );
+                            }
+                          },
+                          child: Icon(
+                            ownProf ? CupertinoIcons.settings : Icons.more_horiz_sharp,
+                            size: 22,
+                            color: CupertinoColors.black.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
           ),
         ],
       )
+    );
+  }
+
+  void _showActionSheet(BuildContext context) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        title: const Text('Options'),
+        actions: <CupertinoActionSheetAction>[
+            CupertinoActionSheetAction(
+              onPressed: () async {
+                Navigator.pop(context);
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InputPage(text: "Raison du signalement", limit: 300),
+                  ),
+                );
+
+                if (result != null) {
+                  await targetUser.report(result.toString().trim());
+                  Haptics.vibrate(HapticsType.light);
+                }
+              },
+              child: const Text('Signaler'),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Annuler'),
+        ),
+      ),
     );
   }
 }

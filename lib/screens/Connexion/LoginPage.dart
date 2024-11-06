@@ -221,6 +221,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver{
                             },
                             cursorColor: Colors.redAccent,
                             placeholder: "Entre ton email",
+                            keyboardType: TextInputType.emailAddress,
                             decoration: BoxDecoration(
                               color: CupertinoColors.systemGrey5,
                               borderRadius: BorderRadius.circular(12.0),

@@ -74,12 +74,33 @@ class _TrainingsProfileState extends State<TrainingsProfile> {
       future: data,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CupertinoActivityIndicator(radius: 18,),
+          return Center(
+            child: Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.2), child: CupertinoActivityIndicator(radius: 14,),)
           );
         } else if (snapshot.hasError) {
-          return Center(child: Text('Erreur de chargement des trainings'));
+          return Center(child: Text('Erreur de chargement du post'));
         } else {
+          if(sortedTrainings.length == 0){
+            return Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.1),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/emoji_bell.png", height: 28,),
+                  SizedBox(height: 15,),
+                  DefaultTextStyle(
+                    style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 15),
+                    child: Text("Abonne toi pour savoir quand ${widget.user.username}"),
+                  ),
+                  SizedBox(height: 3,),
+                  DefaultTextStyle(
+                    style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 15),
+                    child: Text("postera pour la première fois"),
+                  ),
+                ],
+              )
+            );
+          }
+
           return GridView.builder(
             padding: const EdgeInsets.all(0.0),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

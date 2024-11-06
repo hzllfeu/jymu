@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:jymu/Alexis/ia_gene.dart';
 import 'package:jymu/screens/home/FeedPage.dart';
-import 'package:jymu/screens/home/ProfilPage.dart';
 import 'package:jymu/screens/home/RecherchePage.dart';
 import 'package:jymu/Alexis/ia_gene.dart';
 import '../Alexis/get_exercise.dart';
@@ -53,12 +52,14 @@ class _InitScreenState extends State<InitScreen> {
   @override
   void initState() {
     super.initState();
+    StoredNotification().getNotifications(FirebaseAuth.instance.currentUser!.uid);
     currentSelectedIndex = widget.initialIndex;
     loadProfile();
+    /*
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("debug");
       UserModel.currentUser().notificationsloader = StoredNotification().getNotifications(UserModel.currentUser().id!);
-    });
+    });*/
   }
 
 

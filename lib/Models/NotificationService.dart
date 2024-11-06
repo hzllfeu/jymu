@@ -24,8 +24,11 @@ class StoredNotification {
 
   static final StoredNotification _instance = StoredNotification._internal();
 
-  int n = 0;
+  int nlike = 0;
+  int nabo = 0;
+  int ncom = 0;
   List<NotificationModel> notifs = [];
+  bool tday = false;
 
   Future<void> getNotifications(String userId) async {
 
@@ -34,8 +37,21 @@ class StoredNotification {
           .map((notif) => NotificationModel.fromMap(notif))
           .toList();
 
+      print(notifs.length);
+
+      for(NotificationModel n in notifs){
+        if(n.type == "abo"){
+          nabo++;
+        }
+        if(n.type == "like"){
+          nlike++;
+        }
+        if(n.type == "com"){
+          ncom++;
+        }
+      }
+
       List<NotificationModel> flist = await NotificationDatabase().getAll();
-      n = notifs.length;
 
       for (var notif in notifs) {
         bool alreadyExists = flist.any((existingNotif) => existingNotif.id == notif.id);
@@ -122,10 +138,11 @@ Future<void> addNotification(String userId, String message, String title, bool e
     'type': type
   };
 
+/*
   if(userId == UserModel.currentUser().id!){
     StoredNotification().notifs.add(NotificationModel(actionid: actionid, id: id, title: title, message: message, timestamp: Timestamp.now(), seen: false, ext: ext, extid: extid, type: type));
     NotificationDatabase().insertNotification(NotificationModel(actionid: actionid,id: id, title: title, message: message, timestamp: Timestamp.now(), seen: false, ext: ext, extid: extid, type: type));
-  }
+  }*/
 
   UserModel targetUser = UserModel();
   if(CachedData().users.containsKey(userId)){
@@ -140,7 +157,6 @@ Future<void> addNotification(String userId, String message, String title, bool e
     DocumentSnapshot userSnapshot = await userDocRef.get();
 
     if (!userSnapshot.exists) {
-      // Initialise 'notifs' si elle n'existe pas
       await userDocRef.set({'notifs': []}, SetOptions(merge: true));
     }
 
@@ -153,20 +169,26 @@ Future<void> addNotification(String userId, String message, String title, bool e
     }
   }
 
-    UserModel.currentUser().notifs?.add(notificationData);
+    UserModel.currentUser().notifs.add(notificationData);
 }
 
 Future<void> sendPushNotification(String id, String message, String title, String token, bool ext, String extid, String actionid, String type) async {
   try {
+
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendPushNotification');
     final results = await callable.call(<String, dynamic>{
       'userId': id,
       'message': message,
       'title': title,
       'fcmToken': token,
+      'type': type,
+      'followers': UserModel.currentUser().ftoken
     });
 
-    await addNotification(id, message, title, ext, extid, actionid, type);
+    if(type != "post"){
+      await addNotification(id, message, title, ext, extid, actionid, type);
+    }
+
 
     print('Notification envoyée : ${results.data}');
   } catch (e) {

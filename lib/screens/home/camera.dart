@@ -21,6 +21,7 @@ import 'package:palette_generator/palette_generator.dart';
 import 'package:path/path.dart' as Path;
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../../Models/NotificationService.dart';
 import '../../main.dart';
 import 'package:image/image.dart' as img;
 
@@ -576,7 +577,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                     ),
                                     if (!_changingCameraLens && !firstTaken)
                                       Positioned(
-                                          bottom: 230,
+                                          bottom: 350,
                                           child: SizedBox(
                                             width: (_controller?.value.isInitialized != false && _controller != null
                                                 ? _controller!.value.previewSize!.height
@@ -591,8 +592,8 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                                   }
                                                       : _flashEnable,
                                                   child: GlassContainer(
-                                                    height: 70,
-                                                    width: 180,
+                                                    height: 105,
+                                                    width: 315,
                                                     color: Colors.black.withOpacity(0.5),
                                                     blur: 10,
                                                     borderRadius: BorderRadius.circular(30),
@@ -602,19 +603,19 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                                         DefaultTextStyle(
                                                           style: TextStyle(
                                                             fontWeight: FontWeight.w700,
-                                                            fontSize: 24,
+                                                            fontSize: 36,
                                                             color: Colors.white.withOpacity(0.7),
                                                           ),
                                                           child: Text("Flash  "),
                                                         ),
                                                         SizedBox(width: 5),
-                                                        Icon(Icons.flash_on_rounded, size: 28, color: Colors.white,),
+                                                        Icon(Icons.flash_on_rounded, size: 38, color: Colors.white,),
                                                       ],
                                                     ),
                                                   ),
                                                 ),
                                                 if(_controller!.description.lensDirection == CameraLensDirection.back)
-                                                  SizedBox(width: 20,),
+                                                  SizedBox(width: 30,),
                                                 if(_controller!.description.lensDirection == CameraLensDirection.back)
                                                   GestureDetector(
                                                   onTapUp: (t) async{
@@ -624,22 +625,22 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                                     });
                                                   },
                                                   child: GlassContainer(
-                                                    height: 80,
-                                                    width: 100,
+                                                    height: 120,
+                                                    width: 150,
                                                     color: Colors.black.withOpacity(0.5),
                                                     blur: 10,
                                                     borderRadius: BorderRadius.circular(45),
                                                     child:Center(
-                                                      child: Icon(!giantAngle ? CupertinoIcons.arrow_down_right_arrow_up_left : CupertinoIcons.arrow_up_left_arrow_down_right, color: Colors.white, size: 30,),
+                                                      child: Icon(!giantAngle ? CupertinoIcons.arrow_down_right_arrow_up_left : CupertinoIcons.arrow_up_left_arrow_down_right, color: Colors.white, size: 45,),
                                                     )
                                                   ),
                                                 ),
-                                                SizedBox(width: 20,),
+                                                SizedBox(width: 30,),
                                                 GestureDetector(
                                                   onTap: _switchFrontCamera,
                                                   child: GlassContainer(
-                                                    height: 70,
-                                                    width: 210,
+                                                    height: 105,
+                                                    width: 315,
                                                     color: Colors.black.withOpacity(0.5),
                                                     blur: 10,
                                                     borderRadius: BorderRadius.circular(30),
@@ -649,13 +650,13 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                                         DefaultTextStyle(
                                                           style: TextStyle(
                                                             fontWeight: FontWeight.w700,
-                                                            fontSize: 24,
+                                                            fontSize: 36,
                                                             color: Colors.white.withOpacity(0.7),
                                                           ),
                                                           child: Text("Retourner  "),
                                                         ),
                                                         SizedBox(width: 5),
-                                                        Icon(CupertinoIcons.arrow_2_squarepath, size: 28, color: Colors.white,),
+                                                        Icon(CupertinoIcons.arrow_2_squarepath, size: 38, color: Colors.white,),
                                                       ],
                                                     ),
                                                   ),
@@ -666,12 +667,12 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                       ),
                                     if(firstTaken && secondTaken)
                                       Positioned(
-                                        bottom: 220,
+                                        bottom: 350,
                                         child: GestureDetector(
                                           onTapUp: (t) async{
                                           },
                                           child: GlassContainer(
-                                            height: 95,
+                                            height: 140,
                                             width: (_controller?.value.isInitialized != false && _controller != null
                                                 ? _controller!.value.previewSize!.height
                                                 : sizeY) - 40,
@@ -704,13 +705,13 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                                           alignment: Alignment.centerLeft,
                                                           child: Text(
                                                             desc.isEmpty? "Ecris ici une courte description...": desc,
-                                                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 30, fontWeight: FontWeight.w500),
+                                                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 40, fontWeight: FontWeight.w500),
                                                           ),
                                                         )
                                                       )
                                                     )
                                                 ),
-                                                Icon(CupertinoIcons.pen, color: Colors.white.withOpacity(0.7), size: 36,),
+                                                Icon(CupertinoIcons.pen, color: Colors.white.withOpacity(0.7), size: 46,),
                                               ],
                                             ),
                                           ),
@@ -1021,6 +1022,8 @@ Future<void> postTraining(String path1, String path2, String desc, List<dynamic>
     'firstImage': path1,
     'secondImage': path2,
   });
+
+  sendPushNotification(UserModel.currentUser().id!, "a posté un nouveau training.", "${UserModel.currentUser().username}",  "", true, "", "", "post");
 
   UserModel.currentUser().trainings?.add([{'training': trainingId, 'timestamp': Timestamp.now()}]);
   addTraining(UserModel.currentUser().id!, trainingId, Timestamp.now());

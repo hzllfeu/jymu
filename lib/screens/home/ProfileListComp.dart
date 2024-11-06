@@ -3,8 +3,8 @@ import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jymu/screens/ProfilPageBis.dart';
 
-import 'ProfilPage.dart';
 
 class ProfileListComp extends StatefulWidget {
   final String urlpp;
@@ -37,7 +37,7 @@ class _ProfileListCompState extends State<ProfileListComp> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  ProfilPage(id: widget.id),
+                  ProfilPageBis(id: widget.id),
             ),
           );
         }

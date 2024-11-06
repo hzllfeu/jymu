@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -54,14 +55,28 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
   bool loading = false;
   int _previousPage = 0;
 
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
 
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 2, vsync: this);
     pc = PreloadPageController();
     pcbis = PreloadPageController();
     pc.addListener(scrollListener);
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _controller.reset();
+    _controller.forward();
 
     loadTrainingModels();
   }
@@ -120,7 +135,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
   Future<void> loadTrainings() async {
     for (int i = lastcounter; i < cachedTrainingsModels.length; i++) {
       if (!cachedTrainings.containsKey(i)) {setState(() {
-          cachedTrainings[i] = TrainingCard(trn: cachedTrainingsModels[i]!);
+          cachedTrainings[i] = TrainingCard(trn: cachedTrainingsModels[i]!, coverbool: false, coverimage: File(""),);
         });
       }
     }
@@ -131,10 +146,11 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
-    super.dispose();
+    _controller.dispose();
     pc.dispose();
     pcbis.dispose();
     tabController.dispose();
+    super.dispose();
   }
 
   String _heroAddTodo = 'add-todo-hero';
@@ -153,6 +169,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
           return index == 0 ?
 
           Stack(
+            clipBehavior: Clip.none,
             children: [
               PreloadPageView.builder(
                 controller: pc,
@@ -171,138 +188,254 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                   );
                 },
               ),
-              GlassContainer(
-                height: MediaQuery.of(context).size.height*0.12,
-                color: Color(0xFFF3F5F8).withOpacity(0.7),
-                blur: 10,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.1, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(HeroDialogRoute(builder: (context) {
-                            return Hero(
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  GlassContainer(
+                    height: MediaQuery.of(context).size.height * 0.12,
+                    color: Color(0xFFF3F5F8).withOpacity(0.7),
+                    blur: 10,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MediaQuery.of(context).size.width * 0.07,
+                        vertical: 10,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(HeroDialogRoute(builder: (context) {
+                                return Hero(
+                                  tag: _heroAddTodo,
+                                  createRectTween: (begin, end) {
+                                    return CustomRectTween(begin: begin!, end: end!);
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.only(left: 100, right: 200, top: 100, bottom: 700),
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: SizedBox(
+                                        height: 100,
+                                        width: 100,
+                                        child: GlassContainer(
+                                          width: 100,
+                                          height: 100,
+                                          blur: 10,
+                                          color: Colors.white.withOpacity(0.6),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }));
+                            },
+                            child: Hero(
                               tag: _heroAddTodo,
                               createRectTween: (begin, end) {
                                 return CustomRectTween(begin: begin!, end: end!);
                               },
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 100, right: 200, top: 100, bottom: 700),
-                                child: Material(
-                                    color: Colors.transparent,
-                                    child: SizedBox(
-                                      height: 100,
-                                      width: 100,
-                                      child: GlassContainer(
-                                        width: 100,
-                                        height: 100,
-                                        blur: 10,
-                                        color: Colors.white.withOpacity(0.6),
-                                      ),
-                                    )
-                                ),
-                              )
-                            );
-                          }));
-                        },
-                        child: Hero(
-                          tag: _heroAddTodo,
-                          createRectTween: (begin, end) {
-                            return CustomRectTween(begin: begin!, end: end!);
-                          },
-                          child: Material(
-                            color: Colors.transparent,
-                            child: Row(
-                              children: [
-                                Text(
-                                  "Pour vous",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 24,
-                                      color: Colors.black.withOpacity(0.8)
-                                  ),
-                                ),
-                                SizedBox(width: 5,),
-                                Icon(Icons.keyboard_arrow_down, color: Colors.redAccent.withOpacity(0.8), size: 18,),
-                              ],
-                            ),
-                          )
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 5, right: 20),
-                            child: GestureDetector(
-                                onTapUp: (t){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => AllSettings(),
-                                    ),
-                                  );
-                                },
-                                child: Icon(CupertinoIcons.settings, color: Colors.black.withOpacity(0.6), size: 22,),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 5),
-                            child: GestureDetector(
-                                onTapUp: (t){
-                                  pcbis.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
-                                },
-                                child: Stack(
-                                  clipBehavior: Clip.none,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Row(
                                   children: [
-                                    Icon(CupertinoIcons.bell, color: Colors.black.withOpacity(0.7), size: 22,),
-                                    FutureBuilder<void>(
-                                      future: UserModel.currentUser().notificationsloader,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return SizedBox();
-                                        } else if (snapshot.hasError) {
-                                          return SizedBox();
-                                        } else if (StoredNotification().n == 0) {
-                                          return SizedBox();
-                                        }
-
-                                        return Positioned(
-                                          bottom: 0,
-                                          right: -3,
-                                          child: Container(
-                                              height: 12.5,
-                                              padding: EdgeInsets.symmetric(horizontal: 4),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(14),
-                                                  color: Colors.redAccent
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  StoredNotification().n < 10 ? StoredNotification().n.toString(): "9+",
-                                                  style: const TextStyle(
-                                                      fontSize: 8.5,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Colors.white
-                                                  ),
-                                                ),
-                                              )
-                                          ),
-                                        );
-                                      },
+                                    Text(
+                                      "Pour vous",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 20,
+                                        color: Colors.black.withOpacity(0.7),
+                                      ),
+                                    ),
+                                    SizedBox(width: 5),
+                                    Icon(
+                                      Icons.keyboard_arrow_down,
+                                      color: Colors.black.withOpacity(0.8),
+                                      size: 18,
                                     ),
                                   ],
-                                )
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 5, right: 30),
+                                child: GestureDetector(
+                                  onTapUp: (t) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AllSettings(),
+                                      ),
+                                    );
+                                  },
+                                  child: Icon(
+                                    CupertinoIcons.settings,
+                                    color: Colors.black.withOpacity(0.6),
+                                    size: 24,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 5),
+                                child: GestureDetector(
+                                  onTapUp: (t) {
+                                    pcbis.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                  },
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.heart,
+                                        color: Colors.black.withOpacity(0.7),
+                                        size: 24,
+                                        weight: 50,
+                                      ),
+                                      if(StoredNotification().tday)
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: Container(
+                                            width: 10,
+                                            height: 10,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(40),
+
+                                            ),
+                                            child: Center(
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.redAccent,
+                                                  borderRadius: BorderRadius.circular(40),
+                                                ),
+                                                width: 7,
+                                                height: 7,
+                                              ),
+                                            ),
+                                          )
+                                        )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  FutureBuilder<void>(
+                    future: UserModel.currentUser().notificationsloader,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return SizedBox();
+                      } else if (snapshot.hasError) {
+                        return SizedBox();
+                      } else if ((StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike) == 0) {
+                        return SizedBox();
+                      }
+
+                      return Positioned(
+                          bottom: -25,
+                          right: MediaQuery.of(context).size.width * 0.07 - 13,
+                          child: Container(
+                            child: ScaleTransition(
+                              scale: _scaleAnimation,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Positioned(
+                                    top: -7,
+                                    right: 3,
+                                    child: Container(
+                                      height: 24,
+                                      width: 22,
+                                      decoration: BoxDecoration(
+                                          color: Colors.redAccent,
+                                          borderRadius: BorderRadius.circular(4)
+                                      ),
+                                      transform: Matrix4.rotationZ(3.14159 / 4),
+                                    ),
+                                  ),
+                                  Container(
+                                      height: 32,
+                                      padding: EdgeInsets.symmetric(horizontal: 13),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: Colors.redAccent,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          if(StoredNotification().nlike != 0)
+                                            Row(
+                                              children: [
+                                                Icon(CupertinoIcons.heart_fill, color: Colors.white, size: 14,),
+                                                SizedBox(width: 3,),
+                                                Text(
+                                                  StoredNotification().nlike < 10 ? StoredNotification().nlike.toString() : "9",
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          if(StoredNotification().nabo != 0)
+                                            Padding(
+                                              padding: EdgeInsets.only(left: StoredNotification().nlike != 0 ? 4: 0),
+                                              child: Row(
+                                                children: [
+                                                  Icon(CupertinoIcons.person_solid, color: Colors.white, size: 14,),
+                                                  SizedBox(width: 3,),
+                                                  Text(
+                                                    StoredNotification().nabo < 10 ? StoredNotification().nabo.toString() : "9",
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight: FontWeight.w700,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                          if(StoredNotification().ncom != 0)
+                                            Padding(
+                                              padding: EdgeInsets.only(left: StoredNotification().nabo != 0 && StoredNotification().nlike != 0 ? 6 : 0),
+                                              child: Row(
+                                                children: [
+                                                  Icon(CupertinoIcons.bubble_left_fill, color: Colors.white, size: 12,),
+                                                  SizedBox(width: 3,),
+                                                  Text(
+                                                    StoredNotification().ncom < 10 ? StoredNotification().ncom.toString() : "9",
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight: FontWeight.w700,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                        ],
+                                      )
+                                  ),
+                                ],
+                              ),
                             ),
                           )
-                        ],
-                      )
-                    ],
+                      );
+                    },
                   ),
-                ),
-              )
+                ],
+              ),
             ],
           )
 

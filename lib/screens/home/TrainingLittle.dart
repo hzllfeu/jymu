@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:jymu/Models/TrainingModel.dart';
 import 'package:jymu/screens/home/TrainingCard.dart';
+import 'package:jymu/screens/home/components/TrainingPage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -76,10 +77,43 @@ class _TrainingLittleState extends State<TrainingLittle> with TickerProviderStat
             ),
           );
         } else if (snapshot.hasError) {
-          return Center(child: Text('Erreur de chargement du profil'));
+          return ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 120,
+            ),
+            child: Container(
+              width: double.infinity,
+              height: 150,
+              padding: EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(5.0),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(CupertinoIcons.nosign, color: Colors.black.withOpacity(0.6), size: 22,),
+                    const SizedBox(height: 10,),
+                    Text("Post indisponnible", style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 14), textAlign: TextAlign.center,)
+                  ],
+                ),
+              ),
+            ),
+          );
         } else {
-          return PageTransitionButton(
-              vsync: this, 
+          return GestureDetector(
+            onTapUp: (t){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TrainingPage(trn: widget.trn, image: fistImage!,),
+                ),
+              );
+            },
+            child: Hero(tag: widget.trn.id!,
+              transitionOnUserGestures: true,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
                   maxWidth: 120,
@@ -87,7 +121,7 @@ class _TrainingLittleState extends State<TrainingLittle> with TickerProviderStat
                 child: Container(
                   width: double.infinity,
                   height: 150,
-                  padding: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.only(bottom: 5),
                   decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(5.0),
@@ -132,43 +166,8 @@ class _TrainingLittleState extends State<TrainingLittle> with TickerProviderStat
                     ],
                   ),
                 ),
-              ), 
-              nextPage: PageTransitionReceiver(
-                scaffold: Scaffold(
-                  body: SafeArea(
-                    child: Column(
-                      children: [
-                        SizedBox(height: 10,),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                onTapUp: (t) {
-                                  Navigator.pop(context);
-                                },
-                                child: Icon(
-                                  CupertinoIcons.arrow_left,
-                                  size: 22,
-                                  color: CupertinoColors.systemGrey,
-                                ),
-                              ),
-                              Text(widget.trn.username??"", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.black.withOpacity(0.7)),),
-                              Icon(
-                                CupertinoIcons.arrow_left,
-                                size: 22,
-                                color: CupertinoColors.transparent,
-                              ),
-                            ],
-                          ),
-                        ),
-                        TrainingCard(trn: widget.trn),
-                      ],
-                    ),
-                  )
-                ),
-              )
+              ),
+            ),
           );
         }
       },

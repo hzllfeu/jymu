@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/UserManager.dart' as um;
 import 'package:jymu/screens/home/LoadingProfileList.dart';
@@ -65,18 +66,8 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
   void initState() {
     super.initState();
     id = widget.id;
-    _fetchDataFuture = _fetchData();
-    if (!ownProf) {
-      tabController = TabController(length: 3, vsync: this, initialIndex: widget.index);
-      isFirstSelected = widget.index == 0;
-      isSecondSelected = widget.index == 1;
-      isThirdSelected = widget.index == 2;
-    } else {
-      tabController = TabController(length: 2, vsync: this, initialIndex: widget.index-1);
-      isSecondSelected = widget.index == 1;
-      isThirdSelected = widget.index == 2;
-    }
 
+    _fetchDataFuture = _fetchData();
     _searchController.addListener(() {
       _onSearchChanged();
     });
@@ -173,6 +164,17 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
             await targetUser.fetchExternalData(id!);
             CachedData().users[id!] = targetUser;
           }
+        }
+
+        if (!ownProf) {
+          tabController = TabController(length: 3, vsync: this, initialIndex: widget.index);
+          isFirstSelected = widget.index == 0;
+          isSecondSelected = widget.index == 1;
+          isThirdSelected = widget.index == 2;
+        } else {
+          tabController = TabController(length: 2, vsync: this, initialIndex: widget.index-1);
+          isSecondSelected = widget.index == 1;
+          isThirdSelected = widget.index == 2;
         }
 
         if (!mounted) return;
@@ -441,14 +443,37 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
               visible: !isLoading,
               child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: SizedBox(
-                    height: 40,
-                    child: CupertinoSearchTextField(
-                      controller: _searchController,
-                      placeholder: "Rechercher",
-                      placeholderStyle: TextStyle(fontSize: 14, color: CupertinoColors.systemGrey),
-                    ),
-                  )
+                  child: GlassContainer(
+                      width: MediaQuery.of(context).size.width*1,
+                      height: MediaQuery.of(context).size.height*0.04,
+                      borderRadius: BorderRadius.circular(22),
+                      color: Colors.white.withOpacity(0.8),
+                      blur: 10,
+                      shadowStrength: 1,
+                      child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            child: Row(
+                              children: [
+                                Icon(CupertinoIcons.search, size: 24, color: Colors.redAccent,),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width*0.65,
+                                  child: CupertinoTextField(
+                                    cursorColor: Colors.redAccent,
+                                    controller: _searchController,
+                                    placeholder: "Cherche un profil..",
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.8)),
+                                    placeholderStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey.withOpacity(0.6)),
+                                    decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                      )
+                  ),
               ),
             ),
           const SizedBox(height: 0),

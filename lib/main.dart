@@ -36,7 +36,7 @@ void main() async {
     await NotificationController.initializeLocalNotifications();
     await NotificationController.initializeIsolateReceivePort();
 
-    timeago.setLocaleMessages('fr', timeago_fr.FrMessages());
+    timeago.setLocaleMessages('fr', CustomFrenchMessages());
     final sharedPreferences = await SharedPreferences.getInstance();
     runApp(MyApp());
   } catch (e) {
@@ -85,5 +85,40 @@ class AuthWrapper extends StatelessWidget {
       },
     );
   }
+}
+
+class CustomFrenchMessages implements timeago.LookupMessages {
+  @override
+  String prefixAgo() => '';
+  @override
+  String prefixFromNow() => 'dans';
+  @override
+  String suffixAgo() => '';
+  @override
+  String suffixFromNow() => '';
+  @override
+  String lessThanOneMinute(int seconds) => 'maintenant';
+  @override
+  String aboutAMinute(int minutes) => 'une minute';
+  @override
+  String minutes(int minutes) => '$minutes minutes';
+  @override
+  String aboutAnHour(int minutes) => 'une heure';
+  @override
+  String hours(int hours) => '$hours heures';
+  @override
+  String aDay(int hours) => 'un jour';
+  @override
+  String days(int days) => '$days jours';
+  @override
+  String aboutAMonth(int days) => 'un mois';
+  @override
+  String months(int months) => '$months mois';
+  @override
+  String aboutAYear(int year) => 'un an';
+  @override
+  String years(int years) => '$years ans';
+  @override
+  String wordSeparator() => '';
 }
 

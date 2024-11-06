@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/Models/TrainingModel.dart';
+import 'package:jymu/screens/ProfilPageBis.dart';
 import 'package:jymu/screens/home/LoadingProfileList.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -19,7 +20,6 @@ import '../../Models/CachedData.dart';
 import '../../Models/NotificationService.dart';
 import '../../Models/UserModel.dart';
 import '../InputPage.dart';
-import 'ProfilPage.dart';
 
 class NotifListComp extends StatefulWidget {
   final NotificationModel notif;
@@ -94,7 +94,7 @@ class _NotifListCompState extends State<NotifListComp> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          ProfilPage(id: widget.notif.extid),
+                          ProfilPageBis(id: widget.notif.extid),
                     ),
                   );
                 }
@@ -105,7 +105,7 @@ class _NotifListCompState extends State<NotifListComp> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          ProfilPage(id: widget.notif.extid),
+                          ProfilPageBis(id: widget.notif.extid),
                     ),
                   );
                 }
@@ -116,7 +116,7 @@ class _NotifListCompState extends State<NotifListComp> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          ProfilPage(id: widget.notif.extid),
+                          ProfilPageBis(id: widget.notif.extid),
                     ),
                   );
                 }
@@ -135,7 +135,7 @@ class _NotifListCompState extends State<NotifListComp> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CircleAvatar(
-                            radius: 20.0,
+                            radius: 24.0,
                             backgroundImage: CachedNetworkImageProvider(pp),
                           ),
 
@@ -150,7 +150,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.7),
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.007,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.0075,
                                     ),
                                   ),
                                   TextSpan(
@@ -158,7 +158,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.7),
                                       fontWeight: FontWeight.w500,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.007,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.0075,
                                     ),
                                   ),
                                   TextSpan(
@@ -166,7 +166,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: CupertinoColors.systemGrey,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.005,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.006,
                                     ),
                                   ),
                                 ],
@@ -182,7 +182,7 @@ class _NotifListCompState extends State<NotifListComp> {
                       height: 30,
                       width: 90,
                       decoration: BoxDecoration(
-                          color: Colors.redAccent.withOpacity(1),
+                          color: Colors.deepOrange.withOpacity(1),
                           borderRadius: BorderRadius.circular(10)
                       ),
                       child: FittedBox(
@@ -201,7 +201,7 @@ class _NotifListCompState extends State<NotifListComp> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CircleAvatar(
-                            radius: 20.0,
+                            radius: 24.0,
                             backgroundImage: CachedNetworkImageProvider(pp),
                           ),
 
@@ -216,7 +216,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.7),
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.007,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.0075,
                                     ),
                                   ),
                                   TextSpan(
@@ -224,7 +224,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.7),
                                       fontWeight: FontWeight.w500,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.007,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.0075,
                                     ),
                                   ),
                                   TextSpan(
@@ -232,7 +232,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: CupertinoColors.systemGrey,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.005,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.006,
                                     ),
                                   ),
                                 ],
@@ -265,7 +265,7 @@ class _NotifListCompState extends State<NotifListComp> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CircleAvatar(
-                            radius: 20.0,
+                            radius: 24.0,
                             backgroundImage: CachedNetworkImageProvider(pp),
                           ),
 
@@ -280,7 +280,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.7),
                                       fontWeight: FontWeight.w500,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.007,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.0075,
                                     ),
                                   ),
                                   TextSpan(
@@ -288,7 +288,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.7),
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.007,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.0075,
                                     ),
                                   ),
                                   TextSpan(
@@ -296,7 +296,7 @@ class _NotifListCompState extends State<NotifListComp> {
                                     style: TextStyle(
                                       color: CupertinoColors.systemGrey,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.005,
+                                      fontSize: 5 * MediaQuery.of(context).size.width * 0.006,
                                     ),
                                   ),
                                 ],
@@ -316,7 +316,7 @@ class _NotifListCompState extends State<NotifListComp> {
                         height: 50,
                         width: 50,
                         decoration: BoxDecoration(
-                            color: Colors.redAccent.withOpacity(1),
+                            color: Colors.deepOrange.withOpacity(1),
                             borderRadius: BorderRadius.circular(10),
                             image: DecorationImage(image: Image.file(fistImage).image, fit: BoxFit.cover)
                         ),

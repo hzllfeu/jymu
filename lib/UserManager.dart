@@ -318,15 +318,6 @@ Future<void> followUser(String userID, String targetUserId) async {
   final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
   final targetUserRef = FirebaseFirestore.instance.collection('users').doc(targetUserId);
 
-  await FirebaseFirestore.instance.runTransaction((transaction) async {
-    transaction.update(userRef, {
-      'follow': FieldValue.arrayUnion([targetUserId]),
-    });
-
-    transaction.update(targetUserRef, {
-      'followed': FieldValue.arrayUnion([userID]),
-    });
-  });
   UserModel targetUser = UserModel();
   if(CachedData().users.containsKey(targetUserId)){
     targetUser = CachedData().users[targetUserId]!;
@@ -335,12 +326,47 @@ Future<void> followUser(String userID, String targetUserId) async {
     CachedData().users[targetUserId!] = targetUser;
   }
 
+  if(targetUser.fcmToken != null){
+    if(targetUser.ftoken != null){
+      targetUser.ftoken!.add(UserModel.currentUser().fcmToken);
+    } else {
+      targetUser.ftoken = [UserModel.currentUser().fcmToken];
+    }
+  }
+
+
+  await FirebaseFirestore.instance.runTransaction((transaction) async {
+    transaction.update(userRef, {
+      'follow': FieldValue.arrayUnion([targetUserId]),
+    });
+
+    transaction.update(targetUserRef, {
+      'followed': FieldValue.arrayUnion([userID]),
+    });
+
+    transaction.update(targetUserRef, {
+      'followerstokens': FieldValue.arrayUnion([UserModel.currentUser().fcmToken]),
+    });
+  });
+
   sendPushNotification(targetUserId, "a commencer à vous suivre", "${UserModel.currentUser().username}",  targetUser.fcmToken!, true, userID, "", "abo");
 }
 
 Future<void> unfollowUser(String userID, String targetUserId) async {
   final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
   final targetUserRef = FirebaseFirestore.instance.collection('users').doc(targetUserId);
+
+  UserModel targetUser = UserModel();
+  if(CachedData().users.containsKey(targetUserId)){
+    targetUser = CachedData().users[targetUserId]!;
+  } else {
+    await targetUser.fetchExternalData(targetUserId!);
+    CachedData().users[targetUserId!] = targetUser;
+  }
+
+  if(targetUser.ftoken != null){
+    targetUser.ftoken!.remove(UserModel.currentUser().fcmToken);
+  }
 
   await FirebaseFirestore.instance.runTransaction((transaction) async {
     transaction.update(userRef, {
@@ -349,6 +375,10 @@ Future<void> unfollowUser(String userID, String targetUserId) async {
 
     transaction.update(targetUserRef, {
       'followed': FieldValue.arrayRemove([userID]),
+    });
+
+    transaction.update(targetUserRef, {
+      'followerstokens': FieldValue.arrayRemove([UserModel.currentUser().fcmToken]),
     });
   });
 }

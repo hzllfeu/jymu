@@ -15,7 +15,6 @@ import 'package:jymu/Models/TrainingModel.dart';
 import 'package:jymu/Models/UserModel.dart';
 import 'package:jymu/PostManager.dart';
 import 'package:jymu/screens/home/LoadingTraining.dart';
-import 'package:jymu/screens/home/ProfilPage.dart';
 import 'package:jymu/screens/home/components/CommentPage.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,9 +27,11 @@ import 'components/TagList.dart';
 
 class TrainingCard extends StatefulWidget {
   final TrainingModel trn;
+  final File coverimage;
+  final bool coverbool;
 
   TrainingCard({
-    required this.trn,
+    required this.trn, required this.coverimage, required this.coverbool,
   });
 
   @override
@@ -49,6 +50,8 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
   bool secondTaken = false;
   bool showFirstImage = true;
   bool friendppempty = true;
+
+  bool coverbool = false;
 
   Future<Widget>? _friendsPPFuture;
 
@@ -86,9 +89,9 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
     if (number < 10000) {
       return number.toString();
     } else if (number < 1000000) {
-      return (number / 1000).toStringAsFixed(0) + 'k';
+      return '${(number / 1000).toStringAsFixed(0)}k';
     } else {
-      return (number / 1000000).toStringAsFixed(0) + 'M';
+      return '${(number / 1000000).toStringAsFixed(0)}M';
     }
   }
 
@@ -208,10 +211,6 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
 
     _friendsPPFuture = getFriendspp();
 
-
-    _updatePalette(true);
-    _updatePalette(false);
-
     if(CachedData().links.containsKey(targetUser.id!)){
       pp = CachedData().links[targetUser.id!]!;
     } else {
@@ -225,9 +224,15 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
     if(training.likes!.contains(UserModel.currentUser().id)){
       liked = true;
     }
+
+    return;
+
+    _updatePalette(true);
+    _updatePalette(false);
     setState(() {
 
     });
+
   }
 
   @override
@@ -247,7 +252,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
         .animate(_animationController);
 
     _controller = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
@@ -266,6 +271,14 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
     );
     _controller.reset();
     _controller.forward();
+
+  }
+
+  Future<void> cover() async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    setState(() {
+      coverbool = false;
+    });
   }
 
   Future<void> _handleTap() async {
@@ -398,7 +411,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                   color: showFirstImage ? firstMainColor.withOpacity(0.5) : !showFirstImage ? secondMainColor.withOpacity(0.5) : Colors.black.withOpacity(0.3),
                                   spreadRadius: 2,
                                   blurRadius: 15,
-                                  offset: Offset(0, 2),
+                                  offset: const Offset(0, 2),
                                 ),
                                 ],
                               ),
@@ -452,7 +465,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                                                 radius: 26.0,
                                                                 backgroundImage: CachedNetworkImageProvider(pp),
                                                               ),
-                                                              SizedBox(width: 5,),
+                                                              const SizedBox(width: 5,),
                                                               ConstrainedBox(
                                                                 constraints: BoxConstraints(
                                                                     maxWidth: size.width*0.25
@@ -463,7 +476,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                                                   blur: 10,
                                                                   borderRadius: BorderRadius.circular(18),
                                                                   child: Padding(
-                                                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                                                    padding: const EdgeInsets.symmetric(horizontal: 10),
                                                                     child: Column(
                                                                       mainAxisAlignment: MainAxisAlignment.center,
                                                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -508,7 +521,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                                                 blur: 10,
                                                                 borderRadius: BorderRadius.circular(14),
                                                                 child: Padding(
-                                                                  padding: EdgeInsets.symmetric(horizontal: 15),
+                                                                  padding: const EdgeInsets.symmetric(horizontal: 15),
                                                                   child: Row(
                                                                     mainAxisAlignment: MainAxisAlignment.center,
                                                                     children: [
@@ -562,16 +575,6 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                 top: -15,
                                 right: 5,
                                 child: GestureDetector(
-                                  onTapUp: (t) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Scaffold(
-                                        ),
-                                      ),
-                                    );
-                                    Haptics.vibrate(HapticsType.light);
-                                  },
                                   child: GlassContainer(
                                     height: 30,
                                     color: Colors.black.withOpacity(0.5),
@@ -595,7 +598,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                             future: _friendsPPFuture,
                                             builder: (context, snapshot) {
                                               if (snapshot.connectionState == ConnectionState.waiting) {
-                                                return CupertinoActivityIndicator(radius: 8);
+                                                return const CupertinoActivityIndicator(radius: 8);
                                               } else if (snapshot.hasError) {
                                                 return Text('Erreur : ${snapshot.error}');
                                               } else if (snapshot.hasData) {
@@ -605,7 +608,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                                   child: snapshot.data!,
                                                 );
                                               } else {
-                                                return SizedBox.shrink();
+                                                return const SizedBox.shrink();
                                               }
                                             },
                                           ),
@@ -633,7 +636,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                             color: Colors.black.withOpacity(0.15),
                                             spreadRadius: 1,
                                             blurRadius: 2,
-                                            offset: Offset(0, 2),
+                                            offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
@@ -659,6 +662,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
               ),
             ),
 
+
           if(loaded)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width*0.055),
@@ -670,7 +674,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                       IntrinsicWidth(
                         child: Container(
                             height: 13 * (size.height/size.width),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
@@ -679,14 +683,14 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                   color: Colors.black.withOpacity(0.15),
                                   spreadRadius: 1,
                                   blurRadius: 2,
-                                  offset: Offset(0, 2),
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
                             child: Row(
                               children: [
                                 Icon(CupertinoIcons.timer, color: Colors.redAccent, size: 6 * (size.height/size.width),),
-                                SizedBox(width: 10,),
+                                const SizedBox(width: 10,),
                                 DefaultTextStyle(
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
@@ -705,7 +709,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                       IntrinsicWidth(
                         child: Container(
                             height: 13 * (size.height/size.width),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
@@ -714,21 +718,21 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                   color: Colors.black.withOpacity(0.15),
                                   spreadRadius: 1,
                                   blurRadius: 2,
-                                  offset: Offset(0, 2),
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
                             child: Row(
                               children: [
                                 Icon(CupertinoIcons.location_fill, color: Colors.redAccent, size: 6 * (size.height/size.width),),
-                                SizedBox(width: 10,),
+                                const SizedBox(width: 10,),
                                 DefaultTextStyle(
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 6 * (size.height/size.width),
                                     color: Colors.black.withOpacity(0.6),
                                   ),
-                                  child: Text("On air la Défense"),
+                                  child: const Text("On air la Défense"),
                                 ),
                               ],
                             )
@@ -743,7 +747,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                         },
                         child: Container(
                           height: 13 * (size.height/size.width),
-                          padding: EdgeInsets.symmetric(horizontal: 15),
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
@@ -752,7 +756,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                 color: Colors.black.withOpacity(0.15),
                                 spreadRadius: 1,
                                 blurRadius: 2,
-                                offset: Offset(0, 2),
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -773,7 +777,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
               child: Container(
                   width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width * 0.1,
                   height: MediaQuery.of(context).size.height * 0.15,
-                  padding: EdgeInsets.all(15),
+                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
                     color:  Colors.white,
@@ -788,7 +792,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                   child: Column(
                     children: [
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 50),
+                        padding: const EdgeInsets.symmetric(horizontal: 50),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -820,7 +824,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                   ),
                                   builder: (BuildContext context) {
                                     return ClipRRect(
-                                      borderRadius: BorderRadius.vertical(
+                                      borderRadius: const BorderRadius.vertical(
                                         top: Radius.circular(24),
                                       ),
                                       child: Container(
@@ -846,26 +850,52 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                           ],
                         ),
                       ),
-                      SizedBox(height: 15,),
+                      const SizedBox(height: 15,),
                       Container(
                         width: double.infinity,
                         height: 1,
                         color: Colors.black.withOpacity(0.1),
                       ),
-                      SizedBox(height: 15,),
+                      const SizedBox(height: 15,),
                       if(training.tags?.isNotEmpty ?? false)
                         Align(
                           alignment: Alignment.centerLeft,
                           child: SizedBox(
-                            height: 40,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: List.generate(
-                                      training.tags?.length ?? 0,
-                                          (index) => index == 0 ? Row(children: [SizedBox(width: 0,),getTag(training.tags![index] ?? "false", false, context)],) : getTag(training.tags![index] ?? "false", false, context)
-                                  )
+                            height: 50,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: ShaderMask(
+                                shaderCallback: (Rect bounds) {
+                                  return LinearGradient(
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                    colors: [
+                                      Colors.black.withOpacity(0.00),  // Moins opaque au début (plus court à gauche)
+                                      Colors.black.withOpacity(0.0),
+                                      Colors.black.withOpacity(0.5),
+                                      Colors.black.withOpacity(0.7),
+                                      Colors.black.withOpacity(0.9),
+                                      Colors.black,  // Opacité totale à droite
+                                      Colors.transparent,  // Transparence totale à droite
+                                    ],
+                                    stops: const [0.0, 0.005, 0.03, 0.2, 0.5, 0.85, 1.0],
+                                  ).createShader(bounds);
+                                },
+                                blendMode: BlendMode.dstIn,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: List.generate(
+                                        training.tags?.length ?? 0,
+                                            (index) => getTag(training.tags![index] ?? "false", false, context),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -878,7 +908,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
             ),
 
           if(!loaded)
-            LoadingTraining(),
+            const LoadingTraining(),
         ],
       ),
     );
@@ -923,7 +953,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => InputPage(text: "Raison du signalement", limit: 300),
+                  builder: (context) => const InputPage(text: "Raison du signalement", limit: 300),
                 ),
               );
 
@@ -943,7 +973,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                   context: context,
                   builder: (BuildContext context) => CupertinoAlertDialog(
                     title: const Text('Supprimer'),
-                    content: Text('Es-tu vraiment sûr de vouloir supprimer ce post ?'),
+                    content: const Text('Es-tu vraiment sûr de vouloir supprimer ce post ?'),
                     actions: <CupertinoDialogAction>[
                       CupertinoDialogAction(
                         isDefaultAction: true,
@@ -956,7 +986,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                         isDestructiveAction: true,
                         onPressed: () {
                           Navigator.pop(context);
-                          training.deletePost();;
+                          training.deletePost();
                         },
                         child: const Text('Oui'),
                       ),
@@ -977,5 +1007,4 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
       ),
     );
   }
-
 }

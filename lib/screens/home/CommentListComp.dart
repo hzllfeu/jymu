@@ -7,13 +7,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/Models/TrainingModel.dart';
+import 'package:jymu/screens/ProfilPageBis.dart';
 import 'package:jymu/screens/home/LoadingProfileList.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../Models/CachedData.dart';
 import '../../Models/UserModel.dart';
 import '../InputPage.dart';
-import 'ProfilPage.dart';
 
 class CommentListComp extends StatefulWidget {
   final String id;
@@ -108,7 +108,7 @@ class _CommentListCompState extends State<CommentListComp> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  ProfilPage(id: targetUser.id!),
+                                  ProfilPageBis(id: targetUser.id!),
                             ),
                           );
                         }
@@ -132,7 +132,7 @@ class _CommentListCompState extends State<CommentListComp> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          ProfilPage(id: targetUser.id!),
+                                          ProfilPageBis(id: targetUser.id!),
                                     ),
                                   );
                                 }

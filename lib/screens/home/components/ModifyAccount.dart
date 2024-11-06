@@ -296,16 +296,39 @@ class _ModifyAccountState extends State<ModifyAccount> {
                             // Flexible widget to avoid overflow
                             Flexible(
                               child: SizedBox(
-                                height: 40,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: List.generate(
-                                      tags.length,
-                                          (index) => Padding(
-                                        padding: const EdgeInsets.only(left: 5.0),
-                                        child: getTag(tags[index], false, context),
+                                height: 50,
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: ShaderMask(
+                                    shaderCallback: (Rect bounds) {
+                                      return LinearGradient(
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                        colors: [
+                                          Colors.black.withOpacity(0.00),  // Moins opaque au début (plus court à gauche)
+                                          Colors.black.withOpacity(0.0),
+                                          Colors.black.withOpacity(0.5),
+                                          Colors.black.withOpacity(0.7),
+                                          Colors.black.withOpacity(0.9),
+                                          Colors.black,  // Opacité totale à droite
+                                          Colors.transparent,  // Transparence totale à droite
+                                        ],
+                                        stops: [0.0, 0.005, 0.03, 0.2, 0.5, 0.85, 1.0],
+                                      ).createShader(bounds);
+                                    },
+                                    blendMode: BlendMode.dstIn,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(bottom: 10),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: List.generate(
+                                            tags?.length ?? 0,
+                                                (index) => getTag(tags![index] ?? "false", false, context),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
