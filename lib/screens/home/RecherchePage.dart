@@ -221,6 +221,24 @@ class _RecherchePageState extends State<RecherchePage> with TickerProviderStateM
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: CustomScrollView(
                     slivers: [
+                      CupertinoSliverRefreshControl(
+                        onRefresh: () async {
+                          listtrn.clear();
+                          listPosts.clear();
+                          data = loadTrainingModels();
+                        },
+                        builder: (context, refreshState, pulledExtent, refreshTriggerPullDistance, refreshIndicatorExtent) {
+                          final double indicatorHeight = -MediaQuery.of(context).size.height * 0.16; // Hauteur de l'indicateur
+                          final double offset =
+                              (pulledExtent - indicatorHeight) / 2 + 50;
+
+                          return Container(
+                            alignment: Alignment.topCenter,
+                            margin: EdgeInsets.only(top: offset),
+                            child: const CupertinoActivityIndicator(),
+                          );
+                        },
+                      ),
                       SliverPadding(
                         padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.16),
                         sliver: SliverGrid(

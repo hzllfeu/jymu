@@ -26,6 +26,7 @@ import '../../main.dart';
 import 'package:image/image.dart' as img;
 
 import '../InputPage.dart';
+import '../init_screen.dart';
 
 
 class CameraPage extends StatefulWidget {
@@ -306,7 +307,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                     color: Colors.white.withOpacity(0.8),
                                     blur: 10,
                                     borderRadius: BorderRadius.circular(16),
-                                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 10),
+                                    child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10),
                                       child: Center(
                                         child: Icon(
                                           CupertinoIcons.arrow_left,
@@ -390,6 +391,8 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                     posting = false;
                                   });
                                   Navigator.pop(context);
+                                  await Future.delayed(const Duration(milliseconds: 300));
+                                  InterMessageManager().showmessage(text: "Posté", context: context);
                                 },
                                 child: GlassContainer(
                                     height: 38,

@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver{
       DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user?.uid);
       String? token = "";
         token = await FirebaseMessaging.instance.getToken();
-        await docRef.update({
+        await docRef?.update({
           'fcmToken': token,
         });
 
@@ -78,10 +78,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver{
             builder: (context) => InitScreen(),
           ),
         );
+        InterMessageManager().showmessage(context: context, text: "Connecté");
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur de connexion, veuillez réessayer.")),
-        );
+        InterMessageManager().showmessage(context: context, text: "Erreur de connexion");
         setState(() {
           fireload = true;
         });

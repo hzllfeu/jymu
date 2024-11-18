@@ -549,6 +549,8 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
     );
   }
 
+  bool showpp = false;
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -556,7 +558,6 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
       backgroundColor: const Color(0xFFF3F5F8),
       body: Stack(
         children: [
-
           FutureBuilder(
             future: _fetchDataFuture,
             builder: (context, snapshot) {
@@ -567,318 +568,336 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
               } else if (snapshot.hasError) {
                 return const Center(child: Text('Erreur de chargement des trainings'));
               } else {
-                return Padding(padding: const EdgeInsets.only(right: 8, left: 8, top: 125),
-                  child: RefreshIndicator(
-                    onRefresh: () async {
-                      _fetchDataFuture = _fetchData(true);
-                  },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 0, top: 0,),
-                            child: Row(
-                              children: [
-                                const SizedBox(width: 10),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.redAccent.withOpacity(0),
-                                        spreadRadius: 5,
-                                        blurRadius: 30,
-                                        offset: const Offset(0, 0),
+                return Padding(padding: const EdgeInsets.only(right: 8, left: 8, top: 0),
+                  child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      CupertinoSliverRefreshControl(
+
+                        onRefresh: () async {
+                          _fetchDataFuture = _fetchData(true);
+                        },
+                        builder: (context, refreshState, pulledExtent, refreshTriggerPullDistance, refreshIndicatorExtent) {
+                          final double indicatorHeight = -125.0; // Hauteur de l'indicateur
+                          final double offset =
+                              (pulledExtent - indicatorHeight) / 2 + 50;
+
+                          return Container(
+                            alignment: Alignment.topCenter,
+                            margin: EdgeInsets.only(top: offset),
+                            child: const CupertinoActivityIndicator(),
+                          );
+                        },
+                      ),
+                      SliverToBoxAdapter(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 0, top: 125,),
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width: 10),
+                                    GestureDetector(
+                                      onTapUp: (t){
+                                        setState(() {
+                                          showpp = true;
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: CircleAvatar(
+                                          radius: 42.0,
+                                          backgroundImage: CachedNetworkImageProvider(profileImageUrl!),
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                  child: CircleAvatar(
-                                    radius: 42.0,
-                                    backgroundImage: CachedNetworkImageProvider(profileImageUrl!),
-                                  ),
-                                ),
+                                    ),
 
-                                const SizedBox(width: 10),
+                                    const SizedBox(width: 10),
 
-                                Flexible(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: size.width*0.06),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
+                                    Flexible(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: size.width*0.06),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            const Text(
-                                              "Posts",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 13,
-                                                color: CupertinoColors.systemGrey,
+                                            Column(
+                                              children: [
+                                                const Text(
+                                                  "Posts",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 13,
+                                                    color: CupertinoColors.systemGrey,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Text(
+                                                  formatNumber(trainings!.length),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 19,
+                                                    color: Colors.black.withOpacity(0.8),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            GestureDetector(
+                                              onTapUp: (t) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 1)),
+                                                  ),
+                                                );
+                                                Haptics.vibrate(HapticsType.light);
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  const Text(
+                                                    "Abonnés",
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.w700,
+                                                      fontSize: 13,
+                                                      color: CupertinoColors.systemGrey,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 3),
+                                                  Text(
+                                                    formatNumber(followers!.length),
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.w700,
+                                                      fontSize: 19,
+                                                      color: Colors.black.withOpacity(0.8),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            const SizedBox(height: 3),
-                                            Text(
-                                              formatNumber(trainings!.length),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 19,
-                                                color: Colors.black.withOpacity(0.8),
+
+                                            GestureDetector(
+                                              onTapUp: (t) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 2)),
+                                                  ),
+                                                );
+                                                Haptics.vibrate(HapticsType.light);
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  const Text(
+                                                    "Suivis",
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.w700,
+                                                      fontSize: 13,
+                                                      color: CupertinoColors.systemGrey,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 3),
+                                                  Text(
+                                                    formatNumber(follow!.length),
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.w700,
+                                                      fontSize: 19,
+                                                      color: Colors.black.withOpacity(0.8),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ],
                                         ),
-
-                                        GestureDetector(
-                                          onTapUp: (t) {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 1)),
-                                              ),
-                                            );
-                                            Haptics.vibrate(HapticsType.light);
-                                          },
-                                          child: Column(
-                                            children: [
-                                              const Text(
-                                                "Abonnés",
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 13,
-                                                  color: CupertinoColors.systemGrey,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                formatNumber(followers!.length),
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 19,
-                                                  color: Colors.black.withOpacity(0.8),
-                                                ),
-                                              ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 10,),
+                              if(bio!.isNotEmpty)
+                                const SizedBox(height: 10,),
+                              if(bio!.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 15),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(bio!, style: TextStyle(
+                                        color: Colors.black.withOpacity(0.8),
+                                        fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                        fontWeight: FontWeight.w600), textAlign: TextAlign.left,),
+                                  ),
+                                ),
+                              if (tags?.isNotEmpty ?? false)
+                                const SizedBox(height: 15,),
+                              if (tags?.isNotEmpty ?? false)
+                                Padding(
+                                  padding: EdgeInsets.only(left: 5),
+                                  child: SizedBox(
+                                    height: 50,
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ShaderMask(
+                                        shaderCallback: (Rect bounds) {
+                                          return LinearGradient(
+                                            begin: Alignment.centerLeft,
+                                            end: Alignment.centerRight,
+                                            colors: [
+                                              Colors.black.withOpacity(0.00),  // Moins opaque au début (plus court à gauche)
+                                              Colors.black.withOpacity(0.0),
+                                              Colors.black.withOpacity(0.5),
+                                              Colors.black.withOpacity(0.7),
+                                              Colors.black.withOpacity(0.9),
+                                              Colors.black,  // Opacité totale à droite
+                                              Colors.transparent,  // Transparence totale à droite
                                             ],
+                                            stops: const [0.0, 0.005, 0.03, 0.2, 0.5, 0.85, 1.0],
+                                          ).createShader(bounds);
+                                        },
+                                        blendMode: BlendMode.dstIn,
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(bottom: 10),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: List.generate(
+                                                tags?.length ?? 0,
+                                                    (index) => getTag(tags![index] ?? "false", false, context),
+                                              ),
+                                            ),
                                           ),
                                         ),
-
-                                        GestureDetector(
-                                          onTapUp: (t) {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 2)),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                                  child: GestureDetector(
+                                    onTapUp: (t) async {
+                                      if (ownProf) {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => Scaffold(
+                                              body: ModifyAccount(
+                                                pp: profileImageUrl,
                                               ),
-                                            );
-                                            Haptics.vibrate(HapticsType.light);
-                                          },
-                                          child: Column(
-                                            children: [
-                                              const Text(
-                                                "Suivis",
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 13,
-                                                  color: CupertinoColors.systemGrey,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                formatNumber(follow!.length),
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 19,
-                                                  color: Colors.black.withOpacity(0.8),
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
+                                        );
+                                        CachedData().links.remove(id!);
+                                        CachedData().users.remove(id!);
+                                        _fetchDataFuture = _fetchData(false);
+                                      } else {
+                                        if (!followed) {
+                                          await um.followUser(FirebaseAuth.instance.currentUser!.uid, id!);
+                                          handleFollow();
+                                          Haptics.vibrate(HapticsType.success);
+                                        } else {
+                                          showCupertinoDialog<void>(
+                                            context: context,
+                                            builder: (BuildContext context) => CupertinoAlertDialog(
+                                              title: const Text('Ne plus suivre'),
+                                              content: Text('Es-tu sûr de ne plus vouloir suivre $username ?'),
+                                              actions: <CupertinoDialogAction>[
+                                                CupertinoDialogAction(
+                                                  isDefaultAction: true,
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text('Non'),
+                                                ),
+                                                CupertinoDialogAction(
+                                                  isDestructiveAction: true,
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    handleUnFollow();
+                                                  },
+                                                  child: const Text('Oui'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          Haptics.vibrate(HapticsType.success);
+                                        }
+                                      }
+                                    },
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 45,
+                                      decoration: BoxDecoration(
+                                          color: Colors.transparent,
+                                          border: Border.all(color: Colors.redAccent.withOpacity(0.9),width: 1.5,),
+                                          borderRadius: BorderRadius.circular(8)
+                                      ),
+                                      child: Center(
+                                        child: ownProf ? Text("Modifier", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
+                                            : followed ? Text("Ne plus suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
+                                            : isFollowing ? Text("Suivre en retour", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),) : Text("Suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),),
+                                      ),
+                                    ),
+                                  )
+                              ),
+                              const SizedBox(height: 5,),
+                              Container(
+                                height: 40,
+                                width: double.infinity,
+                                color: const Color(0xFFF3F5F8),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(Radius.circular(7)),
+                                  child: Container(
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(Radius.circular(7)),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.redAccent.withOpacity(0.3),
+                                          Colors.deepOrange.withOpacity(0.3),
+                                        ],
+                                      ),
+                                    ),
+                                    child: TabBar(
+                                      controller: tabController,
+                                      enableFeedback: true,
+                                      onTap: (i) {
+                                        setState(() {
+                                          isFirstSelected = i == 0;
+                                          isSecondSelected = i == 1;
+                                          isThirdSelected = i == 2;
+                                          Haptics.vibrate(HapticsType.light);
+                                        });
+                                      },
+                                      indicatorSize: TabBarIndicatorSize.tab,
+                                      dividerColor: Colors.transparent,
+                                      indicator: const BoxDecoration(
+                                        color: Colors.deepOrange,
+                                        borderRadius: BorderRadius.all(Radius.circular(7)),
+                                      ),
+                                      labelColor: Colors.white,
+                                      unselectedLabelColor: Colors.black54,
+                                      tabs: [
+                                        Tab(text: '${ownProf ? UserModel.currentUser().trainings?.length: targetUser.trainings?.length} Trainings'),
+                                        Tab(text: '${ownProf ? UserModel.currentUser().posts?.length: targetUser.posts?.length} Posts'),
                                       ],
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 10,),
-                          if(bio!.isNotEmpty)
-                            const SizedBox(height: 10,),
-                          if(bio!.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 15),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(bio!, style: TextStyle(
-                                    color: Colors.black.withOpacity(0.8),
-                                    fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
-                                    fontWeight: FontWeight.w600), textAlign: TextAlign.left,),
                               ),
-                            ),
-                          if (tags?.isNotEmpty ?? false)
-                            const SizedBox(height: 15,),
-                          if (tags?.isNotEmpty ?? false)
-                            Padding(
-                              padding: EdgeInsets.only(left: 5),
-                              child: SizedBox(
-                                height: 50,
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: ShaderMask(
-                                    shaderCallback: (Rect bounds) {
-                                      return LinearGradient(
-                                        begin: Alignment.centerLeft,
-                                        end: Alignment.centerRight,
-                                        colors: [
-                                          Colors.black.withOpacity(0.00),  // Moins opaque au début (plus court à gauche)
-                                          Colors.black.withOpacity(0.0),
-                                          Colors.black.withOpacity(0.5),
-                                          Colors.black.withOpacity(0.7),
-                                          Colors.black.withOpacity(0.9),
-                                          Colors.black,  // Opacité totale à droite
-                                          Colors.transparent,  // Transparence totale à droite
-                                        ],
-                                        stops: const [0.0, 0.005, 0.03, 0.2, 0.5, 0.85, 1.0],
-                                      ).createShader(bounds);
-                                    },
-                                    blendMode: BlendMode.dstIn,
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(bottom: 10),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          children: List.generate(
-                                            tags?.length ?? 0,
-                                                (index) => getTag(tags![index] ?? "false", false, context),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 0),
-                              child: GestureDetector(
-                                onTapUp: (t) async {
-                                  if (ownProf) {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Scaffold(
-                                          body: ModifyAccount(
-                                            pp: profileImageUrl,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                    CachedData().links.remove(id!);
-                                    CachedData().users.remove(id!);
-                                    _fetchDataFuture = _fetchData(false);
-                                  } else {
-                                    if (!followed) {
-                                      await um.followUser(FirebaseAuth.instance.currentUser!.uid, id!);
-                                      handleFollow();
-                                      Haptics.vibrate(HapticsType.success);
-                                    } else {
-                                      showCupertinoDialog<void>(
-                                        context: context,
-                                        builder: (BuildContext context) => CupertinoAlertDialog(
-                                          title: const Text('Ne plus suivre'),
-                                          content: Text('Es-tu sûr de ne plus vouloir suivre $username ?'),
-                                          actions: <CupertinoDialogAction>[
-                                            CupertinoDialogAction(
-                                              isDefaultAction: true,
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: const Text('Non'),
-                                            ),
-                                            CupertinoDialogAction(
-                                              isDestructiveAction: true,
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                handleUnFollow();
-                                              },
-                                              child: const Text('Oui'),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                      Haptics.vibrate(HapticsType.success);
-                                    }
-                                  }
-                                },
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 45,
-                                  decoration: BoxDecoration(
-                                      color: Colors.transparent,
-                                      border: Border.all(color: Colors.redAccent.withOpacity(0.9),width: 1.5,),
-                                      borderRadius: BorderRadius.circular(8)
-                                  ),
-                                  child: Center(
-                                    child: ownProf ? Text("Modifier", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
-                                        : followed ? Text("Ne plus suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
-                                        : isFollowing ? Text("Suivre en retour", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),) : Text("Suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),),
-                                  ),
-                                ),
-                              )
+                              const SizedBox(height: 4,),
+                              TrainingsProfile(user: ownProf ? UserModel.currentUser(): targetUser)
+                            ],
                           ),
-                          const SizedBox(height: 5,),
-                          Container(
-                            height: 40,
-                            width: double.infinity,
-                            color: const Color(0xFFF3F5F8),
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.all(Radius.circular(7)),
-                              child: Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(7)),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.redAccent.withOpacity(0.3),
-                                      Colors.deepOrange.withOpacity(0.3),
-                                    ],
-                                  ),
-                                ),
-                                child: TabBar(
-                                  controller: tabController,
-                                  enableFeedback: true,
-                                  onTap: (i) {
-                                    setState(() {
-                                      isFirstSelected = i == 0;
-                                      isSecondSelected = i == 1;
-                                      isThirdSelected = i == 2;
-                                      Haptics.vibrate(HapticsType.light);
-                                    });
-                                  },
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  dividerColor: Colors.transparent,
-                                  indicator: const BoxDecoration(
-                                    color: Colors.deepOrange,
-                                    borderRadius: BorderRadius.all(Radius.circular(7)),
-                                  ),
-                                  labelColor: Colors.white,
-                                  unselectedLabelColor: Colors.black54,
-                                  tabs: [
-                                    Tab(text: '${ownProf ? UserModel.currentUser().trainings?.length: targetUser.trainings?.length} Trainings'),
-                                    Tab(text: '${ownProf ? UserModel.currentUser().posts?.length: targetUser.posts?.length} Posts'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 4,),
-                          TrainingsProfile(user: ownProf ? UserModel.currentUser(): targetUser)
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   )
                 );
               }
@@ -902,7 +921,7 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                         Row(
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(bottom: 5),
+                              padding: const EdgeInsets.only(bottom: 5),
                               child: GestureDetector(
                                 onTapUp: (t) {
                                   if(!ownProf){
@@ -911,14 +930,14 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                                 },
                                 child: Icon(
                                   Icons.arrow_back_ios,
+                                  color: !ownProf ? Colors.black.withOpacity(0.7) : Colors.transparent,
                                   size: 18,
-                                  color: ownProf ? Colors.transparent : CupertinoColors.black.withOpacity(0.8),
-                                ),
+                                )
                               ),
                             ),
-                            SizedBox(width: 10,),
+                            const SizedBox(width: 10,),
                             Padding(
-                              padding: EdgeInsets.only(bottom: 5),
+                              padding: const EdgeInsets.only(bottom: 5),
                               child: FutureBuilder(
                                 future: _fetchDataFuture,
                                 builder: (context, snapshot) {
@@ -1000,7 +1019,7 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                               )
                             else if(friend)
                               Padding(
-                                padding: EdgeInsets.only(bottom: 0),
+                                padding: const EdgeInsets.only(bottom: 0),
                                 child: GestureDetector(
                                   onTapUp: (t) {
                                     Navigator.push(
@@ -1049,9 +1068,9 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                         Row(
                           children: [
                             const SizedBox(width: 10,),
-                            Icon(
-                              CupertinoIcons.lock_open,
-                              color: Colors.black.withOpacity(0.6),
+                            HugeIcon(
+                              icon: HugeIcons.strokeRoundedSquareUnlock02,
+                              color: ownProf ? Colors.black.withOpacity(0.7) : Colors.transparent,
                               size: 16,
                             ),
                             const SizedBox(width: 7,),
@@ -1113,36 +1132,24 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                                       clipBehavior: Clip.none,
                                       alignment: Alignment.center,
                                       children: [
-                                        Icon(
-                                          CupertinoIcons.heart,
+                                        HugeIcon(
+                                          icon: HugeIcons.strokeRoundedFavourite,
                                           color: Colors.black.withOpacity(0.7),
-                                          size: 24,
-                                          weight: 50,
+                                          size: 24.0,
                                         ),
                                         if(StoredNotification().tday)
                                           Positioned(
-                                              top: 0,
-                                              right: 0,
-                                              child: Container(
-                                                width: 10,
-                                                height: 10,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(40),
-
-                                                ),
-                                                child: Center(
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.redAccent,
-                                                      borderRadius: BorderRadius.circular(40),
-                                                    ),
-                                                    width: 7,
-                                                    height: 7,
-                                                  ),
-                                                ),
-                                              )
-                                          ),
+                                            top: 1,
+                                            right: -1,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.redAccent,
+                                                borderRadius: BorderRadius.circular(40),
+                                              ),
+                                              width: 8,
+                                              height: 8,
+                                            ),
+                                          )
                                       ],
                                     )
                                 )
@@ -1287,7 +1294,49 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                 },
               ),
             ],
-          )
+          ),
+          IgnorePointer(
+            ignoring: !showpp,
+            child: AnimatedOpacity(
+                opacity: showpp ? 1 : 0.0,
+                duration: const Duration(milliseconds: 150),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTapUp: (t){
+                    setState(() {
+                      showpp = false;
+                    });
+                  },
+                  child: GlassContainer(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    color: Colors.black.withOpacity(0.3),
+                    blur: 15,
+
+                  ),
+                )
+            ),
+          ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 400),
+            left: showpp ? MediaQuery.of(context).size.width*0.5 - 42 : 40,
+            top: showpp ? 330 : 100,
+            curve: Curves.easeOut,
+            child: AnimatedScale(
+              duration: const Duration(milliseconds: 300),
+              scale: showpp ? 2 : 0,
+              curve: Curves.easeOut,
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  radius: 42.0,
+                  backgroundImage: CachedNetworkImageProvider(profileImageUrl!),
+                ),
+              ),
+            ),
+          ),
         ],
       )
     );

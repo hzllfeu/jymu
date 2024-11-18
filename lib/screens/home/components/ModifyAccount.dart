@@ -15,6 +15,7 @@ import 'package:jymu/UserManager.dart';
 import 'package:jymu/screens/home/ModifyTags.dart';
 
 import '../../InputPage.dart';
+import '../../init_screen.dart';
 import 'TagList.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
@@ -155,6 +156,8 @@ class _ModifyAccountState extends State<ModifyAccount> {
                         }
                         Haptics.vibrate(HapticsType.success);
                         Navigator.pop(context);
+                        await Future.delayed(const Duration(milliseconds: 300));
+                        InterMessageManager().showmessage(text: "Enregistré", context: context);
                       }
                     },
                     child: GlassContainer(
@@ -190,9 +193,9 @@ class _ModifyAccountState extends State<ModifyAccount> {
               padding: EdgeInsets.all(16.0),
               height: MediaQuery.of(context).size.height * 0.7 + 50,
               width: double.infinity,
-              decoration: BoxDecoration(
-              color: const Color(0xFFF3F5F8),
-              borderRadius: const BorderRadius.only(
+              decoration: const BoxDecoration(
+              color: Color(0xFFF3F5F8),
+              borderRadius: BorderRadius.only(
               topLeft: Radius.circular(28.0),
               topRight: Radius.circular(28.0),
               ),
@@ -250,10 +253,10 @@ class _ModifyAccountState extends State<ModifyAccount> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             GestureDetector(
                               onTap: _pickImage,
-                              child: Text(
+                              child: const Text(
                                 "Changer ta photo de profil",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w700, fontSize: 16, color: Colors.redAccent),
@@ -282,7 +285,7 @@ class _ModifyAccountState extends State<ModifyAccount> {
                                   setState(() {});
                                 }
                               },
-                              child: Text(
+                              child: const Text(
                                 "Tags",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
@@ -291,7 +294,7 @@ class _ModifyAccountState extends State<ModifyAccount> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 40),
+                            const SizedBox(width: 40),
 
                             // Flexible widget to avoid overflow
                             Flexible(

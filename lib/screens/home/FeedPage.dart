@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:jymu/Models/TrainingModel.dart';
 import 'package:jymu/PostManager.dart';
 import 'package:jymu/screens/Connexion/UsernamePage.dart';
@@ -81,6 +82,8 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
     startAnim();
 
     loadTrainingModels();
+
+    refresher();
   }
 
   void scrollListener() {
@@ -90,11 +93,17 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
         _previousPage = index;
       });
 
-      if(index > counter - 2 && !loading && counter > 0){
+      if(index > counter - 2 && !loading && counter > 0 && feedfiends){
         loadTrainingModels();
       }
 
     }
+  }
+
+  Future<void> refresher() async {
+    await Future.delayed(const Duration(milliseconds: 2000));
+    setState(() {
+    });
   }
 
   Future<void> startAnim() async {
@@ -118,22 +127,6 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
     });
   }
 
-  String getPostIdForToday(List<dynamic> posts) {
-    DateTime today = DateTime.now();
-    DateTime todayStart = DateTime(today.year, today.month, today.day);
-
-    for (var post in posts) {
-      if (post['timestamp'] is Timestamp) {
-        DateTime postDate = (post['timestamp'] as Timestamp).toDate();
-
-        if (postDate.isAfter(todayStart) && postDate.isBefore(todayStart.add(Duration(days: 1)))) {
-          return post['training'];
-        }
-      }
-    }
-
-    return "none"; // Aucun post trouvé pour aujourd'hui
-  }
 
   TrainingModel tdytrn = TrainingModel();
   bool tdypostbool = false;
@@ -145,7 +138,12 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
     setState(() {
 
     });
-    if(loading) {
+    String idtmp = UserModel.currentUser().id ?? "";
+    while(idtmp.isEmpty){
+      await Future.delayed(const Duration(milliseconds: 500));
+      idtmp = UserModel.currentUser().id ?? "";
+    }
+    if(loading){
       return;
     }
 
@@ -170,9 +168,70 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
         await tmp.fetchExternalData(s);
         CachedData().trainings[s] = tmp;
       }
+      setState(() {
+        cachedTrainingsModels[counter] = tmp;
+        counter++;
+      });
+    }
+    setState(() {
+      finished = true;
+    });
 
-      cachedTrainingsModels[counter] = tmp;
-      counter++;
+    await loadTrainings();
+
+    if(counter == 0){
+      setState(() {
+        feedtrend = true;
+        feedfiends = false;
+        feedfyp = false;
+        changefeed = false;
+      });
+      loadTrendings();
+    }
+  }
+
+  Future<void> loadTrendings() async {
+    setState(() {
+
+    });
+    String idtmp = UserModel.currentUser().id ?? "";
+    while(idtmp.isEmpty){
+      await Future.delayed(const Duration(milliseconds: 500));
+      idtmp = UserModel.currentUser().id ?? "";
+    }
+    if(loading){
+      return;
+    }
+    counter = 0;
+    listPosts.clear();
+    cachedTrainings.clear();
+
+    loading = true;
+    List<String> tmp = await getTrendingPostIdsByScore();
+    listPosts.addAll(tmp);
+    listPosts.where((id) => id != "default").toSet().toList();
+
+
+    lastcounter = counter;
+
+    setState(() {
+
+    });
+
+    for (int i = lastcounter; i < listPosts.length; i++) {
+      String s = listPosts[counter];
+      TrainingModel tmp = TrainingModel();
+
+      if (CachedData().trainings.containsKey(s)) {
+        tmp = CachedData().trainings[s]!;
+      } else {
+        await tmp.fetchExternalData(s);
+        CachedData().trainings[s] = tmp;
+      }
+      setState(() {
+        cachedTrainingsModels[counter] = tmp;
+        counter++;
+      });
     }
     setState(() {
       finished = true;
@@ -201,7 +260,10 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  String _heroAddTodo = 'add-todo-hero';
+  bool changefeed = false;
+  bool feedfiends = true;
+  bool feedtrend = false;
+  bool feedfyp = false;
 
   @override
   Widget build(BuildContext context) {
@@ -276,62 +338,90 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(HeroDialogRoute(builder: (context) {
-                                return Hero(
-                                  tag: _heroAddTodo,
-                                  createRectTween: (begin, end) {
-                                    return CustomRectTween(begin: begin!, end: end!);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 100, right: 200, top: 100, bottom: 700),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: SizedBox(
-                                        height: 100,
-                                        width: 100,
-                                        child: GlassContainer(
-                                          width: 100,
-                                          height: 100,
-                                          blur: 10,
-                                          color: Colors.white.withOpacity(0.6),
-                                        ),
-                                      ),
+                            onTapUp: (t) {
+                              Haptics.vibrate(HapticsType.medium);
+                              setState(() {
+                                changefeed = true;
+                              });
+                            },
+                            child: Row(
+                              children: [
+                                if(feedtrend)
+                                  Text(
+                                    "Tendances",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 20,
+                                      color: Colors.black.withOpacity(0.7),
                                     ),
                                   ),
-                                );
-                              }));
-                            },
-                            child: Hero(
-                              tag: _heroAddTodo,
-                              createRectTween: (begin, end) {
-                                return CustomRectTween(begin: begin!, end: end!);
-                              },
-                              child: Material(
-                                color: Colors.transparent,
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Pour vous",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 20,
-                                        color: Colors.black.withOpacity(0.7),
-                                      ),
+                                if(feedfyp)
+                                  Text(
+                                    "Pour toi",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 20,
+                                      color: Colors.black.withOpacity(0.7),
                                     ),
-                                    SizedBox(width: 5),
-                                    Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Colors.black.withOpacity(0.8),
-                                      size: 18,
+                                  ),
+                                if(feedfiends)
+                                  Text(
+                                    "Tes amis",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 20,
+                                      color: Colors.black.withOpacity(0.7),
                                     ),
-                                  ],
+                                  ),
+                                const SizedBox(width: 5),
+                                Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Colors.black.withOpacity(0.8),
+                                  size: 18,
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                           Row(
                             children: [
+                              /*
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 0),
+                                child: GestureDetector(
+                                  onTapUp: (t) {
+                                    pcbis.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                  },
+                                  child: Container(
+                                    width: 150,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: Colors.redAccent.withOpacity(0.5),
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: Colors.white54,
+                                        width: 2,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.red.withOpacity(0.2),
+                                          spreadRadius: 1,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                               */
+                              const SizedBox(width: 15,),
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 5),
                                 child: GestureDetector(
@@ -342,35 +432,23 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                                     clipBehavior: Clip.none,
                                     alignment: Alignment.center,
                                     children: [
-                                      Icon(
-                                        CupertinoIcons.heart,
+                                      HugeIcon(
+                                        icon: HugeIcons.strokeRoundedFavourite,
                                         color: Colors.black.withOpacity(0.7),
-                                        size: 24,
-                                        weight: 50,
+                                        size: 24.0,
                                       ),
                                       if(StoredNotification().tday)
                                         Positioned(
-                                          top: 0,
-                                          right: 0,
+                                          top: 1,
+                                          right: -1,
                                           child: Container(
-                                            width: 10,
-                                            height: 10,
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
+                                              color: Colors.redAccent,
                                               borderRadius: BorderRadius.circular(40),
-
                                             ),
-                                            child: Center(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.redAccent,
-                                                  borderRadius: BorderRadius.circular(40),
-                                                ),
-                                                width: 7,
-                                                height: 7,
-                                              ),
-                                            ),
-                                          )
+                                            width: 8,
+                                            height: 8,
+                                          ),
                                         )
                                     ],
                                   ),
@@ -500,6 +578,201 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                   ),
                 ],
               ),
+              IgnorePointer(
+                ignoring: !changefeed,
+                child: AnimatedOpacity(
+                    opacity: changefeed ? 1 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTapUp: (t){
+                        setState(() {
+                          changefeed = false;
+                        });
+                      },
+                      child: GlassContainer(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        color: const Color(0xFFF3F5F8).withOpacity(0.5),
+                        blur: 10,
+
+                      ),
+                    )
+                ),
+              ),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  AnimatedPositioned(
+                      duration: const Duration(milliseconds: 600),
+                      top: changefeed ? 200 : 50,
+                      left: changefeed ? MediaQuery.of(context).size.width*0.2 : 40,
+                      curve: Curves.easeOutExpo,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 0),
+                        child: AnimatedScale(
+                          duration: const Duration(milliseconds: 300),
+                          scale: changefeed ? 1.6 : 0,
+                          curve: Curves.easeInOut,
+                          child: GlassContainer(
+                            color: Colors.black.withOpacity(0.5),
+                            width: 110,
+                            blur: 10,
+                            borderRadius: BorderRadius.circular(16),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTapUp: (t){
+                                      Haptics.vibrate(HapticsType.light);
+                                      setState(() {
+                                        feedfiends = true;
+                                        feedfyp = false;
+                                        feedtrend = false;
+                                        changefeed = false;
+                                        counter = 0;
+                                        listPosts.clear();
+                                        cachedTrainings.clear();
+                                      });
+                                      loadTrainingModels();
+                                    },
+                                    child: Container(
+                                      width: 110,
+                                      color: Colors.transparent,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              "Tes amis",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 10,
+                                                color: Colors.white.withOpacity(0.9),
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          ),
+                                          HugeIcon(
+                                            icon: HugeIcons.strokeRoundedUserMultiple02,
+                                            color: Colors.white.withOpacity(0.9),
+                                            size: 12,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7,),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                                    child: Container(
+                                      width: 300,
+                                      height: 1,
+                                      color: Colors.white.withOpacity(0.1),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7,),
+                                  GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTapUp: (t){
+                                      Haptics.vibrate(HapticsType.light);
+                                      setState(() {
+                                        feedfiends = false;
+                                        feedfyp = true;
+                                        feedtrend = false;
+                                        changefeed = false;
+                                      });
+                                    },
+                                    child: Container(
+                                      width: 110,
+                                      color: Colors.transparent,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              "Pour toi",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 10,
+                                                color: Colors.white.withOpacity(0.9),
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          ),
+                                          HugeIcon(
+                                            icon: HugeIcons.strokeRoundedMagicWand03,
+                                            color: Colors.white.withOpacity(0.9),
+                                            size: 12,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7,),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                                    child: Container(
+                                      width: 300,
+                                      height: 1,
+                                      color: Colors.white.withOpacity(0.1),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7,),
+
+                                  GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTapUp: (t){
+                                      Haptics.vibrate(HapticsType.light);
+                                      setState(() {
+                                        feedtrend = true;
+                                        feedfiends = false;
+                                        feedfyp = false;
+                                        changefeed = false;
+                                      });
+                                      loadTrendings();
+                                    },
+                                    child: Container(
+                                      width: 110,
+                                      color: Colors.transparent,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              "Tendances",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 10,
+                                                color: Colors.white.withOpacity(0.9),
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          ),
+                                          HugeIcon(
+                                            icon: HugeIcons.strokeRoundedFire,
+                                            color: Colors.white.withOpacity(0.9),
+                                            size: 12,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                  ),
+                ],
+              )
             ],
           )
 
@@ -509,4 +782,21 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
       )
     );
   }
+}
+
+String getPostIdForToday(List<dynamic> posts) {
+  DateTime today = DateTime.now();
+  DateTime todayStart = DateTime(today.year, today.month, today.day);
+
+  for (var post in posts) {
+    if (post['timestamp'] is Timestamp) {
+      DateTime postDate = (post['timestamp'] as Timestamp).toDate();
+
+      if (postDate.isAfter(todayStart) && postDate.isBefore(todayStart.add(Duration(days: 1)))) {
+        return post['training'];
+      }
+    }
+  }
+
+  return "none"; // Aucun post trouvé pour aujourd'hui
 }

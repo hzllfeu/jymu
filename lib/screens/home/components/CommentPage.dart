@@ -7,6 +7,7 @@ import 'package:jymu/screens/home/components/Notification.dart';
 
 import '../../../Models/TrainingModel.dart';
 import '../../InputPage.dart';
+import '../../init_screen.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
@@ -109,6 +110,7 @@ class _CommentPageState extends State<CommentPage> {
                   setState(() {
 
                   });
+                  InterMessageManager().showmessage(text: "Commentaire ajouté", context: context);
                 }
               },
               child: GlassContainer(

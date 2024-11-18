@@ -52,6 +52,7 @@ dependencies:
   cloud_functions: ^4.7.6
   path: ^1.9.0
   hugeicons: ^0.0.7
+  iconsax: ^0.0.8
   #flutter_native_splash: ^2.4.2
 
 flutter_launcher_icons:

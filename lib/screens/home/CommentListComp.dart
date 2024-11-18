@@ -14,6 +14,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../Models/CachedData.dart';
 import '../../Models/UserModel.dart';
 import '../InputPage.dart';
+import '../init_screen.dart';
 
 class CommentListComp extends StatefulWidget {
   final String id;
@@ -224,7 +225,7 @@ class _CommentListCompState extends State<CommentListComp> {
                   context: context,
                   builder: (BuildContext context) => CupertinoAlertDialog(
                     title: const Text('Supprimer'),
-                    content: Text('Es-tu vraiment sûr de vouloir supprimer ton commentaire ?'),
+                    content: const Text('Es-tu vraiment sûr de vouloir supprimer ton commentaire ?'),
                     actions: <CupertinoDialogAction>[
                       CupertinoDialogAction(
                         isDefaultAction: true,
@@ -239,6 +240,7 @@ class _CommentListCompState extends State<CommentListComp> {
                           Navigator.pop(context);
                           training.deleteComment(widget.id);
                           Haptics.vibrate(HapticsType.success);
+                          InterMessageManager().showmessage(text: "Commentaire supprimé", context: context);
                           setState(() {
 
                           });

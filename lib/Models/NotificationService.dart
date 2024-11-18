@@ -16,6 +16,7 @@ import 'package:uuid/uuid.dart';
 
 
 import '../main.dart';
+import '../screens/init_screen.dart';
 import 'CachedData.dart';
 
 class StoredNotification {
@@ -27,6 +28,10 @@ class StoredNotification {
   int ncom = 0;
   List<NotificationModel> notifs = [];
   bool tday = false;
+
+  bool tdaypostnotif1 = false;
+  bool tdaypostnotif2 = false;
+  bool tdaypostnotif3 = false;
 
   bool called = false;
 
@@ -41,14 +46,16 @@ class StoredNotification {
           .map((notif) => NotificationModel.fromMap(notif))
           .toList();
 
-      Set<String> seenIds = {}; // Ensemble pour garder une trace des IDs déjà ajoutés
+      Set<String> seenIds = {};
 
       for (var notif in allNotifs) {
         if (!seenIds.contains(notif.id)) {
-          seenIds.add(notif.id); // Ajouter l'ID à l'ensemble
-          notifs.add(notif); // Ajouter la notification à la liste finale
+          seenIds.add(notif.id);
+          notifs.add(notif);
         }
       }
+
+      List<String> tdypostid = getPostIdsForToday(UserModel.currentUser().trainings!);
 
       for(NotificationModel n in notifs){
         if(n.type == "abo"){
@@ -56,10 +63,31 @@ class StoredNotification {
         }
         if(n.type == "like"){
           nlike++;
+          for(int i = 0; i < tdypostid.length ; i++){
+            if(n.postid == tdypostid[i]){
+              if(i == 0){
+                tdaypostnotif1 = true;
+              } if(i == 1){
+                tdaypostnotif2 = true;
+              } if(i == 2){
+                tdaypostnotif3 = true;
+              }
+            }
+          }
         }
-        print(n.id);
         if(n.type == "com"){
           ncom++;
+          for(int i = 0; i < tdypostid.length ; i++){
+            if(n.postid == tdypostid[i]){
+              if(i == 0){
+                tdaypostnotif1 = true;
+              } if(i == 1){
+                tdaypostnotif2 = true;
+              } if(i == 2){
+                tdaypostnotif3 = true;
+              }
+            }
+          }
         }
       }
 

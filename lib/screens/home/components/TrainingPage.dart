@@ -29,38 +29,60 @@ class _TrainingPageState extends State<TrainingPage> {
   Widget build(BuildContext context) {
     return Hero(tag: "${widget.type}${widget.trn.id!}",
     child: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 70,),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        body: CustomScrollView(
+          slivers: [
+            CupertinoSliverRefreshControl(
+              onRefresh: () async {
+
+              },
+              builder: (context, refreshState, pulledExtent, refreshTriggerPullDistance, refreshIndicatorExtent) {
+                final double indicatorHeight = -30;
+                final double offset =
+                    (pulledExtent - indicatorHeight) / 2 + 50;
+
+                return Container(
+                  alignment: Alignment.topCenter,
+                  margin: EdgeInsets.only(top: offset),
+                  child: const CupertinoActivityIndicator(),
+                );
+              },
+            ),
+            SliverToBoxAdapter(
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    GestureDetector(
-                      onTapUp: (t) {
-                        Navigator.pop(context);
-                      },
-                      child: const Icon(
-                        CupertinoIcons.arrow_left,
-                        size: 22,
-                        color: CupertinoColors.systemGrey,
+                    const SizedBox(height: 70,),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTapUp: (t) {
+                              Navigator.pop(context);
+                            },
+                            child: const Icon(
+                              CupertinoIcons.arrow_left,
+                              size: 22,
+                              color: CupertinoColors.systemGrey,
+                            ),
+                          ),
+                          Text(widget.trn.username??"", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.black.withOpacity(0.7)),),
+                          const Icon(
+                            CupertinoIcons.arrow_left,
+                            size: 22,
+                            color: CupertinoColors.transparent,
+                          ),
+                        ],
                       ),
                     ),
-                    Text(widget.trn.username??"", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.black.withOpacity(0.7)),),
-                    const Icon(
-                      CupertinoIcons.arrow_left,
-                      size: 22,
-                      color: CupertinoColors.transparent,
-                    ),
+                    TrainingCard(trn: widget.trn,),
                   ],
                 ),
-              ),
-              TrainingCard(trn: widget.trn,),
-            ],
-          ),
-        )
+              )
+            ),
+          ],
+        ),
     )
     );
   }

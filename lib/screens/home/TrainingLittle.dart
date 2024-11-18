@@ -10,6 +10,7 @@ import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:jymu/Models/TrainingModel.dart';
 import 'package:jymu/screens/home/TrainingCard.dart';
 import 'package:jymu/screens/home/components/TrainingPage.dart';
+import 'package:jymu/screens/home/components/hero_dialog_route.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -116,7 +117,7 @@ class _TrainingLittleState extends State<TrainingLittle> with TickerProviderStat
             onTapUp: (t){
               Navigator.push(
                 context,
-                MaterialPageRoute(
+                HeroDialogRoute(
                   builder: (context) => TrainingPage(trn: widget.trn, type: widget.type,),
                 ),
               );

@@ -13,6 +13,7 @@ import 'package:jymu/Alexis/ia_gene.dart';
 import 'package:jymu/screens/home/FeedPage.dart';
 import 'package:jymu/screens/home/RecherchePage.dart';
 import 'package:jymu/Alexis/ia_gene.dart';
+import 'package:jymu/screens/home/components/hero_dialog_route.dart';
 import '../Alexis/get_exercise.dart';
 import '../Alexis/get_processed.dart';
 import '../Alexis/ia_gene.dart';
@@ -40,30 +41,30 @@ class InitScreen extends StatefulWidget {
   State<InitScreen> createState() => _InitScreenState();
 }
 
+List<String> getPostIdsForToday(List<dynamic> posts) {
+  DateTime today = DateTime.now();
+  DateTime todayStart = DateTime(today.year, today.month, today.day);
+
+  List<String> todayPostIds = [];
+
+  for (var post in posts) {
+    if (post['timestamp'] is Timestamp) {
+      DateTime postDate = (post['timestamp'] as Timestamp).toDate();
+
+      // Vérifiez si le post a été créé aujourd'hui
+      if (postDate.isAfter(todayStart) && postDate.isBefore(todayStart.add(Duration(days: 1)))) {
+        todayPostIds.add(post['training']); // Ajoutez l'ID du post à la liste
+      }
+    }
+  }
+
+  return todayPostIds; // Retourne la liste des IDs trouvés
+}
+
 
 class _InitScreenState extends State<InitScreen> {
   late int currentSelectedIndex;
   Future<void>? data;
-
-  List<String> getPostIdsForToday(List<dynamic> posts) {
-    DateTime today = DateTime.now();
-    DateTime todayStart = DateTime(today.year, today.month, today.day);
-
-    List<String> todayPostIds = [];
-
-    for (var post in posts) {
-      if (post['timestamp'] is Timestamp) {
-        DateTime postDate = (post['timestamp'] as Timestamp).toDate();
-
-        // Vérifiez si le post a été créé aujourd'hui
-        if (postDate.isAfter(todayStart) && postDate.isBefore(todayStart.add(Duration(days: 1)))) {
-          todayPostIds.add(post['training']); // Ajoutez l'ID du post à la liste
-        }
-      }
-    }
-
-    return todayPostIds; // Retourne la liste des IDs trouvés
-  }
 
   bool tdypostbool = false;
 
@@ -124,12 +125,23 @@ class _InitScreenState extends State<InitScreen> {
 
   }
 
+
   @override
   void initState() {
     super.initState();
     currentSelectedIndex = widget.initialIndex;
     loadProfile();
     data = getPostData();
+    var manager = InterMessageManager();
+
+    /*
+    manager.onMessageChanged.addListener(() {
+      if(manager.onMessageChanged.value){
+        showMessage();
+      }
+    });
+    */
+
     /*
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("debug");
@@ -234,7 +246,45 @@ class _InitScreenState extends State<InitScreen> {
                           const Positioned(
                             child: SizedBox(width: 0, height: 0),
                           ),
-                          // Premier élément
+
+                          AnimatedPositioned(
+                              duration: const Duration(milliseconds: 800),
+                              bottom: showposts ? 500 : -75,
+                              curve: Curves.easeOutExpo,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 5),
+                                child: AnimatedScale(
+                                  duration: const Duration(milliseconds: 400),
+                                  scale: showposts ? 1.6 : 0,
+                                  curve: Curves.easeInOut,
+                                  child: GlassContainer(
+                                    color: Colors.black.withOpacity(0.5),
+                                    blur: 10,
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              "Tes posts aujourd'hui",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 10,
+                                                color: Colors.white.withOpacity(0.9),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                          ),
+
                           AnimatedPositioned(
                             duration: const Duration(milliseconds: 800),
                             right: showposts ? postslist.length == 1 ? 45 : 100 : postslist.length == 1 ? -20 : postslist.length == 2 ? -25 : -30,
@@ -248,22 +298,49 @@ class _InitScreenState extends State<InitScreen> {
                                 children: [
                                   Hero(
                                     tag: "feed${postslist[0].id}",
-                                    child: Container(
-                                      width: 60,
-                                      height: 70,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.05),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: Colors.white54,
-                                          width: 2,
+                                    child: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        Container(
+                                          width: 60,
+                                          height: 70,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.05),
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: Colors.white54,
+                                              width: 2,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.2),
+                                                spreadRadius: 1,
+                                                blurRadius: 5,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                            image: DecorationImage(
+                                              image: Image.file(imagelist[0]!).image,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
                                         ),
-                                        image: DecorationImage(
-                                          image: Image.file(imagelist[0]!).image,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
+                                        if(StoredNotification().tdaypostnotif1)
+                                          Positioned(
+                                              top: -1,
+                                              left: -1,
+                                              child: Container(
+                                                width: 8,
+                                                height: 8,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.redAccent,
+                                                  borderRadius: BorderRadius.circular(40),
+
+                                                ),
+                                              )
+                                          )
+                                      ],
+                                    )
                                   ),
                                   if(showposts)
                                     const SizedBox(height: 9,),
@@ -315,7 +392,7 @@ class _InitScreenState extends State<InitScreen> {
 
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
+                                    HeroDialogRoute(
                                       builder: (context) => TrainingPage(
                                         trn: postslist[1],
                                         type: "feed",
@@ -331,22 +408,49 @@ class _InitScreenState extends State<InitScreen> {
                                     children: [
                                       Hero(
                                         tag: "feed${postslist[1].id}",
-                                        child: Container(
-                                          width: 60,
-                                          height: 70,
-                                          decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(0.05),
-                                            borderRadius: BorderRadius.circular(10),
-                                            border: Border.all(
-                                              color: Colors.white54,
-                                              width: 2,
+                                        child: Stack(
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            Container(
+                                              width: 60,
+                                              height: 70,
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withOpacity(0.05),
+                                                borderRadius: BorderRadius.circular(10),
+                                                border: Border.all(
+                                                  color: Colors.white54,
+                                                  width: 2,
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withOpacity(0.2),
+                                                    spreadRadius: 1,
+                                                    blurRadius: 5,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                                image: DecorationImage(
+                                                  image: Image.file(imagelist[1]!).image,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
                                             ),
-                                            image: DecorationImage(
-                                              image: Image.file(imagelist[1]!).image,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
+                                            if(StoredNotification().tdaypostnotif2)
+                                              Positioned(
+                                                  top: -1,
+                                                  left: -1,
+                                                  child: Container(
+                                                    width: 8,
+                                                    height: 8,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.redAccent,
+                                                      borderRadius: BorderRadius.circular(40),
+
+                                                    ),
+                                                  )
+                                              )
+                                          ],
+                                        )
                                       ),
                                       if(showposts)
                                         const SizedBox(height: 9,),
@@ -401,22 +505,49 @@ class _InitScreenState extends State<InitScreen> {
                                   children: [
                                     Hero(
                                       tag: "feed${postslist[2].id}",
-                                      child: Container(
-                                        width: 60,
-                                        height: 70,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.05),
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all(
-                                            color: Colors.white54,
-                                            width: 2,
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          Container(
+                                            width: 60,
+                                            height: 70,
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(0.05),
+                                              borderRadius: BorderRadius.circular(10),
+                                              border: Border.all(
+                                                color: Colors.white54,
+                                                width: 2,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.2),
+                                                  spreadRadius: 1,
+                                                  blurRadius: 5,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                              image: DecorationImage(
+                                                image: Image.file(imagelist[2]!).image,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
                                           ),
-                                          image: DecorationImage(
-                                            image: Image.file(imagelist[2]!).image,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
+                                          if(StoredNotification().tdaypostnotif3)
+                                            Positioned(
+                                                top: -1,
+                                                left: -1,
+                                                child: Container(
+                                                  width: 8,
+                                                  height: 8,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.redAccent,
+                                                    borderRadius: BorderRadius.circular(40),
+
+                                                  ),
+                                                )
+                                            )
+                                        ],
+                                      )
                                     ),
                                     if(showposts)
                                       const SizedBox(height: 9,),
@@ -545,43 +676,6 @@ class _InitScreenState extends State<InitScreen> {
                               ),
                             ),
 
-                          AnimatedPositioned(
-                              duration: const Duration(milliseconds: 800),
-                              bottom: showposts ? 500 : -75,
-                              curve: Curves.easeOutExpo,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 5),
-                              child: AnimatedScale(
-                                duration: const Duration(milliseconds: 400),
-                                scale: showposts ? 1.6 : 0,
-                                curve: Curves.easeInOut,
-                                child: GlassContainer(
-                                  color: Colors.black.withOpacity(0.5),
-                                  blur: 10,
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          child: Text(
-                                            "Tes posts aujourd'hui",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 10,
-                                              color: Colors.white.withOpacity(0.9),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          )
                         ],
                       ),
                   ),
@@ -599,7 +693,15 @@ class _InitScreenState extends State<InitScreen> {
                       height: 70,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        color: const Color(0xffe6e5e3)
+                        color: const Color(0xffe6e5e3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 5,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: const Center(
                         child: CupertinoActivityIndicator(radius: 8, color: Colors.black87,),
@@ -625,7 +727,15 @@ class _InitScreenState extends State<InitScreen> {
                         height: 70,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: const Color(0xffe6e5e3)
+                            color: const Color(0xffefefef),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: const Center(
                           child: Icon(CupertinoIcons.plus_app, color: Colors.redAccent, size: 18,),
@@ -703,7 +813,7 @@ class _InitScreenState extends State<InitScreen> {
                   Haptics.vibrate(HapticsType.light);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    HeroDialogRoute(
                       builder: (context) => TrainingPage(
                         trn: postslist[0],
                         type: "feed",
@@ -728,7 +838,7 @@ class _InitScreenState extends State<InitScreen> {
                     Haptics.vibrate(HapticsType.light);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      HeroDialogRoute(
                         builder: (context) => TrainingPage(
                           trn: postslist[1],
                           type: "feed",
@@ -761,7 +871,7 @@ class _InitScreenState extends State<InitScreen> {
                     Haptics.vibrate(HapticsType.light);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      HeroDialogRoute(
                         builder: (context) => TrainingPage(
                           trn: postslist[2],
                           type: "feed",
@@ -801,9 +911,175 @@ class _InitScreenState extends State<InitScreen> {
                   )
               ),
             ),
+          /*
+          Positioned(
+            bottom: 400,
+            child: AnimatedScale(
+              duration: playentry ? InterMessageManager().entryd : playexit ? InterMessageManager().exitd : InterMessageManager().midd,
+              scale: playentry ? 1 : playexit ? 0 : playmid ? 1 : 0,
+              curve: Curves.easeInOut,
+              child: GlassContainer(
+                color: Colors.black.withOpacity(0.5),
+                width: 110,
+                blur: 10,
+                borderRadius: BorderRadius.circular(14),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Center(
+                    child: Text(
+                      InterMessageManager().txt,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  )
+                ),
+              ),
+            )
+          ),
+
+
+           */
         ],
       )
     );
+  }
+}
+
+class InterMessageManager {
+  static final InterMessageManager _instance = InterMessageManager._internal();
+
+  bool show = false;
+  String txt = "";
+  Duration entryd = const Duration(milliseconds: 200);
+  Duration midd = const Duration(milliseconds: 3500);
+  Duration exitd = const Duration(milliseconds: 200);
+
+  final ValueNotifier<String> animationState = ValueNotifier("idle");
+
+  OverlayEntry? _overlayEntry;
+
+  InterMessageManager._internal();
+
+  factory InterMessageManager() {
+    return _instance;
+  }
+
+  Future<void> showmessage({
+    required BuildContext context,
+    Duration entry = const Duration(milliseconds: 200),
+    Duration mid = const Duration(milliseconds: 3500),
+    Duration exit = const Duration(milliseconds: 200),
+    String text = "",
+  }) async {
+    if (show) {
+      return; // Évite les superpositions multiples
+    }
+
+    entryd = entry;
+    midd = mid;
+    exitd = exit;
+    txt = text;
+    show = true;
+
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context)?.insert(_overlayEntry!);
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    animationState.value = "entry";
+    await Future.delayed(entry);
+
+    animationState.value = "mid";
+    await Future.delayed(mid);
+
+    animationState.value = "exit";
+    await Future.delayed(exit);
+
+    await Future.delayed(const Duration(milliseconds: 100));
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+
+    animationState.value = "idle";
+    show = false;
+    txt = "";
+  }
+
+  bool playentry = false;
+  bool playmid = false;
+  bool playexit = false;
+
+  OverlayEntry _createOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              Positioned(
+                left: (constraints.maxWidth - _calculateWidgetWidth()) / 2,
+                bottom: 550,
+                child: ValueListenableBuilder<String>(
+                  valueListenable: animationState,
+                  builder: (context, state, child) {
+                    double scale;
+                    Duration duration;
+
+                    if (state == "entry") {
+                      scale = 1;
+                      duration = entryd;
+                    } else if (state == "mid") {
+                      scale = 1;
+                      duration = midd;
+                    } else if (state == "exit") {
+                      scale = 0;
+                      duration = exitd;
+                    } else {
+                      scale = 0;
+                      duration = const Duration(milliseconds: 0);
+                    }
+
+                    return AnimatedScale(
+                      duration: duration,
+                      scale: scale,
+                      curve: Curves.easeInOut,
+                      child: child,
+                    );
+                  },
+                  child: GlassContainer(
+                    color: Colors.black.withOpacity(0.5),
+                    blur: 10,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      child: Center(
+                        child: DefaultTextStyle(
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                          child: Text(
+                            txt,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+  double _calculateWidgetWidth() {
+    const double basePadding = 24;
+    const double charWidth = 8;
+    return basePadding + (txt.length * charWidth).clamp(50, 300);
   }
 }
 

@@ -13,6 +13,7 @@ import 'package:jymu/screens/ProfilPageBis.dart';
 import 'package:jymu/screens/home/LoadingProfileList.dart';
 import 'package:jymu/screens/home/TrainingCard.dart';
 import 'package:jymu/screens/home/components/TrainingPage.dart';
+import 'package:jymu/screens/home/components/hero_dialog_route.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
@@ -266,7 +267,7 @@ class _NotifListCompState extends State<NotifListComp> {
                         onTapUp: (t){
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            HeroDialogRoute(
                               builder: (context) =>
                                   TrainingPage(trn: trn, type: widget.index.toString(),),
                             ),
@@ -349,7 +350,7 @@ class _NotifListCompState extends State<NotifListComp> {
                         onTapUp: (t){
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            HeroDialogRoute(
                               builder: (context) =>
                                   TrainingPage(trn: trn, type: widget.index.toString(),),
                             ),
