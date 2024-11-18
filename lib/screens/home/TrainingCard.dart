@@ -27,11 +27,9 @@ import 'components/TagList.dart';
 
 class TrainingCard extends StatefulWidget {
   final TrainingModel trn;
-  final File coverimage;
-  final bool coverbool;
 
   TrainingCard({
-    required this.trn, required this.coverimage, required this.coverbool,
+    required this.trn,
   });
 
   @override
@@ -225,14 +223,16 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
       liked = true;
     }
 
+    if(mounted){
+      setState(() {
+
+      });
+    }
+
     return;
 
     _updatePalette(true);
     _updatePalette(false);
-    setState(() {
-
-    });
-
   }
 
   @override
@@ -343,14 +343,14 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
-      height: size.height*0.8,
+      height: size.height*0.9,
       color: Colors.transparent,
       child: Column(
         children: [
           if(!loaded)
             SizedBox(height: size.height*0.01)
           else
-            SizedBox(height: size.height*0.02),
+            SizedBox(height: size.height*0.01),
           if(loaded)
             SizedBox(
               height: size.height*0.55,
@@ -367,8 +367,8 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                         color: const Color(0xffff5d5d),
                         boxShadow: [ BoxShadow(
                           color: !showFirstImage ? firstMainColor.withOpacity(0.3) : showFirstImage ? secondMainColor.withOpacity(0.3) : Colors.black.withOpacity(0.3),
-                          spreadRadius: 2,
-                          blurRadius: 15,
+                          spreadRadius: 1,
+                          blurRadius: 10,
                           offset: const Offset(0, -1),
                         ),
                         ],
@@ -409,8 +409,8 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                                 ),
                                 boxShadow: [ BoxShadow(
                                   color: showFirstImage ? firstMainColor.withOpacity(0.5) : !showFirstImage ? secondMainColor.withOpacity(0.5) : Colors.black.withOpacity(0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 15,
+                                  spreadRadius: 1,
+                                  blurRadius: 10,
                                   offset: const Offset(0, 2),
                                 ),
                                 ],
@@ -662,7 +662,266 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
               ),
             ),
 
+          if(loaded)
+            Padding(
+              padding: EdgeInsets.only(left: size.width*0.052, right: size.width*0.052, top: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      padding: EdgeInsets.only(left: 15, top: 2, bottom: 2, right: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            spreadRadius: 0.3,
+                            blurRadius: 3,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Image.asset("assets/images/emoji_sablier.png", height: 14,),
+                                  const SizedBox(width: 2,),
+                                  Image.asset("assets/images/emoji_pin.png", height: 14,),
+                                ],
+                              ),
+                              const SizedBox(height: 5,),
+                              SizedBox(
+                                width: size.width*0.36,
+                                child: DefaultTextStyle(
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 6.5 * (size.height / size.width),
+                                    color: Colors.black.withOpacity(0.7),
+                                  ),
+                                  child: DateTime.now().day != training.date?.toDate().day
+                                      ? Text(
+                                    "${formatDateMonth(training.date!.toDate())}, La Défense",
+                                    overflow: TextOverflow.ellipsis, // Limite l'affichage
+                                    maxLines: 1, // S'assure que le texte reste sur une ligne
+                                  )
+                                      : Text(
+                                    '${training.date?.toDate().hour.toString().padLeft(2, '0')}:${training.date?.toDate().minute.toString().padLeft(2, '0')}, La Défense',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8,),
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            spreadRadius: 0.3,
+                            blurRadius: 3,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTapUp: (t){
+                              _handleTap();
+                            },
+                            child: Container(
+                              height: 35,
+                              width: size.width*0.18,
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent.withOpacity(0.8),
+                                borderRadius: BorderRadius.circular(34),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(formatNumber(training.likes!.length), style: TextStyle(color: Colors.white.withOpacity(1), fontSize: 12, fontWeight: FontWeight.w700),),
+                                  const SizedBox(width: 6,),
+                                  Icon(CupertinoIcons.heart_fill, color: Colors.white.withOpacity(1), size: 16,)
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 5,),
+                          GestureDetector(
+                            onTapUp: (t){
+                              showModalBottomSheet(
+                                context: context,
+                                barrierColor: Colors.black.withOpacity(0.3),
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(24),
+                                  ),
+                                ),
+                                builder: (BuildContext context) {
+                                  return ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(24),
+                                    ),
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      width: double.infinity,
+                                      height: size.height * 0.8,
+                                      color: Colors.transparent,
+                                      child: CommentPage(trn: training),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              height: 35,
+                              width: size.width*0.18,
+                              decoration: BoxDecoration(
+                                color: Colors.deepOrange.withOpacity(0.8),
+                                borderRadius: BorderRadius.circular(34),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(formatNumber(training.comments!.length), style: TextStyle(color: Colors.white.withOpacity(1), fontSize: 12, fontWeight: FontWeight.w700),),
+                                  const SizedBox(width: 5,),
+                                  Icon(CupertinoIcons.bubble_right_fill, color: Colors.white.withOpacity(1), size: 16,)
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
+          if(loaded)
+            Padding(
+              padding: EdgeInsets.only(top: 10, right: size.width*0.052, left: size.width*0.052),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [ BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          spreadRadius: 0.3,
+                          blurRadius: 3,
+                          offset: const Offset(0, 2),
+                        ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Tags", style: TextStyle(color: Colors.black.withOpacity(0.5), fontWeight: FontWeight.w700, fontSize: 12),),
+                                GestureDetector(
+                                  onTapUp: (t){
+                                    _showActionSheet(context);
+                                  },
+                                  child: Icon(Icons.more_vert_sharp, color: Colors.black.withOpacity(0.6), size: 16,),
+                                )
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 5,),
+                          if(training.tags?.isNotEmpty ?? false)
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: SizedBox(
+                                height: 50,
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: ShaderMask(
+                                    shaderCallback: (Rect bounds) {
+                                      return LinearGradient(
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                        colors: [
+                                          Colors.black.withOpacity(0.00),  // Moins opaque au début (plus court à gauche)
+                                          Colors.black.withOpacity(0.0),
+                                          Colors.black.withOpacity(0.5),
+                                          Colors.black.withOpacity(0.7),
+                                          Colors.black.withOpacity(0.9),
+                                          Colors.black,  // Opacité totale à droite
+                                          Colors.transparent,  // Transparence totale à droite
+                                        ],
+                                        stops: const [0.0, 0.005, 0.03, 0.2, 0.5, 0.85, 1.0],
+                                      ).createShader(bounds);
+                                    },
+                                    blendMode: BlendMode.dstIn,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 10),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: List.generate(
+                                            training.tags?.length ?? 0,
+                                                (index) => getTag(training.tags![index] ?? "false", false, context),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            Text("${training.username} n'a pas mit de tags :(", style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 12, fontWeight: FontWeight.w500),),
+
+                          const SizedBox(height: 5,),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            child: Text("Voir la séance", style: TextStyle(color: Colors.black.withOpacity(0.5), fontWeight: FontWeight.w700, fontSize: 12),),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          /*
           if(loaded)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width*0.055),
@@ -907,6 +1166,8 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
               ),
             ),
 
+           */
+
           if(!loaded)
             const LoadingTraining(),
         ],
@@ -917,11 +1178,11 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
   String formatDateMonth(DateTime date) {
     DateTime now = DateTime.now();
 
-    List<String> months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    List<String> months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juilliet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
     String day = date.day.toString();
     String monthAbbr = months[date.month - 1];
-    String formattedDate = '$day, $monthAbbr';
+    String formattedDate = '$day $monthAbbr';
 
     if (date.year != now.year) {
       formattedDate += ' ${date.year}';

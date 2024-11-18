@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Assurez-vous d'avoir Cloud Firestore configuré
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -61,8 +62,14 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver{
 
       // Si la connexion réussit, l'utilisateur est connecté
       User? user = userCredential.user;
-      print(user?.displayName);
       await UserModel.currentUser().fetchUserData();
+
+      DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user?.uid);
+      String? token = "";
+        token = await FirebaseMessaging.instance.getToken();
+        await docRef.update({
+          'fcmToken': token,
+        });
 
       if (user != null) {
         Navigator.push(

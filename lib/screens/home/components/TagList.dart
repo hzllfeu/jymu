@@ -119,7 +119,7 @@ Widget getTag(String tag, bool list, context){
         padding: EdgeInsets.symmetric(horizontal: list ? 10 : 5),
         margin: EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
-          color: Color(0xFFFFD700),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -154,9 +154,9 @@ Widget getTag(String tag, bool list, context){
       child: Container(
         height: 13 * (MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
         padding: EdgeInsets.symmetric(horizontal: list ? 10 : 5),
-        margin: EdgeInsets.symmetric(horizontal: 5),
+        margin: const EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
-          color: Color(0xFFFFD700),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -176,9 +176,9 @@ Widget getTag(String tag, bool list, context){
                 fontSize: 6 * (MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
                 color: Colors.black.withOpacity(0.7),
               ),
-              child: Text("Ami avec timy"),
+              child: const Text("Ami avec timy"),
             ),
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             Image.asset("assets/images/emoji_hands.png", height: 6 * (MediaQuery.of(context).size.height/MediaQuery.of(context).size.width)),
           ],
         ),
@@ -193,7 +193,7 @@ Widget getTag(String tag, bool list, context){
         padding: EdgeInsets.symmetric(horizontal: list ? 10 : 5),
         margin: EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
-          color: Color(0xFFFFD700),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(

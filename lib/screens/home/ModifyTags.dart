@@ -37,11 +37,11 @@ class _ModifyTagsState extends State<ModifyTags> {
   void toggleTagSelection(String tag) {
     setState(() {
       if (tags.contains(tag)) {
-        tags.remove(tag); // Retire des tags sélectionnés
-        allTags.add(tag); // Remet dans les tags disponibles
-      } else {
-        tags.add(tag); // Ajoute aux tags sélectionnés
-        allTags.remove(tag); // Retire des tags disponibles
+        tags.remove(tag);
+        allTags.add(tag);
+      } else if(tags.length < 5){
+        tags.add(tag);
+        allTags.remove(tag);
       }
       Haptics.vibrate(HapticsType.light);
     });
@@ -52,7 +52,7 @@ class _ModifyTagsState extends State<ModifyTags> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -64,7 +64,30 @@ class _ModifyTagsState extends State<ModifyTags> {
         ),
         child: Stack(
           children: [
-
+            Positioned(
+              top: 70,
+              left: 15,
+              child: GestureDetector(
+                onTapUp: (t) {
+                  Navigator.pop(context);
+                },
+                child: GlassContainer(
+                    height: 38,
+                    color: Colors.white.withOpacity(0.8),
+                    blur: 10,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Center(
+                        child: Icon(
+                          CupertinoIcons.arrow_left,
+                          size: 22,
+                          color: CupertinoColors.black.withOpacity(0.8),
+                        ),
+                      ),
+                    )
+                ),
+              ),
+            ),
             Positioned(
               top: 70,
               right: 15,
@@ -125,7 +148,7 @@ class _ModifyTagsState extends State<ModifyTags> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 30),
+                        const SizedBox(height: 15),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20),
                           child: CupertinoSearchTextField(
@@ -138,8 +161,7 @@ class _ModifyTagsState extends State<ModifyTags> {
                             },
                           ),
                         ),
-                        SizedBox(height: 20),
-                        // Affichage des tags disponibles
+                        const SizedBox(height: 10),
 
                         Expanded(
                           child: SingleChildScrollView(

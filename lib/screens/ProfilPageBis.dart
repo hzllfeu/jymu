@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:jymu/Models/TrainingModel.dart';
 import 'package:jymu/Models/UserModel.dart';
 import 'package:jymu/UserManager.dart' as um;
@@ -29,8 +30,10 @@ import 'package:jymu/screens/home/components/PostCard.dart';
 import 'package:jymu/screens/home/components/ProfileComp.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:palette_generator/palette_generator.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 import '../../Models/CachedData.dart';
+import '../Models/NotificationService.dart';
 import 'InputPage.dart';
 import 'home/LoadingProfile.dart';
 import 'home/components/TagList.dart';
@@ -50,6 +53,8 @@ class ProfilPageBis extends StatefulWidget {
 class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  late AnimationController _controllernotif;
+  late Animation<double> _scaleAnimationotif;
   late Animation<double> _colorAnimation;
   Future<void>? _fetchDataFuture;
 
@@ -71,6 +76,8 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
   List<dynamic>? follow;
   List<dynamic>? likes;
   List<dynamic>? trainings;
+
+  bool notifvisible = false;
 
   List<dynamic>? tags;
   bool ownProf = false;
@@ -138,7 +145,7 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
@@ -150,7 +157,7 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
       _getFlexibleContentHeight();
     });
 
-    _fetchDataFuture = _fetchData();
+    _fetchDataFuture = _fetchData(false);
 
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(
@@ -165,6 +172,17 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
         curve: Curves.easeOut,
       ),
     );
+
+    _controllernotif = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+
+    _scaleAnimationotif = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _controllernotif, curve: Curves.easeInOut),
+    );
+
+    startAnim();
   }
 
   void handleFollow() {
@@ -188,10 +206,20 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
     });
   }
 
+  Future<void> startAnim() async {
+    await Future.delayed(const Duration(milliseconds: 1000));
+    setState(() {
+      notifvisible = true;
+    });
+    _controllernotif.reset();
+    _controllernotif.forward();
+  }
+
   @override
   void dispose() {
     _controller.dispose();
     tabController.dispose();
+    _controllernotif.dispose();
     super.dispose();
   }
 
@@ -206,7 +234,7 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
   }
 
 
-  Future<void> _fetchData() async {
+  Future<void> _fetchData(bool refresh) async {
     try {
       if (id != null) {
         if (id == FirebaseAuth.instance.currentUser?.uid) {
@@ -215,6 +243,14 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
           });
         }
         if (!ownProf) {
+
+          if(refresh){
+            if(CachedData().users.containsKey(id!)){
+              CachedData().users.remove(id!);
+              CachedData().links.remove(id!);
+            }
+          }
+
           if(CachedData().users.containsKey(id!)){
             targetUser = CachedData().users[id!]!;
           } else {
@@ -529,188 +565,193 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                   child: CupertinoActivityIndicator(radius: 14,),
                 );
               } else if (snapshot.hasError) {
-                return Center(child: Text('Erreur de chargement des trainings'));
+                return const Center(child: Text('Erreur de chargement des trainings'));
               } else {
-                return Padding(padding: EdgeInsets.only(right: 8, left: 8),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 0, top: size.height*0.13,),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 10),
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.redAccent.withOpacity(0),
-                                      spreadRadius: 5,
-                                      blurRadius: 30,
-                                      offset: Offset(0, 0),
-                                    ),
-                                  ],
-                                ),
-                                child: CircleAvatar(
-                                  radius: 42.0,
-                                  backgroundImage: CachedNetworkImageProvider(profileImageUrl!),
-                                ),
-                              ),
-
-                              SizedBox(width: 10),
-
-                              Flexible(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: size.width*0.06),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "Posts",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 13,
-                                              color: CupertinoColors.systemGrey,
-                                            ),
-                                          ),
-                                          SizedBox(height: 3),
-                                          Text(
-                                            formatNumber(trainings!.length),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 19,
-                                              color: Colors.black.withOpacity(0.8),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-
-                                      GestureDetector(
-                                        onTapUp: (t) {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 1)),
-                                            ),
-                                          );
-                                          Haptics.vibrate(HapticsType.light);
-                                        },
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              "Abonnés",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 13,
-                                                color: CupertinoColors.systemGrey,
-                                              ),
-                                            ),
-                                            SizedBox(height: 3),
-                                            Text(
-                                              formatNumber(followers!.length),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 19,
-                                                color: Colors.black.withOpacity(0.8),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-
-                                      GestureDetector(
-                                        onTapUp: (t) {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 2)),
-                                            ),
-                                          );
-                                          Haptics.vibrate(HapticsType.light);
-                                        },
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              "Suivis",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 13,
-                                                color: CupertinoColors.systemGrey,
-                                              ),
-                                            ),
-                                            SizedBox(height: 3),
-                                            Text(
-                                              formatNumber(follow!.length),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 19,
-                                                color: Colors.black.withOpacity(0.8),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                return Padding(padding: const EdgeInsets.only(right: 8, left: 8, top: 125),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      _fetchDataFuture = _fetchData(true);
+                  },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 0, top: 0,),
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 10),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.redAccent.withOpacity(0),
+                                        spreadRadius: 5,
+                                        blurRadius: 30,
+                                        offset: const Offset(0, 0),
                                       ),
                                     ],
                                   ),
+                                  child: CircleAvatar(
+                                    radius: 42.0,
+                                    backgroundImage: CachedNetworkImageProvider(profileImageUrl!),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 10,),
-                        if(bio!.isNotEmpty)
-                          SizedBox(height: 10,),
-                        if(bio!.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(left: 15),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(bio!, style: TextStyle(
-                                  color: Colors.black.withOpacity(0.8),
-                                  fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
-                                  fontWeight: FontWeight.w600), textAlign: TextAlign.left,),
+
+                                const SizedBox(width: 10),
+
+                                Flexible(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: size.width*0.06),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            const Text(
+                                              "Posts",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 13,
+                                                color: CupertinoColors.systemGrey,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              formatNumber(trainings!.length),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 19,
+                                                color: Colors.black.withOpacity(0.8),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        GestureDetector(
+                                          onTapUp: (t) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 1)),
+                                              ),
+                                            );
+                                            Haptics.vibrate(HapticsType.light);
+                                          },
+                                          child: Column(
+                                            children: [
+                                              const Text(
+                                                "Abonnés",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 13,
+                                                  color: CupertinoColors.systemGrey,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 3),
+                                              Text(
+                                                formatNumber(followers!.length),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 19,
+                                                  color: Colors.black.withOpacity(0.8),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        GestureDetector(
+                                          onTapUp: (t) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => Scaffold(body: RechercheProfil(id: id, index: 2)),
+                                              ),
+                                            );
+                                            Haptics.vibrate(HapticsType.light);
+                                          },
+                                          child: Column(
+                                            children: [
+                                              const Text(
+                                                "Suivis",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 13,
+                                                  color: CupertinoColors.systemGrey,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 3),
+                                              Text(
+                                                formatNumber(follow!.length),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 19,
+                                                  color: Colors.black.withOpacity(0.8),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        if (tags?.isNotEmpty ?? false)
-                          SizedBox(height: 15,),
-                        if (tags?.isNotEmpty ?? false)
-                          Padding(
-                            padding: EdgeInsets.only(left: 5),
-                            child: SizedBox(
-                              height: 50,
+                          const SizedBox(height: 10,),
+                          if(bio!.isNotEmpty)
+                            const SizedBox(height: 10,),
+                          if(bio!.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15),
                               child: Align(
                                 alignment: Alignment.centerLeft,
-                                child: ShaderMask(
-                                  shaderCallback: (Rect bounds) {
-                                    return LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        Colors.black.withOpacity(0.00),  // Moins opaque au début (plus court à gauche)
-                                        Colors.black.withOpacity(0.0),
-                                        Colors.black.withOpacity(0.5),
-                                        Colors.black.withOpacity(0.7),
-                                        Colors.black.withOpacity(0.9),
-                                        Colors.black,  // Opacité totale à droite
-                                        Colors.transparent,  // Transparence totale à droite
-                                      ],
-                                      stops: [0.0, 0.005, 0.03, 0.2, 0.5, 0.85, 1.0],
-                                    ).createShader(bounds);
-                                  },
-                                  blendMode: BlendMode.dstIn,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Padding(
-                                      padding: EdgeInsets.only(bottom: 10),
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: List.generate(
-                                          tags?.length ?? 0,
-                                              (index) => getTag(tags![index] ?? "false", false, context),
+                                child: Text(bio!, style: TextStyle(
+                                    color: Colors.black.withOpacity(0.8),
+                                    fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width),
+                                    fontWeight: FontWeight.w600), textAlign: TextAlign.left,),
+                              ),
+                            ),
+                          if (tags?.isNotEmpty ?? false)
+                            const SizedBox(height: 15,),
+                          if (tags?.isNotEmpty ?? false)
+                            Padding(
+                              padding: EdgeInsets.only(left: 5),
+                              child: SizedBox(
+                                height: 50,
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: ShaderMask(
+                                    shaderCallback: (Rect bounds) {
+                                      return LinearGradient(
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                        colors: [
+                                          Colors.black.withOpacity(0.00),  // Moins opaque au début (plus court à gauche)
+                                          Colors.black.withOpacity(0.0),
+                                          Colors.black.withOpacity(0.5),
+                                          Colors.black.withOpacity(0.7),
+                                          Colors.black.withOpacity(0.9),
+                                          Colors.black,  // Opacité totale à droite
+                                          Colors.transparent,  // Transparence totale à droite
+                                        ],
+                                        stops: const [0.0, 0.005, 0.03, 0.2, 0.5, 0.85, 1.0],
+                                      ).createShader(bounds);
+                                    },
+                                    blendMode: BlendMode.dstIn,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 10),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: List.generate(
+                                            tags?.length ?? 0,
+                                                (index) => getTag(tags![index] ?? "false", false, context),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -718,390 +759,535 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                                 ),
                               ),
                             ),
-                          ),
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 0),
-                            child: GestureDetector(
-                              onTapUp: (t) async {
-                                if (ownProf) {
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Scaffold(
-                                        body: ModifyAccount(
-                                          pp: profileImageUrl,
+                          Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 0),
+                              child: GestureDetector(
+                                onTapUp: (t) async {
+                                  if (ownProf) {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Scaffold(
+                                          body: ModifyAccount(
+                                            pp: profileImageUrl,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                  CachedData().links.remove(id!);
-                                  CachedData().users.remove(id!);
-                                  _fetchDataFuture = _fetchData();
-                                } else {
-                                  if (!followed) {
-                                    await um.followUser(FirebaseAuth.instance.currentUser!.uid, id!);
-                                    handleFollow();
-                                    Haptics.vibrate(HapticsType.success);
-                                  } else {
-                                    showCupertinoDialog<void>(
-                                      context: context,
-                                      builder: (BuildContext context) => CupertinoAlertDialog(
-                                        title: const Text('Ne plus suivre'),
-                                        content: Text('Es-tu sûr de ne plus vouloir suivre $username ?'),
-                                        actions: <CupertinoDialogAction>[
-                                          CupertinoDialogAction(
-                                            isDefaultAction: true,
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text('Non'),
-                                          ),
-                                          CupertinoDialogAction(
-                                            isDestructiveAction: true,
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              handleUnFollow();
-                                            },
-                                            child: const Text('Oui'),
-                                          ),
-                                        ],
-                                      ),
                                     );
-                                    Haptics.vibrate(HapticsType.success);
+                                    CachedData().links.remove(id!);
+                                    CachedData().users.remove(id!);
+                                    _fetchDataFuture = _fetchData(false);
+                                  } else {
+                                    if (!followed) {
+                                      await um.followUser(FirebaseAuth.instance.currentUser!.uid, id!);
+                                      handleFollow();
+                                      Haptics.vibrate(HapticsType.success);
+                                    } else {
+                                      showCupertinoDialog<void>(
+                                        context: context,
+                                        builder: (BuildContext context) => CupertinoAlertDialog(
+                                          title: const Text('Ne plus suivre'),
+                                          content: Text('Es-tu sûr de ne plus vouloir suivre $username ?'),
+                                          actions: <CupertinoDialogAction>[
+                                            CupertinoDialogAction(
+                                              isDefaultAction: true,
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Non'),
+                                            ),
+                                            CupertinoDialogAction(
+                                              isDestructiveAction: true,
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                handleUnFollow();
+                                              },
+                                              child: const Text('Oui'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      Haptics.vibrate(HapticsType.success);
+                                    }
                                   }
-                                }
-                              },
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 45,
+                                  decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                      border: Border.all(color: Colors.redAccent.withOpacity(0.9),width: 1.5,),
+                                      borderRadius: BorderRadius.circular(8)
+                                  ),
+                                  child: Center(
+                                    child: ownProf ? Text("Modifier", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
+                                        : followed ? Text("Ne plus suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
+                                        : isFollowing ? Text("Suivre en retour", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),) : Text("Suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),),
+                                  ),
+                                ),
+                              )
+                          ),
+                          const SizedBox(height: 5,),
+                          Container(
+                            height: 40,
+                            width: double.infinity,
+                            color: const Color(0xFFF3F5F8),
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.all(Radius.circular(7)),
                               child: Container(
-                                width: double.infinity,
-                                height: 45,
+                                height: 40,
                                 decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    border: Border.all(color: Colors.redAccent.withOpacity(0.9),width: 1.5,),
-                                    borderRadius: BorderRadius.circular(8)
+                                  borderRadius: const BorderRadius.all(Radius.circular(7)),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.redAccent.withOpacity(0.3),
+                                      Colors.deepOrange.withOpacity(0.3),
+                                    ],
+                                  ),
                                 ),
-                                child: Center(
-                                  child: ownProf ? Text("Modifier", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
-                                      : followed ? Text("Ne plus suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),)
-                                      : isFollowing ? Text("Suivre en retour", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),) : Text("Suivre", style: TextStyle(color: Colors.redAccent.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w600),),
-                                ),
-                              ),
-                            )
-                        ),
-                        SizedBox(height: 5,),
-                        Container(
-                          height: 40,
-                          width: double.infinity,
-                          color: const Color(0xFFF3F5F8),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.all(Radius.circular(7)),
-                            child: Container(
-                              height: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(Radius.circular(7)),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.redAccent.withOpacity(0.3),
-                                    Colors.deepOrange.withOpacity(0.3),
+                                child: TabBar(
+                                  controller: tabController,
+                                  enableFeedback: true,
+                                  onTap: (i) {
+                                    setState(() {
+                                      isFirstSelected = i == 0;
+                                      isSecondSelected = i == 1;
+                                      isThirdSelected = i == 2;
+                                      Haptics.vibrate(HapticsType.light);
+                                    });
+                                  },
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  dividerColor: Colors.transparent,
+                                  indicator: const BoxDecoration(
+                                    color: Colors.deepOrange,
+                                    borderRadius: BorderRadius.all(Radius.circular(7)),
+                                  ),
+                                  labelColor: Colors.white,
+                                  unselectedLabelColor: Colors.black54,
+                                  tabs: [
+                                    Tab(text: '${ownProf ? UserModel.currentUser().trainings?.length: targetUser.trainings?.length} Trainings'),
+                                    Tab(text: '${ownProf ? UserModel.currentUser().posts?.length: targetUser.posts?.length} Posts'),
                                   ],
                                 ),
                               ),
-                              child: TabBar(
-                                controller: tabController,
-                                enableFeedback: true,
-                                onTap: (i) {
-                                  setState(() {
-                                    isFirstSelected = i == 0;
-                                    isSecondSelected = i == 1;
-                                    isThirdSelected = i == 2;
-                                    Haptics.vibrate(HapticsType.light);
-                                  });
-                                },
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                dividerColor: Colors.transparent,
-                                indicator: BoxDecoration(
-                                  color: Colors.deepOrange,
-                                  borderRadius: BorderRadius.all(Radius.circular(7)),
-                                ),
-                                labelColor: Colors.white,
-                                unselectedLabelColor: Colors.black54,
-                                tabs: [
-                                  Tab(text: '${ownProf ? UserModel.currentUser().trainings?.length: targetUser.trainings?.length} Trainings'),
-                                  Tab(text: '${ownProf ? UserModel.currentUser().posts?.length: targetUser.posts?.length} Posts'),
-                                ],
-                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(height: 4,),
-                        TrainingsProfile(user: ownProf ? UserModel.currentUser(): targetUser)
-                      ],
+                          const SizedBox(height: 4,),
+                          TrainingsProfile(user: ownProf ? UserModel.currentUser(): targetUser)
+                        ],
+                      ),
                     ),
                   )
                 );
               }
             },
           ),
-          GlassContainer(
-            height: MediaQuery.of(context).size.height*0.12,
-            width: MediaQuery.of(context).size.width,
-            color: Color(0xFFF3F5F8).withOpacity(0.85),
-            blur: 10,
-            child: Padding(
-              padding: EdgeInsets.only(right: MediaQuery.of(context).size.width*0.05, bottom: 10, left: MediaQuery.of(context).size.width*0.05),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if(!ownProf)
-                    Row(
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              GlassContainer(
+                height: 115,
+                width: MediaQuery.of(context).size.width,
+                color: const Color(0xFFF3F5F8).withOpacity(0.85),
+                blur: 10,
+                child: Padding(
+                  padding: EdgeInsets.only(right: MediaQuery.of(context).size.width*0.05, bottom: 10, left: MediaQuery.of(context).size.width*0.05),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 5),
-                        child: GestureDetector(
-                          onTapUp: (t) {
-                            if(!ownProf){
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Icon(
-                            Icons.arrow_back_ios,
-                            size: 18,
-                            color: ownProf ? Colors.transparent : CupertinoColors.black.withOpacity(0.8),
-                          ),
+                      if(!ownProf)
+                        Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 5),
+                              child: GestureDetector(
+                                onTapUp: (t) {
+                                  if(!ownProf){
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: Icon(
+                                  Icons.arrow_back_ios,
+                                  size: 18,
+                                  color: ownProf ? Colors.transparent : CupertinoColors.black.withOpacity(0.8),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10,),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 5),
+                              child: FutureBuilder(
+                                future: _fetchDataFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const SizedBox();
+                                  } else if (snapshot.hasError) {
+                                    return SizedBox();
+                                  } else {
+                                    return Text(
+                                      "$username",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 22,
+                                          color: Colors.black.withOpacity(0.7)
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 15,),
+                            if (!ownProf && !friendppempty)
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 5),
+                                child: GestureDetector(
+                                  onTapUp: (t) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Scaffold(
+                                          body: RechercheProfil(id: id, index: 0),
+                                        ),
+                                      ),
+                                    );
+                                    Haptics.vibrate(HapticsType.light);
+                                  },
+                                  child: GlassContainer(
+                                    height: 28,
+                                    color: Colors.black.withOpacity(0.3),
+                                    blur: 10,
+                                    borderRadius: BorderRadius.circular(18),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Suivi(e) par   ",
+                                            style: TextStyle(
+                                              color: Colors.white.withOpacity(0.8),
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          FutureBuilder<Widget>(
+                                            future: _friendsPPFuture,
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                return CupertinoActivityIndicator(radius: 8);
+                                              } else if (snapshot.hasError) {
+                                                return Text('Erreur : ${snapshot.error}');
+                                              } else if (snapshot.hasData) {
+                                                return GestureDetector(
+                                                  onTapUp: (t) {
+                                                  },
+                                                  child: snapshot.data!,
+                                                );
+                                              } else {
+                                                return SizedBox.shrink();
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            else if(friend)
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 0),
+                                child: GestureDetector(
+                                  onTapUp: (t) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Scaffold(
+                                          body: RechercheProfil(id: id, index: 0),
+                                        ),
+                                      ),
+                                    );
+                                    Haptics.vibrate(HapticsType.light);
+                                  },
+                                  child: GlassContainer(
+                                    height: 28,
+                                    color: Colors.black.withOpacity(0.3),
+                                    blur: 10,
+                                    borderRadius: BorderRadius.circular(18),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Amis  ",
+                                            style: TextStyle(
+                                              color: Colors.white.withOpacity(0.8),
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          Icon(
+                                            CupertinoIcons.person_solid,
+                                            size: 13,
+                                            color: Colors.white.withOpacity(0.8),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                          ],
                         ),
-                      ),
-                      SizedBox(width: 10,),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 5),
-                        child: FutureBuilder(
-                          future: _fetchDataFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const SizedBox();
-                            } else if (snapshot.hasError) {
-                              return SizedBox();
-                            } else {
-                              return Text(
-                                "$username",
+                      if(ownProf)
+                        Row(
+                          children: [
+                            const SizedBox(width: 10,),
+                            Icon(
+                              CupertinoIcons.lock_open,
+                              color: Colors.black.withOpacity(0.6),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 7,),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 0),
+                              child: Text(
+                                UserModel.currentUser().username!,
                                 style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 22,
                                     color: Colors.black.withOpacity(0.7)
                                 ),
-                              );
-                            }
-                          },
+                              ),
+                            ),
+                            const SizedBox(width: 8,),
+                            FutureBuilder(
+                              future: _fetchDataFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const SizedBox();
+                                } else if (snapshot.hasError) {
+                                  return const SizedBox();
+                                } else {
+                                  return Container(
+                                    width: 7,
+                                    height: 7,
+                                    decoration: BoxDecoration(
+                                        color: Colors.deepOrange,
+                                        borderRadius: BorderRadius.circular(30)
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+
+                          ],
                         ),
-                      ),
-                      SizedBox(width: 15,),
-                      if (!ownProf && !friendppempty)
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 5),
-                          child: GestureDetector(
-                            onTapUp: (t) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Scaffold(
-                                    body: RechercheProfil(id: id, index: 0),
-                                  ),
-                                ),
-                              );
-                              Haptics.vibrate(HapticsType.light);
-                            },
-                            child: GlassContainer(
-                              height: 28,
-                              color: Colors.black.withOpacity(0.3),
-                              blur: 10,
-                              borderRadius: BorderRadius.circular(18),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "Suivi(e) par   ",
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    FutureBuilder<Widget>(
-                                      future: _friendsPPFuture,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return CupertinoActivityIndicator(radius: 8);
-                                        } else if (snapshot.hasError) {
-                                          return Text('Erreur : ${snapshot.error}');
-                                        } else if (snapshot.hasData) {
-                                          return GestureDetector(
-                                            onTapUp: (t) {
-                                            },
-                                            child: snapshot.data!,
-                                          );
-                                        } else {
-                                          return SizedBox.shrink();
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      else if(friend)
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 0),
-                          child: GestureDetector(
-                            onTapUp: (t) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Scaffold(
-                                    body: RechercheProfil(id: id, index: 0),
-                                  ),
-                                ),
-                              );
-                              Haptics.vibrate(HapticsType.light);
-                            },
-                            child: GlassContainer(
-                              height: 28,
-                              color: Colors.black.withOpacity(0.3),
-                              blur: 10,
-                              borderRadius: BorderRadius.circular(18),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 15),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "Amis  ",
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    Icon(
-                                      CupertinoIcons.person_solid,
-                                      size: 13,
-                                      color: Colors.white.withOpacity(0.8),
+
+
+                      Row(
+                        children: [
+                          if(ownProf)
+                            Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: GestureDetector(
+                                    onTapUp: (t) {
+                                      if(!ownProf){
+                                        Navigator.pop(context);
+                                      } else {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => NotificationPage(pg: PreloadPageController(initialPage: 30),),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Stack(
+                                      clipBehavior: Clip.none,
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Icon(
+                                          CupertinoIcons.heart,
+                                          color: Colors.black.withOpacity(0.7),
+                                          size: 24,
+                                          weight: 50,
+                                        ),
+                                        if(StoredNotification().tday)
+                                          Positioned(
+                                              top: 0,
+                                              right: 0,
+                                              child: Container(
+                                                width: 10,
+                                                height: 10,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius: BorderRadius.circular(40),
+
+                                                ),
+                                                child: Center(
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.redAccent,
+                                                      borderRadius: BorderRadius.circular(40),
+                                                    ),
+                                                    width: 7,
+                                                    height: 7,
+                                                  ),
+                                                ),
+                                              )
+                                          ),
+                                      ],
                                     )
-                                  ],
-                                ),
+                                )
+                            ),
+                          if(ownProf)
+                            const SizedBox(width: 30,),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: GestureDetector(
+                              onTapUp: (t) {
+                                if(!ownProf){
+                                  _showActionSheet(context);
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => AllSettings(),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: HugeIcon(
+                                icon: ownProf ? HugeIcons.strokeRoundedAccountSetting03 : HugeIcons.strokeRoundedMoreHorizontal,
+                                color: Colors.black.withOpacity(0.8),
+                                size: 24,
                               ),
                             ),
                           ),
-                        )
+                        ],
+                      )
                     ],
                   ),
-                  if(ownProf)
-                    Row(
-                      children: [
-                        SizedBox(width: 10,),
-                        Icon(
-                          CupertinoIcons.lock_open,
-                            color: Colors.black.withOpacity(0.6),
-                          size: 16,
-                        ),
-                        SizedBox(width: 7,),
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 0),
-                          child: Text(
-                            UserModel.currentUser().username!,
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 22,
-                                color: Colors.black.withOpacity(0.7)
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 8,),
-                        FutureBuilder(
-                          future: _fetchDataFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const SizedBox();
-                            } else if (snapshot.hasError) {
-                              return SizedBox();
-                            } else {
-                              return Container(
-                                width: 7,
-                                height: 7,
-                                decoration: BoxDecoration(
-                                    color: Colors.deepOrange,
-                                    borderRadius: BorderRadius.circular(30)
-                                ),
-                              );
-                            }
-                          },
-                        ),
-
-                      ],
-                    ),
-                    
-
-                  Row(
-                    children: [
-                      if(ownProf)
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 5),
-                          child: GestureDetector(
-                            onTapUp: (t) {
-                              if(!ownProf){
-                                Navigator.pop(context);
-                              } else {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ModifyAccount(pp: profileImageUrl),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Icon(
-                              CupertinoIcons.pencil,
-                              size: 22,
-                              color: CupertinoColors.black.withOpacity(0.7),
-                            ),
-                          ),
-                        ),
-                      if(ownProf)
-                        SizedBox(width: 15,),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 5),
-                        child: GestureDetector(
-                          onTapUp: (t) {
-                            if(!ownProf){
-                              _showActionSheet(context);
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AllSettings(),
-                                ),
-                              );
-                            }
-                          },
-                          child: Icon(
-                            ownProf ? CupertinoIcons.settings : Icons.more_horiz_sharp,
-                            size: 22,
-                            color: CupertinoColors.black.withOpacity(0.7),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
+                ),
               ),
-            ),
-          ),
+              if(ownProf)
+              FutureBuilder<void>(
+                future: UserModel.currentUser().notificationsloader,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return SizedBox();
+                  } else if (snapshot.hasError) {
+                    return SizedBox();
+                  } else if ((StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike) == 0) {
+                    return SizedBox();
+                  }
+
+                  return Positioned(
+                      bottom: -25,
+                      right: MediaQuery.of(context).size.width * 0.07 + 30,
+                      child: Visibility(
+                        visible: notifvisible,
+                        child: Container(
+                          child: ScaleTransition(
+                            scale: _scaleAnimationotif,
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Positioned(
+                                  top: -7,
+                                  right: 3,
+                                  child: Container(
+                                    height: 24,
+                                    width: 22,
+                                    decoration: BoxDecoration(
+                                        color: Colors.redAccent,
+                                        borderRadius: BorderRadius.circular(4)
+                                    ),
+                                    transform: Matrix4.rotationZ(3.14159 / 4),
+                                  ),
+                                ),
+                                Container(
+                                    height: 32,
+                                    padding: const EdgeInsets.symmetric(horizontal: 13),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14),
+                                      color: Colors.redAccent,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        if(StoredNotification().nlike != 0)
+                                          Row(
+                                            children: [
+                                              const Icon(CupertinoIcons.heart_fill, color: Colors.white, size: 14,),
+                                              SizedBox(width: 3,),
+                                              Text(
+                                                StoredNotification().nlike < 10 ? StoredNotification().nlike.toString() : "9",
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        if(StoredNotification().nabo != 0)
+                                          Padding(
+                                            padding: EdgeInsets.only(left: StoredNotification().nlike != 0 ? 4: 0),
+                                            child: Row(
+                                              children: [
+                                                const Icon(CupertinoIcons.person_solid, color: Colors.white, size: 14,),
+                                                const SizedBox(width: 3,),
+                                                Text(
+                                                  StoredNotification().nabo < 10 ? StoredNotification().nabo.toString() : "9",
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
+                                        if(StoredNotification().ncom != 0)
+                                          Padding(
+                                            padding: EdgeInsets.only(left: StoredNotification().nabo != 0 || StoredNotification().nlike != 0 ? 6 : 0),
+                                            child: Row(
+                                              children: [
+                                                const Icon(CupertinoIcons.bubble_left_fill, color: Colors.white, size: 14,),
+                                                const SizedBox(width: 3,),
+                                                Text(
+                                                  StoredNotification().ncom < 10 ? StoredNotification().ncom.toString() : "9",
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                      ],
+                                    )
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                  );
+                },
+              ),
+            ],
+          )
         ],
       )
     );

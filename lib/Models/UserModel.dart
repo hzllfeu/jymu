@@ -12,11 +12,11 @@ class UserModel {
   String? username;
   int? etat_jymupro;
   List<dynamic>? likes;
-  List<dynamic>? trainings;
+  List<dynamic>? trainings = [];
   List<dynamic>? posts;
   List<dynamic> notifs = [];
   List<dynamic>? comments;
-  List<dynamic>? follow;
+  List<dynamic>? follow = [];
   List<dynamic>? followed;
   List<dynamic>? ftoken;
   List<dynamic>? tags;
@@ -40,7 +40,7 @@ class UserModel {
       docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
       Map<String, dynamic>? userData = await getProfile(user.uid);
       if (userData != null) {
-          String? token;
+          String? token = "";
           if(!userData.containsKey('fcmToken')){
             token = await FirebaseMessaging.instance.getToken();
             await docRef?.update({
@@ -82,16 +82,8 @@ class UserModel {
   Future<void> fetchExternalData(String id) async {
     Map<String, dynamic>? userData = await getProfile(id);
     docRef = FirebaseFirestore.instance.collection('users').doc(id);
-    String? token;
-    if(!userData!.containsKey('fcmToken')){
-      token = await FirebaseMessaging.instance.getToken();
-      await FirebaseFirestore.instance.collection('users').doc(userData['id']).update({
-        'fcmToken': token,
-      });
-      userData['fcmToken'] = token;
-    }
     internal = true;
-    _updateFromMap(userData);
+    _updateFromMap(userData!);
   }
 
   // Méthode de mise à jour des données
@@ -112,7 +104,7 @@ class UserModel {
     notifparam = data['notifparam'];
     etat_jymupro = data['etat_jymupro'];
 
-    if(internal){
+    if(!internal){
       notificationsloader = StoredNotification().getNotifications(id!);
     }
 

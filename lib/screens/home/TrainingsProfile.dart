@@ -75,12 +75,12 @@ class _TrainingsProfileState extends State<TrainingsProfile> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
-            child: Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.2), child: CupertinoActivityIndicator(radius: 14,),)
+            child: Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.2), child: const CupertinoActivityIndicator(radius: 14,),)
           );
         } else if (snapshot.hasError) {
           return Center(child: Text('Erreur de chargement du post'));
         } else {
-          if(sortedTrainings.length == 0){
+          if(sortedTrainings.isEmpty){
             return Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.1),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -114,7 +114,7 @@ class _TrainingsProfileState extends State<TrainingsProfile> {
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               final training = sortedTrainings[index];
-              return TrainingLittle(trn: training);
+              return TrainingLittle(trn: training, trending: false, type: "profile",);
             },
           );
         }

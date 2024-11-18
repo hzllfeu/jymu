@@ -496,7 +496,7 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                         controller: _scrollController,
                         thumbVisibility: true,
                         thickness: 4.0,
-                        radius: Radius.circular(8),
+                        radius: const Radius.circular(8),
                         child: ListView.builder(
                           controller: _scrollController,
                           itemCount: displayedProfiles.length + (isLoading ? 1 : 0),
@@ -516,23 +516,20 @@ class _RechercheProfilState extends State<RechercheProfil> with TickerProviderSt
                                   profileData = cachedProfiles[userId];
                                 }
                                 return SizedBox(
-                                  height: 80,
+                                  height: 70,
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 25),
+                                    padding: const EdgeInsets.symmetric(horizontal: 25),
                                     child: ProfileListComp(
-                                      urlpp: profileData['pp'] ?? "",
-                                      displayname: profileData['displayname'] ?? "Nom inconnu",
-                                      username: profileData['username'] ?? 'username',
-                                      followed: profileData['followedbis'] ?? false,
-                                      follow: profileData['followbis'] ?? false,
                                       id: userId,
+                                      recent: false,
+                                      search: false,
                                     ),
                                   ),
                                 );
                               }
                             } else {
                               return  Padding(
-                                padding: EdgeInsets.symmetric(vertical: 40),
+                                padding: const EdgeInsets.symmetric(vertical: 40),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [

@@ -18,8 +18,10 @@ import '../../Models/CachedData.dart';
 
 class TrainingLittle extends StatefulWidget {
   final TrainingModel trn;
+  final bool trending;
+  final String type;
 
-  const TrainingLittle({super.key, required this.trn});
+  const TrainingLittle({super.key, required this.trn, required this.trending, required this.type});
 
   @override
   _TrainingLittleState createState() => _TrainingLittleState();
@@ -28,6 +30,7 @@ class TrainingLittle extends StatefulWidget {
 class _TrainingLittleState extends State<TrainingLittle> with TickerProviderStateMixin {
   Future<void>? data;
   File? fistImage;
+  String pp = "";
 
   Future<void> loadData() async {
     if(CachedData().images.containsKey(widget.trn.firstImage!)){
@@ -35,6 +38,12 @@ class _TrainingLittleState extends State<TrainingLittle> with TickerProviderStat
     } else {
       fistImage = (await getImage(widget.trn.firstImage!))!;
       CachedData().images[widget.trn.firstImage!] = fistImage!;
+    }
+    if(CachedData().links.containsKey(widget.trn.userId!)){
+      pp = CachedData().links[widget.trn.userId!]!;
+    } else {
+      pp = await getProfileImageUrl(widget.trn.userId!);
+      CachedData().links[widget.trn.userId!] = pp;
     }
   }
 
@@ -108,66 +117,139 @@ class _TrainingLittleState extends State<TrainingLittle> with TickerProviderStat
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TrainingPage(trn: widget.trn, image: fistImage!,),
+                  builder: (context) => TrainingPage(trn: widget.trn, type: widget.type,),
                 ),
               );
             },
-            child: Hero(tag: widget.trn.id!,
-              transitionOnUserGestures: true,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 120,
-                ),
-                child: Container(
-                  width: double.infinity,
-                  height: 150,
-                  padding: EdgeInsets.only(bottom: 5),
-                  decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(5.0),
-                      image: DecorationImage(
-                          image: Image.file(fistImage!).image,
-                          fit: BoxFit.cover
-                      )
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 300,
+                maxHeight: 400,
+              ),
+              child: Hero(tag: "${widget.type}${widget.trn.id!}",
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 120,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width*0.2
-                        ),
-                        child: GlassContainer(
-                          height: 30,
-                          color: Colors.black.withOpacity(0.5),
-                          blur: 10,
-                          borderRadius: BorderRadius.circular(18),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    formatDate(widget.trn.date!.toDate()),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14,
-                                      color: Colors.white.withOpacity(0.9),
-                                    ),
+                  child: Container(
+                      width: double.infinity,
+                      height: 150,
+                      padding: EdgeInsets.only(bottom: 5),
+                      decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(5.0),
+                          image: DecorationImage(
+                              image: Image.file(fistImage!).image,
+                              fit: BoxFit.cover
+                          )
+                      ),
+                      child: !widget.trending ?
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  maxWidth: MediaQuery.of(context).size.width*0.2
+                              ),
+                              child: GlassContainer(
+                                color: Colors.black.withOpacity(0.5),
+                                blur: 10,
+                                borderRadius: BorderRadius.circular(18),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          DateTime.now().day != widget.trn.date?.toDate().day
+                                              ? formatDate(widget.trn.date!.toDate())
+                                              : "${widget.trn.date?.toDate().hour.toString().padLeft(2, '0')}:${widget.trn.date?.toDate().minute.toString().padLeft(2, '0')}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 12,
+                                            color: Colors.white.withOpacity(0.9),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ) :
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ConstrainedBox(
+                                constraints: BoxConstraints(
+                                    maxWidth: MediaQuery.of(context).size.width*0.25
+                                ),
+                                child: Row(
+                                  children: [
+                                    GlassContainer(
+                                      color: Colors.black.withOpacity(0.5),
+                                      blur: 10,
+                                      borderRadius: BorderRadius.circular(18),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 11.0,
+                                              backgroundImage: CachedNetworkImageProvider(pp),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 2,),
+                                    GlassContainer(
+                                      color: Colors.black.withOpacity(0.5),
+                                      blur: 10,
+                                      borderRadius: BorderRadius.circular(18),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: DefaultTextStyle(
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.w700,
+                                                      fontSize: 12,
+                                                      color: Colors.white.withOpacity(0.9),
+                                                    ),
+                                                    child: Text(DateTime.now().day != widget.trn.date?.toDate().day
+                                                        ? formatDate(widget.trn.date!.toDate())
+                                                        : "${widget.trn.date?.toDate().hour.toString().padLeft(2, '0')}:${widget.trn.date?.toDate().minute.toString().padLeft(2, '0')}",)
+                                                )
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            )
+                          ],
                         ),
                       )
-                    ],
                   ),
                 ),
               ),
-            ),
+            )
           );
         }
       },

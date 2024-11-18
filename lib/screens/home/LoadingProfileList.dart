@@ -11,7 +11,7 @@ class LoadingProfileList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 90,
+      height: 70,
       child:  Row(
         children: [
           FadeShimmer(

@@ -47,7 +47,7 @@ class _NotificationPageState extends State<NotificationPage> {
             future: UserModel.currentUser().notificationsloader,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CupertinoActivityIndicator());
+                return const Center(child: CupertinoActivityIndicator());
               } else if (snapshot.hasError) {
                 return Center(child: Text('Erreur: ${snapshot.error}'));
               } else if (StoredNotification().notifs.isEmpty) {
@@ -55,7 +55,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   future: UserModel.currentUser().notificationsloader,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CupertinoActivityIndicator());
+                      return const Center(child: CupertinoActivityIndicator());
                     } else if (snapshot.hasError) {
                       return Center(child: Text('Erreur: ${snapshot.error}'));
                     } else if (StoredNotification().notifs.isEmpty) {
@@ -71,7 +71,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                   child: Image.asset("assets/images/emoji_bell.png", height: 28,),
                                 )
                             ),
-                            SizedBox(height: 15,),
+                            const SizedBox(height: 15,),
                             GestureDetector(
                               onTapUp: (t){
                                 FirebaseAuth.instance.signOut();
@@ -133,7 +133,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           final notification = todayNotifications[index - itemIndex];
                           return Padding(
                             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                            child: NotifListComp(notif: notification),
+                            child: NotifListComp(notif: notification, index: index - itemIndex, ),
                           );
                         }
                         itemIndex += todayNotifications.length;
@@ -150,9 +150,9 @@ class _NotificationPageState extends State<NotificationPage> {
                                         height: 1,
                                         color: Colors.black.withOpacity(0.07),
                                       ),
-                                    if(!todayNotifications.isEmpty)
-                                      SizedBox(height: 10,),
-                                    Text(
+                                    if(todayNotifications.isNotEmpty)
+                                      const SizedBox(height: 10,),
+                                    const Text(
                                       "Cette semaine",
                                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                     ),
@@ -165,8 +165,8 @@ class _NotificationPageState extends State<NotificationPage> {
                         if (index >= itemIndex && index < itemIndex + thisWeekNotifications.length) {
                           final notification = thisWeekNotifications[index - itemIndex];
                           return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                            child: NotifListComp(notif: notification),
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                            child: NotifListComp(notif: notification, index: index - itemIndex,),
                           );
                         }
                         itemIndex += thisWeekNotifications.length;
@@ -181,11 +181,11 @@ class _NotificationPageState extends State<NotificationPage> {
                                     height: 1,
                                     color: Colors.black.withOpacity(0.07),
                                   ),
-                                  SizedBox(height: 10,),
+                                  const SizedBox(height: 10,),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Plus anciennes",
                                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                       ),
@@ -204,7 +204,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                                 color: Colors.redAccent,
                                                 borderRadius: BorderRadius.circular(12)
                                             ),
-                                            child: Center(
+                                            child: const Center(
                                               child: Text('Charger plus', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),),
                                             )
                                         ),
@@ -220,8 +220,8 @@ class _NotificationPageState extends State<NotificationPage> {
                         if (index >= itemIndex && index < itemIndex + _numOldNotifsToShow) {
                           final notification = olderNotifications[index - itemIndex];
                           return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                            child: NotifListComp(notif: notification),
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                            child: NotifListComp(notif: notification, index: index - itemIndex,),
                           );
                         }
 
@@ -278,8 +278,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   if (index >= itemIndex && index < itemIndex + todayNotifications.length) {
                     final notification = todayNotifications[index - itemIndex];
                     return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                      child: NotifListComp(notif: notification),
+                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                      child: NotifListComp(notif: notification, index: index - itemIndex,),
                     );
                   }
                   itemIndex += todayNotifications.length;
@@ -297,7 +297,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                   color: Colors.black.withOpacity(0.07),
                                 ),
                               if(!todayNotifications.isEmpty)
-                                SizedBox(height: 10,),
+                                const SizedBox(height: 10,),
                               Text(
                                 "Cette semaine",
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.6)),
@@ -311,8 +311,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   if (index >= itemIndex && index < itemIndex + thisWeekNotifications.length) {
                     final notification = thisWeekNotifications[index - itemIndex];
                     return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                      child: NotifListComp(notif: notification),
+                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                      child: NotifListComp(notif: notification, index: index - itemIndex,),
                     );
                   }
                   itemIndex += thisWeekNotifications.length;
@@ -329,12 +329,12 @@ class _NotificationPageState extends State<NotificationPage> {
                               child: Image.asset("assets/images/emoji_bell.png", height: 28,),
                             )
                         ),
-                        SizedBox(height: 15,),
+                        const SizedBox(height: 15,),
                         GestureDetector(
                           onTapUp: (t){},
                           child: DefaultTextStyle(
                             style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 15),
-                            child: Text("Pas de notifications récentes"),
+                            child: const Text("Pas de notifications récentes"),
                           ),
                         )
                       ],
@@ -351,7 +351,7 @@ class _NotificationPageState extends State<NotificationPage> {
                               height: 1,
                               color: Colors.black.withOpacity(0.07),
                             ),
-                            SizedBox(height: 10,),
+                            const SizedBox(height: 10,),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -374,7 +374,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                           color: Colors.redAccent,
                                           borderRadius: BorderRadius.circular(12)
                                       ),
-                                      child: Center(
+                                      child: const Center(
                                         child: Text('Charger plus', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),),
                                       )
                                   ),
@@ -390,8 +390,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   if (index >= itemIndex && index < itemIndex + _numOldNotifsToShow) {
                     final notification = olderNotifications[index - itemIndex];
                     return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                      child: NotifListComp(notif: notification),
+                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                      child: NotifListComp(notif: notification, index: index - itemIndex,),
                     );
                   }
 
@@ -402,7 +402,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
           GlassContainer(
             height: MediaQuery.of(context).size.height*0.12,
-            color: Color(0xFFF3F5F8).withOpacity(0.7),
+            color: const Color(0xFFF3F5F8).withOpacity(0.7),
             blur: 10,
             child: Padding(
               padding: EdgeInsets.only(right: MediaQuery.of(context).size.width*0.05, bottom: 10, left: MediaQuery.of(context).size.width*0.05),
@@ -413,16 +413,20 @@ class _NotificationPageState extends State<NotificationPage> {
                   Row(
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(top: 3),
+                        padding: const EdgeInsets.only(top: 3),
                         child: GestureDetector(
                           onTapUp: (t){
-                            widget.pg.animateToPage(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+                            if(widget.pg.initialPage == 30){
+                              Navigator.of(context).pop();
+                            } else {
+                              widget.pg.animateToPage(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+                            }
                           },
                           child: Icon(Icons.arrow_back_ios_new, color: Colors.black.withOpacity(0.6), size: 18,),
                         ),
                       ),
 
-                      SizedBox(width: 15,),
+                      const SizedBox(width: 15,),
                       Text(
                         "Notifications",
                         style: TextStyle(
@@ -431,25 +435,25 @@ class _NotificationPageState extends State<NotificationPage> {
                             color: Colors.black.withOpacity(0.8)
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      const SizedBox(width: 10,),
                       Padding(
-                        padding: EdgeInsets.only(top: 3),
+                        padding: const EdgeInsets.only(top: 3),
                         child: FutureBuilder<void>(
                           future: UserModel.currentUser().notificationsloader,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
-                              return SizedBox();
+                              return const SizedBox();
                             } else if (snapshot.hasError) {
-                              return SizedBox();
+                              return const SizedBox();
                             } else if ((StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike) == 0) {
                               return Container(
                                   height: 25,
-                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14),
                                       color: Colors.redAccent
                                   ),
-                                  child: Center(
+                                  child: const Center(
                                     child: Text(
                                       "0",
                                       style: TextStyle(
@@ -464,7 +468,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
                             return Container(
                                 height: 25,
-                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(14),
                                     color: Colors.redAccent
@@ -472,7 +476,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                 child: Center(
                                   child: Text(
                                     (StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike) < 10 ? (StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike).toString(): "9+",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white
@@ -486,13 +490,13 @@ class _NotificationPageState extends State<NotificationPage> {
                     ],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(bottom: 5),
+                    padding: const EdgeInsets.only(bottom: 5),
                     child: GestureDetector(
                       onTapUp: (t){
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => NotifSettings(),
+                            builder: (context) => const NotifSettings(),
                           ),
                         );
                       },

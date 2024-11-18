@@ -349,7 +349,7 @@ Future<void> followUser(String userID, String targetUserId) async {
     });
   });
 
-  sendPushNotification(targetUserId, "a commencer à vous suivre", "${UserModel.currentUser().username}",  targetUser.fcmToken!, true, userID, "", "abo");
+  sendPushNotification(targetUserId, "a commencer à vous suivre", "${UserModel.currentUser().username}",  targetUser.fcmToken!, true, userID, "", "abo", "");
 }
 
 Future<void> unfollowUser(String userID, String targetUserId) async {

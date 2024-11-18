@@ -15,9 +15,9 @@ import '../TrainingCard.dart';
 
 class TrainingPage extends StatefulWidget {
   late TrainingModel trn;
-  final File image;
+  final String type;
 
-  TrainingPage({super.key, required this.trn, required this.image});
+  TrainingPage({super.key, required this.trn, required this.type});
 
   @override
   _TrainingPageState createState() => _TrainingPageState();
@@ -27,15 +27,14 @@ class _TrainingPageState extends State<TrainingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(tag: widget.trn.id!,
-    transitionOnUserGestures: true,
+    return Hero(tag: "${widget.type}${widget.trn.id!}",
     child: Scaffold(
-        body: SafeArea(
+        body: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 10,),
+              const SizedBox(height: 70,),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -43,14 +42,14 @@ class _TrainingPageState extends State<TrainingPage> {
                       onTapUp: (t) {
                         Navigator.pop(context);
                       },
-                      child: Icon(
+                      child: const Icon(
                         CupertinoIcons.arrow_left,
                         size: 22,
                         color: CupertinoColors.systemGrey,
                       ),
                     ),
                     Text(widget.trn.username??"", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.black.withOpacity(0.7)),),
-                    Icon(
+                    const Icon(
                       CupertinoIcons.arrow_left,
                       size: 22,
                       color: CupertinoColors.transparent,
@@ -58,7 +57,7 @@ class _TrainingPageState extends State<TrainingPage> {
                   ],
                 ),
               ),
-              TrainingCard(trn: widget.trn, coverimage: widget.image, coverbool: true,),
+              TrainingCard(trn: widget.trn,),
             ],
           ),
         )

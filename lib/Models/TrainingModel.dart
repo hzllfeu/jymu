@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:jymu/Models/CachedData.dart';
+import 'package:jymu/Models/TrendingManager.dart';
 import 'package:jymu/Models/UserModel.dart';
 import 'package:uuid/uuid.dart';
 
@@ -74,7 +75,9 @@ class TrainingModel {
       CachedData().users[userId!] = targetUser;
     }
 
-    sendPushNotification(userId!, "a aimé votre training", "${UserModel.currentUser().username}",  targetUser.fcmToken!, true, userID, firstImage!, "like");
+    checkAndUpdateStack(id!);
+
+    sendPushNotification(userId!, "a aimé votre training", "${UserModel.currentUser().username}",  targetUser.fcmToken?? "", true, userID, firstImage!, "like", id!);
   }
 
   Future<void> addComment(String commentText) async {
@@ -107,7 +110,7 @@ class TrainingModel {
       CachedData().users[userId!] = targetUser;
     }
 
-    sendPushNotification(userId!,  commentText, "${UserModel.currentUser().username} a commenté", targetUser.fcmToken!, true, userID, firstImage!, "com");
+    sendPushNotification(userId!,  commentText, "${UserModel.currentUser().username} a commenté", targetUser.fcmToken!, true, userID, firstImage!, "com", id!);
 
   }
 
@@ -236,59 +239,33 @@ Future<Map<String, dynamic>?> getTraining(String uid) async {
   return null;
 }
 
-Future<List<String>> getTrainingsForUser(String targetID, int n, List<String> excluded) async {
+Future<List<String>> getTrainingsForUser(int n, List<String> excluded) async {
   List<String> documentIds = [];
+  List<String>? suivis = UserModel.currentUser().follow!.cast<String>();
 
-  if (excluded.length > 10) {
-    List<List<String>> excludedChunks = [];
+  DateTime todayStart = DateTime.now();
+  DateTime today = DateTime(todayStart.year, todayStart.month, todayStart.day);
 
-    for (var i = 0; i < excluded.length; i += 10) {
-      excludedChunks.add(excluded.sublist(i, i + 10 > excluded.length ? excluded.length : i + 10));
-    }
-
-    for (var chunk in excludedChunks) {
-      Query query = FirebaseFirestore.instance
-          .collection('trainings')
-          .where(FieldPath.documentId, whereNotIn: chunk)
-          .limit(n);
-
-      QuerySnapshot querySnapshot = await query.get();
-
-      documentIds.addAll(
-          querySnapshot.docs
-              .map((doc) => doc.id)
-              .where((id) => id != "default")
-              .toList()
-      );
-
-      if (documentIds.length >= n) break; // Stopper si on a assez de documents
-    }
-  } else if(excluded.isNotEmpty){
-    Query query = FirebaseFirestore.instance
-        .collection('trainings')
-        .where(FieldPath.documentId, whereNotIn: excluded)
-        .limit(n);
-
-    QuerySnapshot querySnapshot = await query.get();
-
-    documentIds = querySnapshot.docs
-        .map((doc) => doc.id)
-        .where((id) => id != "default")
-        .toList();
-  } else {
-    Query query = FirebaseFirestore.instance
-        .collection('trainings')
-        .limit(n);
-
-    QuerySnapshot querySnapshot = await query.get();
-
-    documentIds = querySnapshot.docs
-        .map((doc) => doc.id)
-        .where((id) => id != "default")
-        .toList();
+  if (suivis == null || suivis.isEmpty) {
+    return documentIds;
   }
 
-  return documentIds.take(n).toList();
+  Query query = FirebaseFirestore.instance
+      .collection('trainings')
+      .where('id', whereIn: suivis) // Filtrer par utilisateurs suivis
+      .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(today)) // Documents datant d'aujourd'hui
+      .orderBy('date', descending: true) // Trier par plus récent
+      .limit(n * 2); // On prend plus de résultats pour compenser le filtrage manuel
+
+  QuerySnapshot querySnapshot = await query.get();
+
+  documentIds = querySnapshot.docs
+      .map((doc) => doc.id)
+      .where((id) => id != "default" && !excluded.contains(id)) // Exclure les IDs non souhaités
+      .take(n) // Limiter à `n` résultats
+      .toList();
+
+  return documentIds;
 }
 
 
@@ -310,4 +287,27 @@ String formatDate(DateTime date) {
   }
 
   return formattedDate;
+}
+
+Future<List<String>> getTrendingPostIdsByScore() async {
+  final firestore = FirebaseFirestore.instance;
+
+  try {
+    DocumentSnapshot trendingDoc = await firestore.collection('trending').doc('trendings').get();
+
+    if (!trendingDoc.exists || trendingDoc.data() == null) {
+      print("Document 'trendings' not found or has no data.");
+      return [];
+    }
+
+    Map<String, dynamic> postsMap = (trendingDoc.data() as Map<String, dynamic>)['posts'] ?? {};
+
+    List<String> sortedPostIds = postsMap.keys.toList()
+      ..sort((a, b) => (postsMap[b]['score'] as num).compareTo(postsMap[a]['score'] as num));
+
+    return sortedPostIds;
+  } catch (e) {
+    print("Erreur lors de la récupération des posts trending: $e");
+    return [];
+  }
 }

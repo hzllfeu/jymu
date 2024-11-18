@@ -946,9 +946,6 @@ PODS:
     - abseil/meta/type_traits
     - abseil/xcprivacy
   - abseil/xcprivacy (1.20240116.2)
-  - awesome_notifications (0.9.3):
-    - Flutter
-    - IosAwnCore (~> 0.9.3)
   - BoringSSL-GRPC (0.0.32):
     - BoringSSL-GRPC/Implementation (= 0.0.32)
     - BoringSSL-GRPC/Interface (= 0.0.32)
@@ -1227,7 +1224,6 @@ PODS:
     - TOCropViewController (~> 2.6.1)
   - image_picker_ios (0.0.1):
     - Flutter
-  - IosAwnCore (0.9.3)
   - leveldb-library (1.22.5)
   - nanopb (2.30910.0):
     - nanopb/decode (= 2.30910.0)
@@ -1255,7 +1251,6 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - awesome_notifications (from `.symlinks/plugins/awesome_notifications/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
@@ -1304,7 +1299,6 @@ SPEC REPOS:
     - "gRPC-C++"
     - gRPC-Core
     - GTMSessionFetcher
-    - IosAwnCore
     - leveldb-library
     - nanopb
     - PromisesObjC
@@ -1312,8 +1306,6 @@ SPEC REPOS:
     - TOCropViewController
 
 EXTERNAL SOURCES:
-  awesome_notifications:
-    :path: ".symlinks/plugins/awesome_notifications/ios"
   camera_avfoundation:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   cloud_firestore:
@@ -1351,7 +1343,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
-  awesome_notifications: 66d28ab7174ca2823b04d275cb043e0a4a3eb9cf
   BoringSSL-GRPC: 1e2348957acdbcad360b80a264a90799984b2ba6
   camera_avfoundation: dd002b0330f4981e1bbcb46ae9b62829237459a4
   cloud_firestore: 003d53b6b8b392600b7769acf9421cc4f23e5911
@@ -1386,7 +1377,6 @@ SPEC CHECKSUMS:
   haptic_feedback: 8cb3ee0cb6b797946c2b0df9c99ebc8f7ed79c71
   image_cropper: a3291c624a953049bc6a02e1f8c8ceb162a24b25
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
-  IosAwnCore: b8601fbb37f7b3560f31b84ebf55a72f65812e05
   leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
@@ -1399,6 +1389,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
 
-PODFILE CHECKSUM: cde1cd5b0cceddcc1704182ab3bc2706853b1a84
+PODFILE CHECKSUM: 0ffdfae2b2dd282c0eb5902da6811c7da9aba810
 
 COCOAPODS: 1.15.2

@@ -261,563 +261,564 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
   Widget _body() {
     final size = MediaQuery.of(context).size;
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: size.height*0.02),
-            if(!firstTaken || !secondTaken)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTapUp: (t) {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        height: 38,
-                        width: 43,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.redAccent.withOpacity(0.7),
-                              Colors.deepOrange.withOpacity(0.7),
-                            ],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.redAccent.withOpacity(0.3),
-                              spreadRadius: 3,
-                              blurRadius: 3,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Icon(
-                            CupertinoIcons.arrow_left,
-                            size: 22,
-                            color: CupertinoColors.white.withOpacity(1),
-                          ),
-                        ),
-                      ),
+    return Container(
+        width: double.infinity,
+        child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height/3,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.redAccent,
+                        Colors.deepOrange,
+                      ],
                     ),
-                    GestureDetector(
-                      onTapUp: (t) async {
-                        Haptics.vibrate(HapticsType.light);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Scaffold(
-                              body: NewPostWidget(),
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 40,
-                        width: size.width*0.6,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(Radius.circular(14)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.redAccent.withOpacity(0.3),
-                              spreadRadius: 3,
-                              blurRadius: 3,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.redAccent.withOpacity(0.7),
-                              Colors.deepOrange.withOpacity(0.7),
-                            ],
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Faire un post écrit", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),),
-                            SizedBox(width: 10,),
-                            Image.asset("assets/images/emoji_pencil.png", height: 16,)
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            if(firstTaken && secondTaken && !isFocused)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.width*0.04),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTapUp: (t)  {
-                        if(!posting){
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: Container(
-                        height: 38,
-                        width: 115,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.redAccent.withOpacity(0.9),
-                              Colors.deepOrange.withOpacity(0.9),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Annuler",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width), color: Colors.white.withOpacity(0.9)),
-                            ),
-                            SizedBox(width: 10,),
-                            Icon(CupertinoIcons.delete_simple, color: Colors.white, size: 16,)
-                          ],
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTapUp: (t) async {
-                        setState(() {
-                          posting = true;
-                        });
-                        Haptics.vibrate(HapticsType.light);
-                        await pushToServer(desc, tags);
-                        Haptics.vibrate(HapticsType.success);
-                        setState(() {
-                          posting = false;
-                        });
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        height: 38,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.redAccent.withOpacity(0.9),
-                              Colors.deepOrange.withOpacity(0.9),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if(!posting)
-                              Text(
-                                "Poster",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600, fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width), color: Colors.white.withOpacity(0.9)),
-                              )
-                            else
-                              CupertinoActivityIndicator(color: Colors.white),
-                            if(!posting)
-                              SizedBox(width: 10,),
-                            if(!posting)
-                              Icon(CupertinoIcons.chevron_right_circle, color: Colors.white, size: 16,)
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            SizedBox(height: size.height*0.03),
-            SizedBox(
-              height: size.height*0.58,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                      top: 30,
-                      child: SlideTransition(
-                        position: _animationbis,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width * 0.2,
-                          height: MediaQuery.of(context).size.height * 0.4,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            color: Color(0xffff5d5d),
-                            boxShadow: [ BoxShadow(
-                              color: firstTaken && !showFirstImage ? firstMainColor.withOpacity(0.3) : secondTaken && showFirstImage ? secondMainColor.withOpacity(0.3) : isTempTaken ? tempMainColor.withOpacity(0.5): Colors.black.withOpacity(0.3),
-                              spreadRadius: 3,
-                              blurRadius: 5,
-                              offset: Offset(0, -1),
-                            ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(18),
-                            child: Stack(
-                              fit: StackFit.expand, // Makes sure the image covers the entire container
-                              children: [
-                                if(secondTaken)
-                                  Image(
-                                    image: showFirstImage ? Image.file(secondImage).image : Image.file(fistImage).image,
-                                    fit: BoxFit.cover,
-                                  ).blur(blur: 3)
-                                else if(ppurl != "")
-                                  Image(
-                                    image: CachedNetworkImageProvider(ppurl),
-                                    fit: BoxFit.cover,
-                                  ).blur(blur: 3)
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
                   ),
-                  Positioned(
-                    top: 50,
-                    child: SlideTransition(
-                      position: _animation,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 40,
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.redAccent.withOpacity(1),
-                              Colors.deepOrange.withOpacity(1),
+                ),
+              ),
+
+              Positioned(
+                top: 70,
+                child: SizedBox(
+                  width: size.width,
+                  child: Column(
+                    children: [
+                      if(!firstTaken || !secondTaken)
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTapUp: (t) {
+                                  Navigator.pop(context);
+                                },
+                                child: GlassContainer(
+                                    height: 38,
+                                    color: Colors.white.withOpacity(0.8),
+                                    blur: 10,
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 10),
+                                      child: Center(
+                                        child: Icon(
+                                          CupertinoIcons.arrow_left,
+                                          size: 22,
+                                          color: CupertinoColors.black.withOpacity(0.8),
+                                        ),
+                                      ),
+                                    )
+                                ),
+
+
+                              ),
+                              GestureDetector(
+                                onTapUp: (t) async {
+                                  Haptics.vibrate(HapticsType.light);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Scaffold(
+                                        body: NewPostWidget(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: GlassContainer(
+                                  height: 38,
+                                  color: Colors.white.withOpacity(0.8),
+                                  blur: 10,
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                                    child: Center(
+                                      child: Text(
+                                        "Faire un post écrit",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600, fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width), color: Colors.black.withOpacity(0.7)),
+                                      ),
+                                    )
+                                  )
+                                ),
+                              ),
                             ],
                           ),
-                          boxShadow: [ BoxShadow(
-                            color: firstTaken && showFirstImage ? firstMainColor.withOpacity(0.5) : secondTaken && !showFirstImage ? secondMainColor.withOpacity(0.5) : isTempTaken ? tempMainColor.withOpacity(0.5): Colors.black.withOpacity(0.3),
-                            spreadRadius: 5,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                          ],
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: FittedBox(
-                            fit: BoxFit.cover,
-                            child: SizedBox(
-                                height: _controller?.value.isInitialized != false && _controller != null
-                                    ? _controller!.value.previewSize!.width
-                                    : sizeX,
-                                width: _controller?.value.isInitialized != false && _controller != null
-                                    ? _controller!.value.previewSize!.height
-                                    : sizeY,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      fit: StackFit.expand,
-                                      children: [
-                                        if (!_changingCameraLens || (_controller != null && !firstTaken))
-                                          CameraPreview(_controller!),
-
-                                        if (firstTaken)
-                                          GestureDetector(
-                                            onTapUp: (t){
-                                              if(firstTaken && secondTaken){
-                                                setState(() {
-                                                  showFirstImage = !showFirstImage;
-                                                });
-                                                HapticFeedback.lightImpact();
-                                                _checkAndAnimate();
-                                              }
-                                            },
-                                            child: Image.file(showFirstImage ? fistImage : secondImage),
-                                          ),
-                                        if (showLoading)
-                                          Align(
-                                            alignment: Alignment.center,
-                                            child: GlassContainer(
-                                              height: 250,
-                                              width: 550,
-                                              color: Colors.black.withOpacity(0.5),
-                                              blur: 10,
-                                              borderRadius: BorderRadius.circular(45),
-                                              child: const Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: [
-                                                  CupertinoActivityIndicator(color: Colors.white, radius: 18,),
-                                                  SizedBox(height: 10),
-                                                  Text(
-                                                    "Contracte, on te prend en photo !",
-                                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 28),
-                                                    textAlign: TextAlign.center, // Centre le texte
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    if (!_changingCameraLens && !firstTaken)
-                                      Positioned(
-                                          bottom: 350,
-                                          child: SizedBox(
-                                            width: (_controller?.value.isInitialized != false && _controller != null
-                                                ? _controller!.value.previewSize!.height
-                                                : sizeY) - 40,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: _cameraIndex == 1
-                                                      ? () {
-                                                    HapticFeedback.heavyImpact();
-                                                  }
-                                                      : _flashEnable,
-                                                  child: GlassContainer(
-                                                    height: 105,
-                                                    width: 315,
-                                                    color: Colors.black.withOpacity(0.5),
-                                                    blur: 10,
-                                                    borderRadius: BorderRadius.circular(30),
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        DefaultTextStyle(
-                                                          style: TextStyle(
-                                                            fontWeight: FontWeight.w700,
-                                                            fontSize: 36,
-                                                            color: Colors.white.withOpacity(0.7),
-                                                          ),
-                                                          child: Text("Flash  "),
-                                                        ),
-                                                        SizedBox(width: 5),
-                                                        Icon(Icons.flash_on_rounded, size: 38, color: Colors.white,),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                if(_controller!.description.lensDirection == CameraLensDirection.back)
-                                                  SizedBox(width: 30,),
-                                                if(_controller!.description.lensDirection == CameraLensDirection.back)
-                                                  GestureDetector(
-                                                  onTapUp: (t) async{
-                                                    await _switchGiantAngle();
-                                                    setState(() {
-                                                      giantAngle = !giantAngle;
-                                                    });
-                                                  },
-                                                  child: GlassContainer(
-                                                    height: 120,
-                                                    width: 150,
-                                                    color: Colors.black.withOpacity(0.5),
-                                                    blur: 10,
-                                                    borderRadius: BorderRadius.circular(45),
-                                                    child:Center(
-                                                      child: Icon(!giantAngle ? CupertinoIcons.arrow_down_right_arrow_up_left : CupertinoIcons.arrow_up_left_arrow_down_right, color: Colors.white, size: 45,),
-                                                    )
-                                                  ),
-                                                ),
-                                                SizedBox(width: 30,),
-                                                GestureDetector(
-                                                  onTap: _switchFrontCamera,
-                                                  child: GlassContainer(
-                                                    height: 105,
-                                                    width: 315,
-                                                    color: Colors.black.withOpacity(0.5),
-                                                    blur: 10,
-                                                    borderRadius: BorderRadius.circular(30),
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        DefaultTextStyle(
-                                                          style: TextStyle(
-                                                            fontWeight: FontWeight.w700,
-                                                            fontSize: 36,
-                                                            color: Colors.white.withOpacity(0.7),
-                                                          ),
-                                                          child: Text("Retourner  "),
-                                                        ),
-                                                        SizedBox(width: 5),
-                                                        Icon(CupertinoIcons.arrow_2_squarepath, size: 38, color: Colors.white,),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
+                      if(firstTaken && secondTaken && !isFocused)
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: size.width*0.04),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTapUp: (t)  {
+                                  if(!posting){
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: GlassContainer(
+                                    height: 38,
+                                    color: Colors.white.withOpacity(0.8),
+                                    blur: 10,
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                                      child: Center(
+                                        child: Text(
+                                          "Annuler",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600, fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width), color: Colors.black.withOpacity(0.7)),
+                                        ),
+                                      )
+                                    )
+                                ),
+                              ),
+                              GestureDetector(
+                                onTapUp: (t) async {
+                                  setState(() {
+                                    posting = true;
+                                  });
+                                  Haptics.vibrate(HapticsType.light);
+                                  await pushToServer(desc, tags);
+                                  Haptics.vibrate(HapticsType.success);
+                                  setState(() {
+                                    posting = false;
+                                  });
+                                  Navigator.pop(context);
+                                },
+                                child: GlassContainer(
+                                    height: 38,
+                                    color: Colors.white.withOpacity(0.8),
+                                    blur: 10,
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          if(!posting)
+                                            Text(
+                                              "Poster",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600, fontSize: 7*(MediaQuery.of(context).size.height/MediaQuery.of(context).size.width), color: Colors.black.withOpacity(0.7)),
+                                                  )
+                                          else
+                                            CupertinoActivityIndicator(color: Colors.black.withOpacity(0.7)),
+                                          if(!posting)
+                                            SizedBox(width: 10,),
+                                          if(!posting)
+                                            Icon(CupertinoIcons.chevron_right_circle, color: Colors.black.withOpacity(0.7), size: 16,)
+                                        ],
                                       ),
-                                    if(firstTaken && secondTaken)
-                                      Positioned(
-                                        bottom: 350,
-                                        child: GestureDetector(
-                                          onTapUp: (t) async{
-                                          },
-                                          child: GlassContainer(
-                                            height: 140,
-                                            width: (_controller?.value.isInitialized != false && _controller != null
-                                                ? _controller!.value.previewSize!.height
-                                                : sizeY) - 40,
-                                            color: Colors.black.withOpacity(0.5),
-                                            blur: 10,
-                                            borderRadius: BorderRadius.circular(45),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                SizedBox(
-                                                    width: (_controller?.value.isInitialized != false && _controller != null
-                                                        ? _controller!.value.previewSize!.height
-                                                        : sizeY) - 150,
-                                                    child: Center(
-                                                      child: GestureDetector(
-                                                        onTapUp: (t) async {
-                                                          final result = await Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) => InputPage(text: "Ajouter une description", limit: 23),
-                                                            ),
-                                                          );
+                                    )
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                )
+              ),
 
-                                                          if (result != null) {
-                                                            desc = result;
-                                                            setState(() {});
-                                                          }
-                                                        },
-                                                        child: Align(
-                                                          alignment: Alignment.centerLeft,
-                                                          child: Text(
-                                                            desc.isEmpty? "Ecris ici une courte description...": desc,
-                                                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 40, fontWeight: FontWeight.w500),
-                                                          ),
-                                                        )
-                                                      )
-                                                    )
-                                                ),
-                                                Icon(CupertinoIcons.pen, color: Colors.white.withOpacity(0.7), size: 46,),
-                                              ],
-                                            ),
+              Positioned(
+                  top: MediaQuery.of(context).size.height * 0.25 - 50,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * 0.8 + 50,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F5F8),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(28.0),
+                        topRight: Radius.circular(28.0),
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: size.height*0.58,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Positioned(
+                                    top: 30,
+                                    child: SlideTransition(
+                                      position: _animationbis,
+                                      child: Container(
+                                        width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width * 0.2,
+                                        height: MediaQuery.of(context).size.height * 0.4,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(18),
+                                          color: Color(0xffff5d5d),
+                                          boxShadow: [ BoxShadow(
+                                            color: firstTaken && !showFirstImage ? firstMainColor.withOpacity(0.3) : secondTaken && showFirstImage ? secondMainColor.withOpacity(0.3) : isTempTaken ? tempMainColor.withOpacity(0.5): Colors.black.withOpacity(0.3),
+                                            spreadRadius: 3,
+                                            blurRadius: 5,
+                                            offset: const Offset(0, -1),
+                                          ),
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(18),
+                                          child: Stack(
+                                            fit: StackFit.expand, // Makes sure the image covers the entire container
+                                            children: [
+                                              if(secondTaken)
+                                                Image(
+                                                  image: showFirstImage ? Image.file(secondImage).image : Image.file(fistImage).image,
+                                                  fit: BoxFit.cover,
+                                                ).blur(blur: 3)
+                                              else if(ppurl != "")
+                                                Image(
+                                                  image: CachedNetworkImageProvider(ppurl),
+                                                  fit: BoxFit.cover,
+                                                ).blur(blur: 3)
+                                            ],
                                           ),
                                         ),
                                       ),
-                                  ],
+                                    )
+                                ),
+                                Positioned(
+                                  top: 50,
+                                  child: SlideTransition(
+                                    position: _animation,
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width - 40,
+                                      height: MediaQuery.of(context).size.height * 0.5,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(18),
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.redAccent.withOpacity(1),
+                                            Colors.deepOrange.withOpacity(1),
+                                          ],
+                                        ),
+                                        boxShadow: [ BoxShadow(
+                                          color: firstTaken && showFirstImage ? firstMainColor.withOpacity(0.5) : secondTaken && !showFirstImage ? secondMainColor.withOpacity(0.5) : isTempTaken ? tempMainColor.withOpacity(0.5): Colors.black.withOpacity(0.3),
+                                          spreadRadius: 5,
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                        ],
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(18),
+                                        child: FittedBox(
+                                          fit: BoxFit.cover,
+                                          child: SizedBox(
+                                              height: _controller?.value.isInitialized != false && _controller != null
+                                                  ? _controller!.value.previewSize!.width
+                                                  : sizeX,
+                                              width: _controller?.value.isInitialized != false && _controller != null
+                                                  ? _controller!.value.previewSize!.height
+                                                  : sizeY,
+                                              child: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  Stack(
+                                                    alignment: Alignment.center,
+                                                    fit: StackFit.expand,
+                                                    children: [
+                                                      if (!_changingCameraLens || (_controller != null && !firstTaken))
+                                                        CameraPreview(_controller!),
+
+                                                      if (firstTaken)
+                                                        GestureDetector(
+                                                          onTapUp: (t){
+                                                            if(firstTaken && secondTaken){
+                                                              setState(() {
+                                                                showFirstImage = !showFirstImage;
+                                                              });
+                                                              HapticFeedback.lightImpact();
+                                                              _checkAndAnimate();
+                                                            }
+                                                          },
+                                                          child: Image.file(showFirstImage ? fistImage : secondImage),
+                                                        ),
+                                                      if (showLoading)
+                                                        Align(
+                                                          alignment: Alignment.center,
+                                                          child: GlassContainer(
+                                                            height: 250,
+                                                            width: 550,
+                                                            color: Colors.black.withOpacity(0.5),
+                                                            blur: 10,
+                                                            borderRadius: BorderRadius.circular(45),
+                                                            child: const Column(
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                                              children: [
+                                                                CupertinoActivityIndicator(color: Colors.white, radius: 18,),
+                                                                SizedBox(height: 10),
+                                                                Text(
+                                                                  "Contracte, on te prend en photo !",
+                                                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 28),
+                                                                  textAlign: TextAlign.center, // Centre le texte
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                  if (!_changingCameraLens && !firstTaken)
+                                                    Positioned(
+                                                        bottom: 350,
+                                                        child: SizedBox(
+                                                          width: (_controller?.value.isInitialized != false && _controller != null
+                                                              ? _controller!.value.previewSize!.height
+                                                              : sizeY) - 40,
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              GestureDetector(
+                                                                onTap: _cameraIndex == 1
+                                                                    ? () {
+                                                                  HapticFeedback.heavyImpact();
+                                                                }
+                                                                    : _flashEnable,
+                                                                child: GlassContainer(
+                                                                  height: 105,
+                                                                  width: 315,
+                                                                  color: Colors.black.withOpacity(0.5),
+                                                                  blur: 10,
+                                                                  borderRadius: BorderRadius.circular(30),
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                    children: [
+                                                                      DefaultTextStyle(
+                                                                        style: TextStyle(
+                                                                          fontWeight: FontWeight.w700,
+                                                                          fontSize: 36,
+                                                                          color: Colors.white.withOpacity(0.7),
+                                                                        ),
+                                                                        child: Text("Flash  "),
+                                                                      ),
+                                                                      SizedBox(width: 5),
+                                                                      Icon(Icons.flash_on_rounded, size: 38, color: Colors.white,),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              if(_controller!.description.lensDirection == CameraLensDirection.back)
+                                                                SizedBox(width: 30,),
+                                                              if(_controller!.description.lensDirection == CameraLensDirection.back)
+                                                                GestureDetector(
+                                                                  onTapUp: (t) async{
+                                                                    await _switchGiantAngle();
+                                                                    setState(() {
+                                                                      giantAngle = !giantAngle;
+                                                                    });
+                                                                  },
+                                                                  child: GlassContainer(
+                                                                      height: 120,
+                                                                      width: 150,
+                                                                      color: Colors.black.withOpacity(0.5),
+                                                                      blur: 10,
+                                                                      borderRadius: BorderRadius.circular(45),
+                                                                      child:Center(
+                                                                        child: Icon(!giantAngle ? CupertinoIcons.arrow_down_right_arrow_up_left : CupertinoIcons.arrow_up_left_arrow_down_right, color: Colors.white, size: 45,),
+                                                                      )
+                                                                  ),
+                                                                ),
+                                                              SizedBox(width: 30,),
+                                                              GestureDetector(
+                                                                onTap: _switchFrontCamera,
+                                                                child: GlassContainer(
+                                                                  height: 105,
+                                                                  width: 315,
+                                                                  color: Colors.black.withOpacity(0.5),
+                                                                  blur: 10,
+                                                                  borderRadius: BorderRadius.circular(30),
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                    children: [
+                                                                      DefaultTextStyle(
+                                                                        style: TextStyle(
+                                                                          fontWeight: FontWeight.w700,
+                                                                          fontSize: 36,
+                                                                          color: Colors.white.withOpacity(0.7),
+                                                                        ),
+                                                                        child: Text("Retourner  "),
+                                                                      ),
+                                                                      SizedBox(width: 5),
+                                                                      Icon(CupertinoIcons.arrow_2_squarepath, size: 38, color: Colors.white,),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        )
+                                                    ),
+                                                  if(firstTaken && secondTaken)
+                                                    Positioned(
+                                                      bottom: 350,
+                                                      child: GestureDetector(
+                                                        onTapUp: (t) async{
+                                                        },
+                                                        child: GlassContainer(
+                                                          height: 140,
+                                                          width: (_controller?.value.isInitialized != false && _controller != null
+                                                              ? _controller!.value.previewSize!.height
+                                                              : sizeY) - 40,
+                                                          color: Colors.black.withOpacity(0.5),
+                                                          blur: 10,
+                                                          borderRadius: BorderRadius.circular(45),
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              SizedBox(
+                                                                  width: (_controller?.value.isInitialized != false && _controller != null
+                                                                      ? _controller!.value.previewSize!.height
+                                                                      : sizeY) - 150,
+                                                                  child: Center(
+                                                                      child: GestureDetector(
+                                                                          onTapUp: (t) async {
+                                                                            final result = await Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                builder: (context) => InputPage(text: "Ajouter une description", limit: 23),
+                                                                              ),
+                                                                            );
+
+                                                                            if (result != null) {
+                                                                              desc = result;
+                                                                              setState(() {});
+                                                                            }
+                                                                          },
+                                                                          child: Align(
+                                                                            alignment: Alignment.centerLeft,
+                                                                            child: Text(
+                                                                              desc.isEmpty? "Ecris ici une courte description...": desc,
+                                                                              style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 40, fontWeight: FontWeight.w500),
+                                                                            ),
+                                                                          )
+                                                                      )
+                                                                  )
+                                                              ),
+                                                              Icon(CupertinoIcons.pen, color: Colors.white.withOpacity(0.7), size: 46,),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              )
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 )
+                              ],
                             ),
                           ),
-                        ),
+                          if(!isFocused)
+                            SizedBox(height: size.height*0.01),
+                          if(!firstTaken || !secondTaken)
+                            SizedBox(height: size.height*0.05),
+                          if(!firstTaken || !secondTaken && !showLoading) //TODO Annimation
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: GestureDetector(
+                                  onTap: _takePicture,
+                                  child: Container(
+                                    width: size.width*0.7,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(34),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.deepOrange.withOpacity(0.15),
+                                          spreadRadius: 3,
+                                          blurRadius: 14,
+                                          offset: const Offset(0, 0),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "PRENDRE",
+                                          style: TextStyle(
+                                            color: Colors.redAccent,
+                                            fontSize: 34,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        SizedBox(width: 15,),
+                                        Icon(Icons.arrow_forward_ios_rounded, size: 34, weight: 28, color: Colors.redAccent,),
+                                      ],
+                                    ),
+                                  )
+                              ),
+                            ),
+                          if(firstTaken && secondTaken)
+                            SizedBox(width: 20,),
+                          if(firstTaken && secondTaken)
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: size.width*0.1),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Tags suggérés", style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600,fontSize: 14)),
+                                  GestureDetector(
+                                    onTapUp: (t) async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ModifyTags(tags: tags),
+                                        ),
+                                      );
+                                      if (result != null) {
+                                        tags = result;
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: Text("Voir plus", style: TextStyle(color: CupertinoColors.systemRed, fontWeight: FontWeight.w500,fontSize: 14)),
+                                  )
+                                ],
+                              ),
+                            ),
+                          if(firstTaken && secondTaken)
+                            SizedBox(width: 10,),
+                          if(firstTaken && secondTaken)
+                            Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: SizedBox(
+                                height: 40,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: List.generate(
+                                          tags.length,
+                                              (index) => getTag(tags[index] ?? "none", false, context)
+                                      )
+                                  ),
+                                ),
+                              ),
+                            )
+                        ],
                       ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            if(!isFocused)
-            SizedBox(height: size.height*0.01),
-            if(!firstTaken || !secondTaken)
-              SizedBox(height: size.height*0.05),
-            if(!firstTaken || !secondTaken && !showLoading) //TODO Annimation
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: GestureDetector(
-                  onTap: _takePicture,
-                  child: Container(
-                    width: size.width*0.7,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(34),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.deepOrange.withOpacity(0.15),
-                          spreadRadius: 3,
-                          blurRadius: 14,
-                          offset: const Offset(0, 0),
-                        ),
-                      ],
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "PRENDRE",
-                          style: TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 34,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(width: 15,),
-                        Icon(Icons.arrow_forward_ios_rounded, size: 34, weight: 28, color: Colors.redAccent,),
-                      ],
-                    ),
-                  )
-                ),
-              ),
-            if(firstTaken && secondTaken)
-              SizedBox(width: 20,),
-            if(firstTaken && secondTaken)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.width*0.1),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Tags suggérés", style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600,fontSize: 14)),
-                    GestureDetector(
-                      onTapUp: (t) async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ModifyTags(tags: tags),
-                          ),
-                        );
-                        if (result != null) {
-                          tags = result;
-                          setState(() {});
-                        }
-                      },
-                      child: Text("Voir plus", style: TextStyle(color: CupertinoColors.systemRed, fontWeight: FontWeight.w500,fontSize: 14)),
                     )
-                  ],
-                ),
-              ),
-            if(firstTaken && secondTaken)
-              SizedBox(width: 10,),
-            if(firstTaken && secondTaken)
-              Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: SizedBox(
-                  height: 40,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: List.generate(
-                            tags.length,
-                                (index) => getTag(tags[index] ?? "none", false, context)
-                        )
-                    ),
-                  ),
-                ),
+                  )
               )
-          ],
-        ),
-      )
+            ]
+        )
     );
   }
 
@@ -853,7 +854,6 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
   Future<void> _takePicture() async {
 
     HapticFeedback.heavyImpact();
-    await Future.delayed(Duration(milliseconds: 500));
 
     if(flashEnabled){
       await _controller!.setFlashMode(FlashMode.always);
@@ -871,7 +871,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
 
       imageFile.writeAsBytesSync(img.encodeJpg(mirroredImage));
     }
-    await Future.delayed(const Duration(milliseconds: 400));
+
     setState(() {
       fistImage = imageFile;
       firstTaken = true;
@@ -885,8 +885,8 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
       }
     });
 
-    _updatePalette(false);
-    _checkAndAnimate();
+
+    await Future.delayed(const Duration(milliseconds: 400));
 
     await _switchFrontCamera();
 
@@ -916,7 +916,6 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
       secondTaken = true;
       showLoading = false;
     });
-    _updatePalette(true);
     _checkAndAnimateBis();
   }
 
@@ -932,10 +931,6 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
     }
 
     await _stopLiveFeed();
-
-    if(firstTaken){
-      await Future.delayed(const Duration(milliseconds: 1200));
-    }
 
     await _startLiveFeed();
 
@@ -1023,7 +1018,7 @@ Future<void> postTraining(String path1, String path2, String desc, List<dynamic>
     'secondImage': path2,
   });
 
-  sendPushNotification(UserModel.currentUser().id!, "a posté un nouveau training.", "${UserModel.currentUser().username}",  "", true, "", "", "post");
+  sendPushNotification(UserModel.currentUser().id!, "a posté un nouveau training.", "${UserModel.currentUser().username}",  "", true, "", "", "post", "");
 
   UserModel.currentUser().trainings?.add([{'training': trainingId, 'timestamp': Timestamp.now()}]);
   addTraining(UserModel.currentUser().id!, trainingId, Timestamp.now());

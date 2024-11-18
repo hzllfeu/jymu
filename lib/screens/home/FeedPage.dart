@@ -27,8 +27,10 @@ import 'package:tiktoklikescroller/tiktoklikescroller.dart';
 import '../../Models/CachedData.dart';
 import '../../Models/NotificationService.dart';
 import '../../Models/UserModel.dart';
+import 'NotifListComp.dart';
 import 'TrainingCard.dart';
 import 'camera.dart';
+import 'components/TrainingPage.dart';
 import 'components/custom_rect_tween.dart';
 import 'components/hero_dialog_route.dart';
 
@@ -43,7 +45,6 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin {
   bool isFirstSelected = true;
-  late final TabController tabController;
   List<String> listPosts = [];
   List<String> LoadedPosts = [];
   final Map<int, TrainingCard> cachedTrainings = {};
@@ -58,6 +59,8 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
+  bool notifvisible = false;
+
 
   @override
   void initState() {
@@ -68,15 +71,14 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
 
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    _controller.reset();
-    _controller.forward();
+    startAnim();
 
     loadTrainingModels();
   }
@@ -95,14 +97,60 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
     }
   }
 
+  Future<void> startAnim() async {
+    await Future.delayed(const Duration(milliseconds: 1000));
+    setState(() {
+      notifvisible = true;
+    });
+    _controller.reset();
+    _controller.forward();
+  }
 
+  bool animpostedpos = false;
+
+  Future<void> animPosted() async {
+    setState(() {
+      animpostedpos = true;
+    });
+    await Future.delayed(const Duration(milliseconds: 700));
+    setState(() {
+      animpostedpos = false;
+    });
+  }
+
+  String getPostIdForToday(List<dynamic> posts) {
+    DateTime today = DateTime.now();
+    DateTime todayStart = DateTime(today.year, today.month, today.day);
+
+    for (var post in posts) {
+      if (post['timestamp'] is Timestamp) {
+        DateTime postDate = (post['timestamp'] as Timestamp).toDate();
+
+        if (postDate.isAfter(todayStart) && postDate.isBefore(todayStart.add(Duration(days: 1)))) {
+          return post['training'];
+        }
+      }
+    }
+
+    return "none"; // Aucun post trouvé pour aujourd'hui
+  }
+
+  TrainingModel tdytrn = TrainingModel();
+  bool tdypostbool = false;
+  File? tdyimage;
+
+  bool finished = false;
 
   Future<void> loadTrainingModels() async {
+    setState(() {
+
+    });
     if(loading) {
       return;
     }
+
     loading = true;
-    List<String> tmp = await getTrainingsForUser("", 3, listPosts);
+    List<String> tmp = await getTrainingsForUser(3, listPosts);
     listPosts.addAll(tmp);
     listPosts.where((id) => id != "default").toSet().toList();
 
@@ -111,6 +159,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
     setState(() {
 
     });
+
     for (int i = lastcounter; i < listPosts.length; i++) {
       String s = listPosts[counter];
       TrainingModel tmp = TrainingModel();
@@ -126,7 +175,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
       counter++;
     }
     setState(() {
-
+      finished = true;
     });
 
     await loadTrainings();
@@ -135,7 +184,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
   Future<void> loadTrainings() async {
     for (int i = lastcounter; i < cachedTrainingsModels.length; i++) {
       if (!cachedTrainings.containsKey(i)) {setState(() {
-          cachedTrainings[i] = TrainingCard(trn: cachedTrainingsModels[i]!, coverbool: false, coverimage: File(""),);
+          cachedTrainings[i] = TrainingCard(trn: cachedTrainingsModels[i]!,);
         });
       }
     }
@@ -149,7 +198,6 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
     _controller.dispose();
     pc.dispose();
     pcbis.dispose();
-    tabController.dispose();
     super.dispose();
   }
 
@@ -171,7 +219,25 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
           Stack(
             clipBehavior: Clip.none,
             children: [
-              PreloadPageView.builder(
+              if(counter == 0 && finished)
+                Center(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset("assets/images/emoji_sablier.png", height: 28,),
+                    const SizedBox(height: 15,),
+                    DefaultTextStyle(
+                      style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 15),
+                      child: const Text("Tes amis n'ont encore rien posté"),
+                    ),
+                    const SizedBox(height: 3,),
+                    DefaultTextStyle(
+                      style: TextStyle(color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 15),
+                      child: const Text("aujourd'hui, motive les un peu !"),
+                    ),
+                  ],
+                ),)
+              else if(counter > 0)
+                PreloadPageView.builder(
                 controller: pc,
                 scrollDirection: Axis.vertical,
                 itemCount: counter,
@@ -180,20 +246,25 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                   return !cachedTrainings.containsKey(index)
                       ? Padding(
                     padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.1),
-                    child: const LoadingPost(),
+                    child: const LoadingTraining(),
                   )
                       : Padding(
                     padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.11),
                     child: cachedTrainings[index],
                   );
                 },
-              ),
+              )
+              else
+                Padding(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.1),
+                  child: const LoadingTraining(),
+                ),
               Stack(
                 clipBehavior: Clip.none,
                 children: [
                   GlassContainer(
                     height: MediaQuery.of(context).size.height * 0.12,
-                    color: Color(0xFFF3F5F8).withOpacity(0.7),
+                    color: const Color(0xFFF3F5F8).withOpacity(0.7),
                     blur: 10,
                     child: Padding(
                       padding: EdgeInsets.symmetric(
@@ -213,7 +284,7 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                                     return CustomRectTween(begin: begin!, end: end!);
                                   },
                                   child: Padding(
-                                    padding: EdgeInsets.only(left: 100, right: 200, top: 100, bottom: 700),
+                                    padding: const EdgeInsets.only(left: 100, right: 200, top: 100, bottom: 700),
                                     child: Material(
                                       color: Colors.transparent,
                                       child: SizedBox(
@@ -262,28 +333,10 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                           Row(
                             children: [
                               Padding(
-                                padding: EdgeInsets.only(bottom: 5, right: 30),
+                                padding: const EdgeInsets.only(bottom: 5),
                                 child: GestureDetector(
                                   onTapUp: (t) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => AllSettings(),
-                                      ),
-                                    );
-                                  },
-                                  child: Icon(
-                                    CupertinoIcons.settings,
-                                    color: Colors.black.withOpacity(0.6),
-                                    size: 24,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 5),
-                                child: GestureDetector(
-                                  onTapUp: (t) {
-                                    pcbis.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                    pcbis.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                                   },
                                   child: Stack(
                                     clipBehavior: Clip.none,
@@ -323,6 +376,12 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                                   ),
                                 ),
                               ),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 170),
+                                width: tdypostbool ? 70: 0,
+                                height: 1,
+                                curve: Curves.easeOut,
+                              )
                             ],
                           ),
                         ],
@@ -333,101 +392,106 @@ class _FeedPageState extends State<FeedPage> with SingleTickerProviderStateMixin
                     future: UserModel.currentUser().notificationsloader,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return SizedBox();
+                        return const SizedBox();
                       } else if (snapshot.hasError) {
-                        return SizedBox();
+                        return const SizedBox();
                       } else if ((StoredNotification().nabo + StoredNotification().ncom + StoredNotification().nlike) == 0) {
-                        return SizedBox();
+                        return const SizedBox();
                       }
 
-                      return Positioned(
+                      return AnimatedPositioned(
                           bottom: -25,
-                          right: MediaQuery.of(context).size.width * 0.07 - 13,
-                          child: Container(
-                            child: ScaleTransition(
-                              scale: _scaleAnimation,
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Positioned(
-                                    top: -7,
-                                    right: 3,
-                                    child: Container(
-                                      height: 24,
-                                      width: 22,
-                                      decoration: BoxDecoration(
-                                          color: Colors.redAccent,
-                                          borderRadius: BorderRadius.circular(4)
+                          right: tdypostbool ? MediaQuery.of(context).size.width * 0.07 + 57 : MediaQuery.of(context).size.width * 0.07 - 12,
+                          duration: const Duration(milliseconds: 160),
+                          curve: Curves.easeOut,
+                          child: Visibility(
+                            visible: notifvisible,
+                            child: Container(
+                              child: ScaleTransition(
+                                scale: _scaleAnimation,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Positioned(
+                                      top: -7,
+                                      right: 3,
+                                      child: Container(
+                                        height: 24,
+                                        width: 22,
+                                        decoration: BoxDecoration(
+                                            color: Colors.redAccent,
+                                            borderRadius: BorderRadius.circular(4)
+                                        ),
+                                        transform: Matrix4.rotationZ(3.14159 / 4),
                                       ),
-                                      transform: Matrix4.rotationZ(3.14159 / 4),
                                     ),
-                                  ),
-                                  Container(
-                                      height: 32,
-                                      padding: EdgeInsets.symmetric(horizontal: 13),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(14),
-                                        color: Colors.redAccent,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          if(StoredNotification().nlike != 0)
-                                            Row(
-                                              children: [
-                                                Icon(CupertinoIcons.heart_fill, color: Colors.white, size: 14,),
-                                                SizedBox(width: 3,),
-                                                Text(
-                                                  StoredNotification().nlike < 10 ? StoredNotification().nlike.toString() : "9",
-                                                  style: const TextStyle(
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Colors.white,
+                                    Container(
+                                        height: 32,
+                                        padding: const EdgeInsets.symmetric(horizontal: 13),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(14),
+                                          color: Colors.redAccent,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            if(StoredNotification().nlike != 0)
+                                              Row(
+                                                children: [
+                                                  const Icon(CupertinoIcons.heart_fill, color: Colors.white, size: 14,),
+                                                  const SizedBox(width: 3,),
+                                                  Text(
+                                                    StoredNotification().nlike < 10 ? StoredNotification().nlike.toString() : "9",
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight: FontWeight.w700,
+                                                      color: Colors.white,
+                                                    ),
                                                   ),
+                                                ],
+                                              ),
+                                            if(StoredNotification().nabo != 0)
+                                              Padding(
+                                                padding: EdgeInsets.only(left: StoredNotification().nlike != 0 ? 4: 0),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(CupertinoIcons.person_solid, color: Colors.white, size: 14,),
+                                                    const SizedBox(width: 3,),
+                                                    Text(
+                                                      StoredNotification().nabo < 10 ? StoredNotification().nabo.toString() : "9",
+                                                      style: const TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.w700,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                          if(StoredNotification().nabo != 0)
-                                            Padding(
-                                              padding: EdgeInsets.only(left: StoredNotification().nlike != 0 ? 4: 0),
-                                              child: Row(
-                                                children: [
-                                                  Icon(CupertinoIcons.person_solid, color: Colors.white, size: 14,),
-                                                  SizedBox(width: 3,),
-                                                  Text(
-                                                    StoredNotification().nabo < 10 ? StoredNotification().nabo.toString() : "9",
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
                                               ),
-                                            ),
 
-                                          if(StoredNotification().ncom != 0)
-                                            Padding(
-                                              padding: EdgeInsets.only(left: StoredNotification().nabo != 0 && StoredNotification().nlike != 0 ? 6 : 0),
-                                              child: Row(
-                                                children: [
-                                                  Icon(CupertinoIcons.bubble_left_fill, color: Colors.white, size: 12,),
-                                                  SizedBox(width: 3,),
-                                                  Text(
-                                                    StoredNotification().ncom < 10 ? StoredNotification().ncom.toString() : "9",
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Colors.white,
+                                            if(StoredNotification().ncom != 0)
+                                              Padding(
+                                                padding: EdgeInsets.only(left: StoredNotification().nabo != 0 || StoredNotification().nlike != 0 ? 6 : 0),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(CupertinoIcons.bubble_left_fill, color: Colors.white, size: 14,),
+                                                    const SizedBox(width: 3,),
+                                                    Text(
+                                                      StoredNotification().ncom < 10 ? StoredNotification().ncom.toString() : "9",
+                                                      style: const TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.w700,
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                        ],
-                                      )
-                                  ),
-                                ],
+                                                  ],
+                                                ),
+                                              )
+                                          ],
+                                        )
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           )

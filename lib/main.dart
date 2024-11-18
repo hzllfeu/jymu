@@ -1,4 +1,3 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,9 +31,6 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-
-    await NotificationController.initializeLocalNotifications();
-    await NotificationController.initializeIsolateReceivePort();
 
     timeago.setLocaleMessages('fr', CustomFrenchMessages());
     final sharedPreferences = await SharedPreferences.getInstance();

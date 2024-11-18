@@ -48,29 +48,29 @@ class _CommentPageState extends State<CommentPage> {
                 children: [
                   DefaultTextStyle(
                     style: TextStyle(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.w700, fontSize: 20),
-                    child: Text("Commentaires"),
+                    child: const Text("Commentaires"),
                   ),
                 ],
               ),
-              const SizedBox(height: 20,),
+              const SizedBox(height: 10,),
               Container(
                 width: double.infinity,
                 height: 1,
-                color: Colors.black.withOpacity(0.07),
+                color: Colors.black.withOpacity(0.05),
               ),
               if (widget.trn.comments!.isNotEmpty)
                 Expanded(
-                  child: ListView.builder(
+                  child: ListView.separated(
                     itemCount: widget.trn.comments!.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 25), // espace entre les éléments
                     itemBuilder: (context, index) {
-                     if(index < widget.trn.comments!.length){
-                       Map<String, dynamic> comment = widget.trn.comments![index];
-                       final commentId = comment.keys.first;
-                       final commentDetails = comment.values.first;
-                       return Padding(padding: EdgeInsets.only(left: 15, right: 15, top: 25), child: CommentListComp(id: commentId, comment: commentDetails),);
-                     } else {
-                       return Container();
-                     }
+                      Map<String, dynamic> comment = widget.trn.comments![index];
+                      final commentId = comment.keys.first;
+                      final commentDetails = comment.values.first;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: CommentListComp(id: commentId, comment: commentDetails),
+                      );
                     },
                   ),
                 )
