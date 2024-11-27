@@ -164,7 +164,7 @@ class _QuestionSexeeState extends State<QuestionSexee> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 75),
+              SizedBox(height: 23 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width)),
               Column(
                 children: [
                   const SizedBox(height: 30),
@@ -194,7 +194,7 @@ class _QuestionSexeeState extends State<QuestionSexee> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  padding: EdgeInsets.symmetric(horizontal: 23 * (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width)),
                                   child: Text(
                                     "Choisissez une des deux réponses",
                                     style: TextStyle(

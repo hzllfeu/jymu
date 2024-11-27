@@ -152,27 +152,35 @@ class _IntroTimmyState extends State<IntroTimmy> with SingleTickerProviderStateM
                           ),
                         ),
                         SizedBox(height: 115),
-                        Text(
-                          "Ah oui, et une dernière chose...",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black.withOpacity(0.8),
-                            fontFamily: 'Roboto',
+                        // Texte principal
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            "Ah oui, et une dernière chose...",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black.withOpacity(0.8),
+                              fontFamily: 'Roboto',
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 20),
-                        Text(
-                          "Rencontrez Timmy, notre adorable assistant panda ! 🐼\n\n"
-                              "Timmy va vous accompagner tout au long du questionnaire. Il est là pour rendre votre expérience agréable et s'assurer que vous recevez un programme parfaitement personnalisé. Ne vous inquiétez pas, Timmy est là pour vous aider à chaque étape du processus !",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black.withOpacity(0.7),
-                            fontFamily: 'Roboto',
+                        // Texte description Timmy
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            "Rencontrez Timmy, notre adorable assistant panda ! 🐼\n\n"
+                                "Timmy va vous accompagner tout au long du questionnaire. Il est là pour rendre votre expérience agréable et s'assurer que vous recevez un programme parfaitement personnalisé. Ne vous inquiétez pas, Timmy est là pour vous aider à chaque étape du processus !",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black.withOpacity(0.7),
+                              fontFamily: 'Roboto',
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
@@ -222,13 +230,16 @@ class _IntroTimmyState extends State<IntroTimmy> with SingleTickerProviderStateM
                           ],
                         ),
                         child: Center(
-                          child: Text(
-                            "Suivant",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Roboto',
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20), // Padding horizontal ajouté
+                            child: Text(
+                              "Suivant",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Roboto',
+                              ),
                             ),
                           ),
                         ),
