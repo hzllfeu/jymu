@@ -360,7 +360,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                               GestureDetector(
                                 onTapUp: (t)  {
                                   if(!posting){
-                                    Navigator.pop(context);
+                                    Navigator.pop(context, "");
                                   }
                                 },
                                 child: GlassContainer(
@@ -368,7 +368,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                     color: Colors.white.withOpacity(0.8),
                                     blur: 10,
                                     borderRadius: BorderRadius.circular(16),
-                                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                                    child: Padding(padding: const EdgeInsets.symmetric(horizontal: 15),
                                       child: Center(
                                         child: Text(
                                           "Annuler",
@@ -385,21 +385,21 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
                                     posting = true;
                                   });
                                   Haptics.vibrate(HapticsType.light);
-                                  await pushToServer(desc, tags);
+                                  String tmp = await pushToServer(desc, tags);
                                   Haptics.vibrate(HapticsType.success);
                                   setState(() {
                                     posting = false;
                                   });
-                                  Navigator.pop(context);
+                                  Navigator.pop(context, tmp);
                                   await Future.delayed(const Duration(milliseconds: 300));
-                                  InterMessageManager().showmessage(text: "Posté", context: context);
+                                  InterMessageManager().showmessage(text: "Posté");
                                 },
                                 child: GlassContainer(
                                     height: 38,
                                     color: Colors.white.withOpacity(0.8),
                                     blur: 10,
                                     borderRadius: BorderRadius.circular(16),
-                                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                                    child: Padding(padding: const EdgeInsets.symmetric(horizontal: 15),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
@@ -976,12 +976,13 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> pushToServer(String desc, List<dynamic> tags) async {
+  Future<String> pushToServer(String desc, List<dynamic> tags) async {
     String firstPath = '${UserModel.currentUser().id}_${Path.basename(fistImage.path)}}.jpg';
     String secondPath = '${UserModel.currentUser().id}_${Path.basename(secondImage.path)}}.jpg';
     await uploadToStorage(fistImage, firstPath);
     await uploadToStorage(secondImage, secondPath);
-    await postTraining(firstPath, secondPath, desc, tags);
+    String tmp = await postTraining(firstPath, secondPath, desc, tags);
+    return tmp;
   }
 }
 
@@ -1000,7 +1001,7 @@ Future<void> uploadToStorage(File imageFile, String fileName) async {
   }
 }
 
-Future<void> postTraining(String path1, String path2, String desc, List<dynamic> tags) async {
+Future<String> postTraining(String path1, String path2, String desc, List<dynamic> tags) async {
   final uuid = Uuid();
   final trainingCollection = FirebaseFirestore.instance.collection('trainings');
 
@@ -1025,4 +1026,5 @@ Future<void> postTraining(String path1, String path2, String desc, List<dynamic>
 
   UserModel.currentUser().trainings?.add([{'training': trainingId, 'timestamp': Timestamp.now()}]);
   addTraining(UserModel.currentUser().id!, trainingId, Timestamp.now());
+  return trainingId;
 }

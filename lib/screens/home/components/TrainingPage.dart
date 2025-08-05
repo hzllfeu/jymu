@@ -30,6 +30,7 @@ class _TrainingPageState extends State<TrainingPage> {
     return Hero(tag: "${widget.type}${widget.trn.id!}",
     child: Scaffold(
         body: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
           slivers: [
             CupertinoSliverRefreshControl(
               onRefresh: () async {

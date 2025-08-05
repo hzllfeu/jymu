@@ -78,9 +78,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver{
             builder: (context) => InitScreen(),
           ),
         );
-        InterMessageManager().showmessage(context: context, text: "Connecté");
+        InterMessageManager().showmessage(text: "Connecté");
       } else {
-        InterMessageManager().showmessage(context: context, text: "Erreur de connexion");
+        InterMessageManager().showmessage(text: "Erreur de connexion");
         setState(() {
           fireload = true;
         });

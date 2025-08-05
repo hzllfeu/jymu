@@ -48,6 +48,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        navigatorKey: InterMessageManager().navigatorKey,
       debugShowCheckedModeBanner: false,
         home: AuthWrapper()
     );

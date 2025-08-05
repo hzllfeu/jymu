@@ -39,7 +39,7 @@ class _InputPageState extends State<InputPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -53,7 +53,7 @@ class _InputPageState extends State<InputPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             Container(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               height: MediaQuery.of(context).size.height / 3.8,
               decoration: const BoxDecoration(
                 color: Color(0xFFF3F5F8),
@@ -79,7 +79,7 @@ class _InputPageState extends State<InputPage> {
                                   fit: BoxFit.scaleDown,
                                   child:Text(
                                     widget.text,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontWeight: FontWeight.w700, fontSize: 28),
                                   ),
                                 ),
@@ -95,8 +95,8 @@ class _InputPageState extends State<InputPage> {
                           children: [
                             CupertinoTextField(
                               controller: _usernameController,
-                              focusNode: _focusNode, // Ajoutez ceci
-                              padding: EdgeInsets.all(15),
+                              focusNode: _focusNode,
+                              padding: const EdgeInsets.all(15),
                               cursorColor: Colors.redAccent,
                               maxLength: widget.limit,
                               placeholder: "Ecrire ici",

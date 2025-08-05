@@ -110,7 +110,7 @@ class _CommentPageState extends State<CommentPage> {
                   setState(() {
 
                   });
-                  InterMessageManager().showmessage(text: "Commentaire ajouté", context: context);
+                  InterMessageManager().showmessage(text: "Commentaire ajouté");
                 }
               },
               child: GlassContainer(

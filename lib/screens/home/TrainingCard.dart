@@ -1205,7 +1205,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
               Navigator.pop(context);
               await training.report("No sport");
               Haptics.vibrate(HapticsType.light);
-              InterMessageManager().showmessage(text: "Signalement envoyé", context: context);
+              InterMessageManager().showmessage(text: "Signalement envoyé");
             },
             child: const Text("Pas de rapport avec le sport"),
           ),
@@ -1223,7 +1223,7 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
               if (result != null) {
                 await training.report(result.toString().trim());
                 Haptics.vibrate(HapticsType.light);
-                InterMessageManager().showmessage(text: "Signalement envoyé", context: context);
+                InterMessageManager().showmessage(text: "Signalement envoyé",);
               }
             },
             child: const Text('Signaler'),
@@ -1251,7 +1251,11 @@ class _TrainingCardState extends State<TrainingCard> with TickerProviderStateMix
                         onPressed: () {
                           Navigator.pop(context);
                           training.deletePost();
-                          InterMessageManager().showmessage(text: "Post supprimé", context: context);
+                          InterMessageManager().showmessage(text: "Post supprimé");
+                          Navigator.pop(context);
+                          setState(() {
+
+                          });
                         },
                         child: const Text('Oui'),
                       ),

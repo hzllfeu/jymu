@@ -101,6 +101,9 @@ class TrainingModel {
     });
 
     comments?.add(newComment);
+    if(CachedData().trainings.containsKey(id)){
+      CachedData().trainings[id]?.comments?.add(newComment);
+    }
 
     UserModel targetUser = UserModel();
     if(CachedData().users.containsKey(userId)){
@@ -143,6 +146,9 @@ class TrainingModel {
         });
 
         comments?.remove(commentToDelete);
+        if(CachedData().trainings.containsKey(id)){
+          CachedData().trainings[id]?.comments?.remove(commentToDelete);
+        }
       }
     }
   }

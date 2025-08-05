@@ -240,7 +240,7 @@ class _CommentListCompState extends State<CommentListComp> {
                           Navigator.pop(context);
                           training.deleteComment(widget.id);
                           Haptics.vibrate(HapticsType.success);
-                          InterMessageManager().showmessage(text: "Commentaire supprimé", context: context);
+                          InterMessageManager().showmessage(text: "Commentaire supprimé");
                           setState(() {
 
                           });

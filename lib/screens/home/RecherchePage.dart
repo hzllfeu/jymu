@@ -220,6 +220,7 @@ class _RecherchePageState extends State<RecherchePage> with TickerProviderStateM
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
                     slivers: [
                       CupertinoSliverRefreshControl(
                         onRefresh: () async {

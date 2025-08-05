@@ -38,6 +38,7 @@ import 'InputPage.dart';
 import 'home/LoadingProfile.dart';
 import 'home/components/TagList.dart';
 import 'home/settings/AllSettings.dart';
+import 'init_screen.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);
 
@@ -1361,6 +1362,7 @@ class _ProfilPageBisState extends State<ProfilPageBis> with TickerProviderStateM
                 if (result != null) {
                   await targetUser.report(result.toString().trim());
                   Haptics.vibrate(HapticsType.light);
+                  InterMessageManager().showmessage(text: "Utilisateur signalé");
                 }
               },
               child: const Text('Signaler'),

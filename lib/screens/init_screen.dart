@@ -132,7 +132,6 @@ class _InitScreenState extends State<InitScreen> {
     currentSelectedIndex = widget.initialIndex;
     loadProfile();
     data = getPostData();
-    var manager = InterMessageManager();
 
     /*
     manager.onMessageChanged.addListener(() {
@@ -174,7 +173,6 @@ class _InitScreenState extends State<InitScreen> {
           CupertinoTabBar(
             onTap: updateCurrentIndex,
             currentIndex: currentSelectedIndex,
-
             items: [
               BottomNavigationBarItem(
                 icon: HugeIcon(
@@ -190,12 +188,12 @@ class _InitScreenState extends State<InitScreen> {
               ),
               BottomNavigationBarItem(
                 icon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArtificialIntelligence04,
+                  icon: HugeIcons.strokeRoundedAiInnovation02,
                   color: Colors.black.withOpacity(0.6),
                   size: 20,
                 ),
                 activeIcon: const HugeIcon(
-                  icon: HugeIcons.strokeRoundedArtificialIntelligence04,
+                  icon: HugeIcons.strokeRoundedAiInnovation02,
                   color: Colors.redAccent,
                   size: 22,
                 ),
@@ -714,13 +712,22 @@ class _InitScreenState extends State<InitScreen> {
                   return Positioned(
                     top: -30,
                     child: GestureDetector(
-                      onTapUp: (t) {
-                        Navigator.push(
+                      onTapUp: (t) async {
+                        String id = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => CameraPage(),
                           ),
                         );
+                        if(id.isNotEmpty){
+                          UserModel.currentUser().trainings!.add(id);
+                          postslist.clear();
+                          imagelist.clear();
+                          data = getPostData();
+                        }
+                        setState(() {
+
+                        });
                       },
                       child: Container(
                         width: 60,
@@ -833,7 +840,7 @@ class _InitScreenState extends State<InitScreen> {
               bottom: postslist.length == 1 ? 350 : 310,
               right: postslist.length == 1 ? 95 : null,
               child: Listener(
-                onPointerUp: (event) {
+                onPointerUp: (event) async {
                   if(postslist.length > 1){
                     Haptics.vibrate(HapticsType.light);
                     Navigator.push(
@@ -846,12 +853,21 @@ class _InitScreenState extends State<InitScreen> {
                       ),
                     );
                   } else if(postslist.length == 1){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CameraPage(),
-                      ),
-                    );
+                  String id = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CameraPage(),
+                        ),
+                      );
+                      if(id.isNotEmpty){
+                        UserModel.currentUser().trainings!.add(id);
+                        postslist.clear();
+                        imagelist.clear();
+                        data = getPostData();
+                      }
+                      setState(() {
+
+                      });
                   }
                 },
                 child: Container(
@@ -866,7 +882,7 @@ class _InitScreenState extends State<InitScreen> {
               bottom: postslist.length == 2 ? 350 : 310,
               right: 50,
               child: Listener(
-                onPointerUp: (event) {
+                onPointerUp: (event) async {
                   if(postslist.length > 2){
                     Haptics.vibrate(HapticsType.light);
                     Navigator.push(
@@ -879,12 +895,21 @@ class _InitScreenState extends State<InitScreen> {
                       ),
                     );
                   } else if(postslist.length == 2){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CameraPage(),
-                      ),
-                    );
+                      String id = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CameraPage(),
+                        ),
+                      );
+                      if(id.isNotEmpty){
+                        UserModel.currentUser().trainings!.add(id);
+                        postslist.clear();
+                        imagelist.clear();
+                        data = getPostData();
+                      }
+                      setState(() {
+
+                      });
                   }
                 },
                 child: Container(
@@ -951,6 +976,8 @@ class _InitScreenState extends State<InitScreen> {
 class InterMessageManager {
   static final InterMessageManager _instance = InterMessageManager._internal();
 
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   bool show = false;
   String txt = "";
   Duration entryd = const Duration(milliseconds: 200);
@@ -967,12 +994,14 @@ class InterMessageManager {
     return _instance;
   }
 
+  /// Attach the navigator key to the root navigator
+  GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
+
   Future<void> showmessage({
-    required BuildContext context,
+    required String text,
     Duration entry = const Duration(milliseconds: 200),
     Duration mid = const Duration(milliseconds: 3500),
     Duration exit = const Duration(milliseconds: 200),
-    String text = "",
   }) async {
     if (show) {
       return; // Évite les superpositions multiples
@@ -984,8 +1013,16 @@ class InterMessageManager {
     txt = text;
     show = true;
 
+    final overlayState = _navigatorKey.currentState?.overlay;
+
+    if (overlayState == null) {
+      // Impossible de trouver l'Overlay, probablement parce que l'app n'est pas initialisée.
+      show = false;
+      return;
+    }
+
     _overlayEntry = _createOverlayEntry();
-    Overlay.of(context)?.insert(_overlayEntry!);
+    overlayState.insert(_overlayEntry!);
 
     await Future.delayed(const Duration(milliseconds: 100));
 
@@ -1006,10 +1043,6 @@ class InterMessageManager {
     show = false;
     txt = "";
   }
-
-  bool playentry = false;
-  bool playmid = false;
-  bool playexit = false;
 
   OverlayEntry _createOverlayEntry() {
     return OverlayEntry(
@@ -1076,6 +1109,7 @@ class InterMessageManager {
       ),
     );
   }
+
   double _calculateWidgetWidth() {
     const double basePadding = 24;
     const double charWidth = 8;

@@ -157,7 +157,7 @@ class _ModifyAccountState extends State<ModifyAccount> {
                         Haptics.vibrate(HapticsType.success);
                         Navigator.pop(context);
                         await Future.delayed(const Duration(milliseconds: 300));
-                        InterMessageManager().showmessage(text: "Enregistré", context: context);
+                        InterMessageManager().showmessage(text: "Enregistré");
                       }
                     },
                     child: GlassContainer(
